@@ -121,6 +121,13 @@
 					"Emotion.Face.Picture":                    "Private.V2C.Emotion.Face.Picture"
 				}
 			}
+		},
+		{
+			"Plugin": "/usr/lib/aos/vis_plugins/telemetryemulatoradapter.so",
+			"Disabled": false,
+			"Params": {
+				"SensorURL": "http://localhost:8800"
+			}
 		}
 	]
 }
