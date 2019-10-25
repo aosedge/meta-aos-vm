@@ -15,6 +15,8 @@ IMAGE_ROOTFS_EXTRA_SPACE_append = "${@bb.utils.contains("DISTRO_FEATURES", "syst
 IMAGE_INSTALL_append = " \
     aos-servicemanager \
     aos-vis \
+    openssl-bin \
+    provisioning \
 "
 
 # System packages
