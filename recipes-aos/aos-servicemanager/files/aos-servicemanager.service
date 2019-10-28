@@ -1,7 +1,7 @@
 [Unit]
 Description=AOS Service Manager
 Requires=network-online.target aos-vis.service
-After=network-online.target aos-vis.service
+After=network-online.target aos-vis.service aos-updatemanager.service
 
 [Service]
 WorkingDirectory=/var/aos/servicemanager
