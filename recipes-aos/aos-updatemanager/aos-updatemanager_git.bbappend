@@ -16,8 +16,6 @@ inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
 
-HOST_CC_ARCH = ""
-
 FILES_${PN} += " \
     ${systemd_system_unitdir}/aos-updatemanager.service \
     /var/aos/updatemanager/data/*.pem \

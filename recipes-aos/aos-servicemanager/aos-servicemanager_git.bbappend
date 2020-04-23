@@ -63,7 +63,7 @@ pkg_postinst_${PN}() {
         echo '127.0.0.1	wwwivi' >> $D${sysconfdir}/hosts
     fi
 
-    sed -ie '/^\/dev\/root/ s/defaults/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
+    sed -ie '/^\/dev\/root/ s/\<defaults\>/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
 }
 
 pkg_postinst_ontarget_${PN} () {

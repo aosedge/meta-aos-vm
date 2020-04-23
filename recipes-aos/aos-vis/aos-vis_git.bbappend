@@ -17,8 +17,6 @@ inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-vis.service"
 
-HOST_CC_ARCH = ""
-
 FILES_${PN} += " \
     ${systemd_system_unitdir}/aos-vis.service \
     /var/aos/vis/data/*.pem \
@@ -38,8 +36,7 @@ python do_configure_adapters() {
         data = json.load(f)
 
     for i, adapter_data in enumerate(data['Adapters']):
-        adapter_name = os.path.splitext(os.path.basename(adapter_data['Plugin']))[0]
-        if not adapter_name in d.getVar("PLUGINS").split():
+        if not adapter_data['Plugin'] in d.getVar("PLUGINS").split():
             del data['Adapters'][i]
 
     print(json.dumps(data, indent=4))
