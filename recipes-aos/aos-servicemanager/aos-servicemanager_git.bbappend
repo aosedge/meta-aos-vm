@@ -63,6 +63,11 @@ pkg_postinst_${PN}() {
         echo '127.0.0.1	wwwivi' >> $D${sysconfdir}/hosts
     fi
 
+    # Add wwwaosum to /etc/hosts
+    if ! grep -q 'wwwaosum' $D${sysconfdir}/hosts ; then
+        echo '127.0.0.1	wwwaosum' >> $D${sysconfdir}/hosts
+    fi
+
     sed -ie '/^\/dev\/root/ s/\<defaults\>/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
 }
 
