@@ -4,6 +4,7 @@ SRC_URI_append = " \
     file://aos_servicemanager.cfg \
     file://aos-servicemanager.service \
     file://ipforwarding.conf \
+    file://model_name.txt \
     file://root_dev.conf \
     file://rootCA.crt \
 "
@@ -50,6 +51,9 @@ do_install_append() {
 
     install -d ${D}${datadir}/ca-certificates/aos
     install -m 0644 ${WORKDIR}/rootCA.crt ${D}${datadir}/ca-certificates/aos
+
+    install -d ${D}${sysconfdir}/aos
+    install -m 0644 ${WORKDIR}/model_name.txt ${D}${sysconfdir}/aos
 }
 
 pkg_postinst_${PN}() {
