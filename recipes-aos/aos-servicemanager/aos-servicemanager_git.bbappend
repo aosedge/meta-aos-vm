@@ -46,9 +46,6 @@ do_install_append() {
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
 
-    install -d ${D}${sysconfdir}/tmpfiles.d
-    install -m 0644 ${WORKDIR}/root_dev.conf ${D}${sysconfdir}/tmpfiles.d
-
     install -d ${D}${datadir}/ca-certificates/aos
     install -m 0644 ${WORKDIR}/rootCA.crt ${D}${datadir}/ca-certificates/aos
 
@@ -72,7 +69,7 @@ pkg_postinst_${PN}() {
         echo '127.0.0.1	wwwaosum' >> $D${sysconfdir}/hosts
     fi
 
-    sed -ie '/^\/dev\/root/ s/\<defaults\>/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
+    sed -ie '/\/var\/aos/ s/\<defaults\>/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
 }
 
 pkg_postinst_ontarget_${PN} () {
