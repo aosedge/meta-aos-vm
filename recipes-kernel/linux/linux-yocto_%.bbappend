@@ -6,4 +6,5 @@ SRC_URI += "\
     file://enable_cgroups.cfg \
     file://enable_overlay.cfg \
     file://iptables.cfg \
+    file://enable_tpm.cfg \
 "
