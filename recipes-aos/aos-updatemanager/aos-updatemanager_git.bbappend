@@ -10,29 +10,38 @@ AOS_UM_PLUGINS ?= "\
     testmodule \
 "
 
-PLUGINS = "${AOS_UM_PLUGINS}"
-
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
-
 FILES_${PN} += " \
+    ${sysconfdir}/aos/aos_updatemanager.cfg \
     ${systemd_system_unitdir}/aos-updatemanager.service \
-    /var/aos/updatemanager/data/*.pem \
-    /var/aos/updatemanager/aos_updatemanager.cfg \
+    /var/aos/updatemanager/crypt/*.pem \
 "
+
+do_prepare_modules() {
+    file="${S}/src/${GO_IMPORT}/updatemodules/modules.go"
+
+    echo 'package plugins' > ${file}
+    echo 'import (' >> ${file}
+
+    for plugin in ${AOS_UM_PLUGINS}; do
+        echo "\t_ \"aos_updatemanager/updatemodules/${plugin}\"" >> ${file}
+    done
+
+    echo ')' >> ${file}
+}
 
 python do_configure_modules() {
     import json
 
-    file_name = d.getVar("D")+"/var/aos/updatemanager/aos_updatemanager.cfg"
+    file_name = d.getVar("D")+"/etc/aos/aos_updatemanager.cfg"
 
     with open(file_name) as f:
         data = json.load(f)
 
-    for i, adapter_data in enumerate(data['Modules']):
+    for i, adapter_data in enumerate(data['UpdateModules']):
         adapter_name = os.path.splitext(os.path.basename(adapter_data['Plugin']))[0]
-        if not adapter_name in d.getVar("PLUGINS").split():
+        if not adapter_name in d.getVar("AOS_UM_PLUGINS").split():
             del data['Modules'][i]
 
     print(json.dumps(data, indent=4))
@@ -42,14 +51,15 @@ python do_configure_modules() {
 }
 
 do_install_append() {
-    install -d ${D}/var/aos/updatemanager
-    install -m 0644 ${WORKDIR}/aos_updatemanager.cfg ${D}/var/aos/updatemanager/aos_updatemanager.cfg
+    install -d ${D}${sysconfdir}/aos
+    install -m 0644 ${WORKDIR}/aos_updatemanager.cfg ${D}${sysconfdir}/aos
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
 
-    install -d ${D}/var/aos/updatemanager/data
-    install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}/var/aos/updatemanager/data
+    install -d ${D}/var/aos/updatemanager/crypt
+    install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}/var/aos/updatemanager/crypt
 }
 
 addtask configure_modules after do_install before do_populate_sysroot
+addtask prepare_modules after do_unpuck before do_compile

@@ -5,7 +5,7 @@ After=network-online.target aos-vis.service aos-updatemanager.service
 
 [Service]
 WorkingDirectory=/var/aos/servicemanager
-ExecStart=/usr/bin/aos_servicemanager -c /var/aos/servicemanager/aos_servicemanager.cfg
+ExecStart=/usr/bin/aos_servicemanager -c /etc/aos/aos_servicemanager.cfg
 Restart=always
 RestartSec=10
 

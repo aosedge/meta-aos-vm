@@ -27,19 +27,13 @@ RDEPENDS_${PN} += "\
 "
 
 FILES_${PN} += " \
-    /var/aos/servicemanager/aos_servicemanager.cfg \
-    ${datadir}/ca-certificates/aos/*.crt \
+    ${sysconfdir}/aos/aos_servicemanager.cfg \
     ${sysconfdir}/sysctl.d/*.conf \
-    ${sysconfdir}/tmpfiles.d/*.conf \
     ${systemd_system_unitdir}/*.service \
+    ${datadir}/ca-certificates/aos/*.crt \
 "
 
 do_install_append() {
-    install -d ${D}/var/aos/servicemanager
-    install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}/var/aos/servicemanager
-
-    install -d ${D}/var/aos/servicemanager/data/fcrypt
-
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
 
@@ -51,6 +45,9 @@ do_install_append() {
 
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/model_name.txt ${D}${sysconfdir}/aos
+    install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}${sysconfdir}/aos
+
+    install -d ${D}/var/aos/servicemanager
 }
 
 pkg_postinst_${PN}() {

@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 WorkingDirectory=/var/aos/vis
-ExecStart=/usr/bin/aos_vis -c /var/aos/vis/visconfig.json
+ExecStart=/usr/bin/aos_vis -c /etc/aos/aos_vis.cfg
 Restart=always
 RestartSec=10
 
