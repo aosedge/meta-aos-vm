@@ -31,7 +31,7 @@ do_prepare_adapters() {
     echo 'package plugins' > ${file}
     echo 'import (' >> ${file}
 
-    for plugin in ${AOS_UM_PLUGINS}; do
+    for plugin in ${AOS_VIS_PLUGINS}; do
         echo "\t_ \"aos_vis/plugins/${plugin}\"" >> ${file}
     done
 
