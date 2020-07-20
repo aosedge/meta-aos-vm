@@ -65,8 +65,6 @@ pkg_postinst_${PN}() {
     if ! grep -q 'wwwaosum' $D${sysconfdir}/hosts ; then
         echo '127.0.0.1	wwwaosum' >> $D${sysconfdir}/hosts
     fi
-
-    sed -ie '/\/var\/aos/ s/\<defaults\>/defaults,usrjquota=aquota.user,jqfmt=vfsv0/' $D/etc/fstab
 }
 
 pkg_postinst_ontarget_${PN} () {
