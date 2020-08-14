@@ -8,6 +8,7 @@ SRC_URI_append = "\
 AOS_UM_PLUGINS ?= "\
     sshmodule \
     testmodule \
+    filemodule \
 "
 
 inherit systemd
