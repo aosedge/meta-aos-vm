@@ -63,4 +63,4 @@ do_install_append() {
 }
 
 addtask configure_modules after do_install before do_populate_sysroot
-addtask prepare_modules after do_unpuck before do_compile
+addtask prepare_modules after do_unpack before do_compile
