@@ -40,10 +40,13 @@ python do_configure_modules() {
     with open(file_name) as f:
         data = json.load(f)
 
-    for i, adapter_data in enumerate(data['UpdateModules']):
-        adapter_name = os.path.splitext(os.path.basename(adapter_data['Plugin']))[0]
-        if not adapter_name in d.getVar("AOS_UM_PLUGINS").split():
-            del data['Modules'][i]
+    newModules = []
+
+    for module in data['UpdateModules']:
+        if module['Plugin'] in d.getVar("AOS_UM_PLUGINS").split():
+            newModules.append(module)
+
+    data['UpdateModules'] = newModules
 
     print(json.dumps(data, indent=4))
 
@@ -63,4 +66,4 @@ do_install_append() {
 }
 
 addtask configure_modules after do_install before do_populate_sysroot
-addtask prepare_modules after do_unpuck before do_compile
+addtask prepare_modules after do_unpack before do_compile

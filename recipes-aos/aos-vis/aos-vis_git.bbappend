@@ -46,9 +46,13 @@ python do_configure_adapters() {
     with open(file_name) as f:
         data = json.load(f)
 
-    for i, adapter_data in enumerate(data['Adapters']):
-        if not adapter_data['Plugin'] in d.getVar("AOS_VIS_PLUGINS").split():
-            del data['Adapters'][i]
+    newAdapters = []
+
+    for adapter in data['Adapters']:
+        if adapter['Plugin'] in d.getVar("AOS_VIS_PLUGINS").split():
+            newAdapters.append(adapter)
+
+    data['Adapters'] = newAdapters
 
     print(json.dumps(data, indent=4))
 
@@ -78,4 +82,4 @@ do_install_append() {
 }
 
 addtask configure_adapters after do_install before do_populate_sysroot
-addtask prepare_adapters after do_unpuck before do_compile
+addtask prepare_adapters after do_unpack before do_compile
