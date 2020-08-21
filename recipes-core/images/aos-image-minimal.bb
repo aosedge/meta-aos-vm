@@ -22,6 +22,7 @@ IMAGE_INSTALL_append = " \
     aos-updatemanager \
     aos-vis \
     openssl-bin \
+    cni \
 "
 
 # System packages
