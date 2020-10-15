@@ -28,7 +28,7 @@ class BootimgEFIPlugin(SourcePlugin):
     This plugin supports GRUB 2 and systemd-boot bootloaders.
     """
 
-    name = 'bootimg-efi'
+    name = 'aos-bootimg-efi'
 
     @classmethod
     def do_configure_grubefi(cls, hdddir, creator, cr_workdir, source_params):
@@ -278,7 +278,7 @@ class BootimgEFIPlugin(SourcePlugin):
                      extra_blocks, part.mountpoint, blocks)
 
         # dosfs image, created by mkdosfs
-        bootimg = "%s/boot.img" % cr_workdir
+        bootimg = "%s/booti%d.img" % (cr_workdir, part.lineno)
 
         label = part.label if part.label else "ESP"
 
