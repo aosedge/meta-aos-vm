@@ -30,4 +30,5 @@ IMAGE_INSTALL_append = " \
     netconfig \
     openssh \
     tzdata \
+    efibootmgr \
 "
