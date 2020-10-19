@@ -2,7 +2,7 @@
 # long-description: Creates a partitioned EFI disk image for genericx86* machines
 part boot0 --source aos-bootimg-efi --sourceparams="loader=grub-efi" --ondisk hda --label msdos --active --align 1024 --size 128M
 part boot1 --source aos-bootimg-efi --sourceparams="loader=grub-efi" --ondisk hda --label msdos --align 1024 --size 128M
-part / --source rootfs --ondisk hda --fstype=ext4 --label platform --align 1024 --use-uuid
+part / --source rootfs --ondisk hda --fstype=ext4 --label platform --align 1024 --size 512M --use-uuid
 part /var/aos --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var/aos --ondisk hda --fstype=ext4 --label aos --align 1024 --size 512M --fsoptions="defaults,usrjquota=aquota.user,jqfmt=vfsv0"
 part swap --ondisk hda --size 44 --label swap1 --fstype=swap
 
