@@ -24,6 +24,4 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-certificatemanager.service ${D}${systemd_system_unitdir}/aos-certificatemanager.service
-
-    install -d ${D}/var/aos/certificatemanager
 }
