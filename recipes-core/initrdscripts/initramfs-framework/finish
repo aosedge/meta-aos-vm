@@ -37,15 +37,24 @@ mount_data() {
 		echo "Userdata partition is not set, skipping initramfs"
 		do_switchroot
 	}
+
 	mkdir -p /data
 	mount $bootparam_userdata /data
+
 	switch_if_fail "Error: can't mount /data"
+
 	mkdir -p /data/var/work
 	[ "$(ls -A /data/var/work)" ] && rm -rf /data/var/work/*
 	mkdir -p /data/var/upper
+
 	mkdir -p /data/etc/work
 	[ "$(ls -A /data/etc/work)" ] && rm -rf /data/etc/work/*
 	mkdir -p /data/etc/upper
+
+	mkdir -p /data/home/work
+	[ "$(ls -A /data/home/work)" ] && rm -rf /data/home/work/*
+	mkdir -p /data/home/upper
+
 	rm -rf $UPDATE_DIR/$FAIL_FLAG
 }
 
@@ -144,6 +153,7 @@ prepare_rootfs() {
 	mkdir -p $ROOTFS_DIR/var
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/var/,workdir=/data/var/work,upperdir=/data/var/upper $ROOTFS_DIR/var
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/,workdir=/data/etc/work,upperdir=/data/etc/upper $ROOTFS_DIR/etc
+	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
 }
 
 finish_run() {
