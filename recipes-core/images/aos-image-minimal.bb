@@ -9,6 +9,8 @@ LICENSE = "MIT"
 inherit core-image
 inherit extrausers
 
+IMAGE_FEATURES_append = " read-only-rootfs"
+
 # Set password to the root user. This is the requirement of the provisioning script.
 EXTRA_USERS_PARAMS = "usermod -P Password1 root;"
 

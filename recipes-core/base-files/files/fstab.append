@@ -1,0 +1,2 @@
+# Mount /var/aos to separate partition, enable disk quotas
+/dev/hda4            /var/aos             auto       defaults,usrjquota=aquota.user,jqfmt=vfsv0 0  0

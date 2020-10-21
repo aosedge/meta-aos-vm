@@ -1,0 +1,187 @@
+#!/bin/sh
+# Copyright (C) 2011 O.S. Systems Software LTDA.
+# Licensed on MIT
+
+finish_enabled() {
+	return 0
+}
+
+UPDATED_FLAG="updated"
+FAIL_FLAG="failed"
+DO_UPDATE_FLAG="do_update"
+DO_APPLY_FLAG="do_apply"
+UPDATE_DIR="/data/var/upper/update/image/rootfs"
+
+do_switchroot() {
+	echo "Moving /dev, /proc and /sys onto rootfs..."
+	mount --move /dev $ROOTFS_DIR/dev
+	mount --move /proc $ROOTFS_DIR/proc
+	mount --move /sys $ROOTFS_DIR/sys
+
+	cd $ROOTFS_DIR
+	exec switch_root -c /dev/console $ROOTFS_DIR ${bootparam_init:-/sbin/init}
+}
+
+switch_if_fail() {
+	if [ $? -ne 0 ]; then
+		echo "$1. Proceeding to switch_root"
+		[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
+		do_switchroot
+	fi
+}
+
+[[ -z $ROOTFS_DIR ]] && ROOTFS_DIR="/rootfs"
+
+mount_data() {
+	[[ -z $bootparam_userdata ]] && {
+		echo "Userdata partition is not set, skipping initramfs"
+		do_switchroot
+	}
+	mkdir -p /data
+	mount $bootparam_userdata /data
+	switch_if_fail "Error: can't mount /data"
+	mkdir -p /data/var/work
+	[ "$(ls -A /data/var/work)" ] && rm -rf /data/var/work/*
+	mkdir -p /data/var/upper
+	mkdir -p /data/etc/work
+	[ "$(ls -A /data/etc/work)" ] && rm -rf /data/etc/work/*
+	mkdir -p /data/etc/upper
+	rm -rf $UPDATE_DIR/$FAIL_FLAG
+}
+
+get_update_type() {
+	local update=$(cat $UPDATE_DIR/$DO_UPDATE_FLAG)
+	if [ -z $update ]; then
+		echo "full"
+	else
+		echo $update
+	fi
+}
+
+#Possible actions are
+#full
+#incremental
+#apply
+#ignore
+get_action() {
+	[[ -f "$UPDATE_DIR/$DO_APPLY_FLAG" ]] && {
+		echo "apply"
+		return
+	}
+
+	[[ -f "$UPDATE_DIR/$UPDATED_FLAG" ]] && {
+		echo "ignore"
+		return
+	}
+
+	[[ -f "$UPDATE_DIR/$DO_UPDATE_FLAG" ]] && {
+		echo "$(get_update_type)"
+		return
+	}
+
+	echo "ignore"
+}
+
+set_updated_part_flag() {
+	echo "Set updated partition flag $UPDATE_DIR/$UPDATED_FLAG"
+	touch $UPDATE_DIR/$UPDATED_FLAG
+}
+
+do_apply_update() {
+	update_type="$(get_update_type)"
+	local update_file="$(find $UPDATE_DIR -name "*.squashfs" | head -n1)"
+	echo "Got update file $update_file"
+	mkdir -p /update_layer
+	mount $update_file /update_layer
+	switch_if_fail "Error: can't mount $update_file"
+	mount -o remount,rw $ROOTFS_DIR
+	switch_if_fail "Error: can't remount rootfs"
+
+	if [ x$update_type == x"full" ]; then
+		echo "Apply full update"
+		rm -rf $ROOTFS_DIR/*
+		cp -rafd /update_layer/* $ROOTFS_DIR
+	else
+		echo "Apply incremental update"
+		cp -rafd /update_layer/* $ROOTFS_DIR
+		cd /update_layer
+		find . -type c -exec rm '-rf' '$ROOTFS_DIR/{}' \;
+		cd -
+	fi
+
+	umount /update_layer
+	mount -o remount,ro $ROOTFS_DIR
+}
+
+do_mount_full_update() {
+	echo "Mount full update rootfs image"
+	update_file="$(find $UPDATE_DIR -name "*.squashfs" | head -n1)"
+	echo "Got full update image $update_file"
+	root_device=$(df -P $ROOTFS_DIR | tail -n 1 | awk '/.*/ { print $1 }')
+	umount $ROOTFS_DIR
+	mount -o ro $update_file $ROOTFS_DIR
+	if [ $? -ne 0 ]; then
+		echo "Error: unable to mount full update image. Switching back to original rootfs"
+		[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
+		do_switchroot
+	fi
+}
+
+do_mount_inc_update() {
+	echo "Mount incremental update image"
+	update_file=$(find $UPDATE_DIR -name "*.squashfs" | head -n1)
+	echo "Got incremental update image $update_file"
+	mkdir -p /update_layer
+	mount $update_file /update_layer
+	switch_if_fail "Error: can't mount incremental image"
+	mount -t overlay overlay -o lowerdir=/update_layer:$ROOTFS_DIR $ROOTFS_DIR
+	switch_if_fail "Error: can't mount incremental image"
+}
+
+prepare_rootfs() {
+	echo "prepare_rootfs"
+	mkdir -p $ROOTFS_DIR/var
+	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/var/,workdir=/data/var/work,upperdir=/data/var/upper $ROOTFS_DIR/var
+	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/,workdir=/data/etc/work,upperdir=/data/etc/upper $ROOTFS_DIR/etc
+}
+
+finish_run() {
+	if [ -n "$ROOTFS_DIR" ]; then
+		if [ ! -d $ROOTFS_DIR/dev ]; then
+			fatal "ERROR: There's no '/dev' on rootfs."
+		fi
+		mount_data
+
+		info "Switching root to '$ROOTFS_DIR'..."
+
+		action="$(get_action)"
+
+		case "$action" in
+		full)
+			echo "Full"
+			do_mount_full_update
+			set_updated_part_flag
+			;;
+		incremental)
+			echo "Incremental"
+			do_mount_inc_update
+			set_updated_part_flag
+			;;
+		apply)
+			echo "Apply"
+			do_apply_update
+			;;
+		ignore)
+			echo "Ignoring update"
+			;;
+		*)
+			echo "Fail: Unexpected action received- $action"
+		esac
+
+		prepare_rootfs
+
+		do_switchroot
+	else
+		debug "No rootfs has been set"
+	fi
+}
