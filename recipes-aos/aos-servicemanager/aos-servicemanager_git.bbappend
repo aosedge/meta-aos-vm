@@ -3,6 +3,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI_append = " \
     file://aos_servicemanager.cfg \
     file://aos-servicemanager.service \
+    file://aos.target \
     file://ipforwarding.conf \
     file://model_name.txt \
     file://rootCA.pem \
@@ -34,11 +35,13 @@ FILES_${PN} += " \
     ${sysconfdir}/sysctl.d/*.conf \
     ${sysconfdir}/ssl/certs/*.pem \
     ${systemd_system_unitdir}/*.service \
+    ${systemd_system_unitdir}/*.target \
 "
 
 do_install_append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/*.target ${D}${systemd_system_unitdir}
 
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d

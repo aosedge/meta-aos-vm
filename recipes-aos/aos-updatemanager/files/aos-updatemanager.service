@@ -1,7 +1,8 @@
 [Unit]
 Description=AOS Update Manager
-Requires=network-online.target
-After=network-online.target
+Wants=network-online.target aos-servicemanager.service
+After=network-online.target aos-servicemanager.service
+PartOf=aos.target
 
 [Service]
 WorkingDirectory=/var/aos/updatemanager

@@ -1,0 +1,7 @@
+[Unit]
+Description=Aos services
+Wants=aos-vis.service aos-certificatemanager.service aos-servicemanager.service aos-updatemanager.service
+After=aos-vis.service aos-certificatemanager.service aos-servicemanager.service aos-updatemanager.service
+
+[Install]
+WantedBy=multi-user.target

@@ -13,8 +13,6 @@ AOS_VIS_PLUGINS ?= "\
 
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-vis.service"
-
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_vis.cfg \
     ${systemd_system_unitdir}/aos-vis.service \
