@@ -8,6 +8,10 @@ SRC_URI_append = " \
     file://rootCA.pem \
 "
 
+AOS_SM_IDENTIFIERS = "\
+    visidentifier \
+"
+
 inherit systemd
 
 RDEPENDS_${PN} += "\

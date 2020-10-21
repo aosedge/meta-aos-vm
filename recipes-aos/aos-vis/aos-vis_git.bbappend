@@ -25,19 +25,6 @@ RDEPENDS_${PN} += "\
     ${@bb.utils.contains('AOS_VIS_PLUGINS', 'telemetryemulatoradapter', 'telemetry-emulator', '', d)} \
 "
 
-do_prepare_adapters() {
-    file="${S}/src/${GO_IMPORT}/plugins/plugins.go"
-
-    echo 'package plugins' > ${file}
-    echo 'import (' >> ${file}
-
-    for plugin in ${AOS_VIS_PLUGINS}; do
-        echo "\t_ \"aos_vis/plugins/${plugin}\"" >> ${file}
-    done
-
-    echo ')' >> ${file}
-}
-
 python do_configure_adapters() {
     import json
 
@@ -82,4 +69,3 @@ do_install_append() {
 }
 
 addtask configure_adapters after do_install before do_populate_sysroot
-addtask prepare_adapters after do_unpack before do_compile
