@@ -1,0 +1,28 @@
+From 88f73c7d1e3384a5a1caf0bd49fed6804506d93c Mon Sep 17 00:00:00 2001
+From: Valerii Chubar <valerii_chubar@epam.com>
+Date: Fri, 23 Oct 2020 00:33:04 +0300
+Subject: [PATCH] Change socket mode add rw for group
+
+---
+ src/wayland-server.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/wayland-server.c b/src/wayland-server.c
+index 3f48dfe..fbccb45 100644
+--- a/src/wayland-server.c
++++ b/src/wayland-server.c
+@@ -1528,7 +1528,10 @@ _wl_display_add_socket(struct wl_display *display, struct wl_socket *s)
+ 		wl_log("bind() failed with error: %s\n", strerror(errno));
+ 		return -1;
+ 	}
+-
++	if (chmod(s->addr.sun_path, 0660) < 0) {
++		wl_log("chmod() failed with error: %s\n", strerror(errno));
++		return -1;
++	}
+ 	if (listen(s->fd, 128) < 0) {
+ 		wl_log("listen() failed with error: %s\n", strerror(errno));
+ 		return -1;
+-- 
+2.17.1
+
