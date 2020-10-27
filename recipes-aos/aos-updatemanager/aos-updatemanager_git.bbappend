@@ -7,14 +7,21 @@ SRC_URI_append = "\
 
 AOS_UM_UPDATE_MODULES ?= "\
     filemodule \
+    overlaymodule \
+    efidualpart \
 "
 
 inherit systemd
 
+DEPENDS_append = "\
+    pkgconfig-native \
+    systemd \
+    efivar \
+"
+
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_updatemanager.cfg \
     ${systemd_system_unitdir}/aos-updatemanager.service \
-    /var/aos/updatemanager/crypt/*.pem \
 "
 
 do_install_append() {
@@ -23,7 +30,4 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
-
-    install -d ${D}/var/aos/updatemanager/crypt
-    install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}/var/aos/updatemanager/crypt
 }
