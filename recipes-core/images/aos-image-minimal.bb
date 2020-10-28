@@ -21,6 +21,7 @@ IMAGE_INSTALL_append = " \
     aos-certificatemanager \
     aos-vis \
     openssl-bin \
+    efibootmgr \
 "
 
 # System packages
