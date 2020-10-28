@@ -34,11 +34,6 @@ switch_if_fail() {
 [[ -z $ROOTFS_DIR ]] && ROOTFS_DIR="/rootfs"
 
 mount_data() {
-	[[ -z $bootparam_userdata ]] && {
-		echo "Userdata partition is not set, skipping initramfs"
-		do_switchroot
-	}
-
 	mkdir -p /data
 	mount $bootparam_userdata /data
 
@@ -162,6 +157,12 @@ finish_run() {
 		if [ ! -d $ROOTFS_DIR/dev ]; then
 			fatal "ERROR: There's no '/dev' on rootfs."
 		fi
+
+		[[ -z $bootparam_userdata ]] && {
+			echo "Userdata partition is not set, skipping initramfs"
+			do_switchroot
+		}
+
 		mount_data
 
 		info "Switching root to '$ROOTFS_DIR'..."
