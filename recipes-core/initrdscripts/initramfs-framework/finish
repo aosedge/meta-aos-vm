@@ -11,6 +11,7 @@ FAIL_FLAG="failed"
 DO_UPDATE_FLAG="do_update"
 DO_APPLY_FLAG="do_apply"
 UPDATE_DIR="/data/var/upper/update/image/rootfs"
+UPDATE_EXT="*.squashfs"
 
 do_switchroot() {
 	echo "Moving /dev, /proc and /sys onto rootfs..."
@@ -98,7 +99,7 @@ set_updated_part_flag() {
 
 do_apply_update() {
 	update_type="$(get_update_type)"
-	local update_file="$(find $UPDATE_DIR -name "*.squashfs" | head -n1)"
+	local update_file="$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)"
 	echo "Got update file $update_file"
 	mkdir -p /update_layer
 	mount $update_file /update_layer
@@ -124,7 +125,7 @@ do_apply_update() {
 
 do_mount_full_update() {
 	echo "Mount full update rootfs image"
-	update_file="$(find $UPDATE_DIR -name "*.squashfs" | head -n1)"
+	update_file="$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)"
 	echo "Got full update image $update_file"
 	root_device=$(df -P $ROOTFS_DIR | tail -n 1 | awk '/.*/ { print $1 }')
 	umount $ROOTFS_DIR
@@ -139,7 +140,7 @@ do_mount_full_update() {
 
 do_mount_inc_update() {
 	echo "Mount incremental update image"
-	update_file=$(find $UPDATE_DIR -name "*.squashfs" | head -n1)
+	update_file=$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)
 	echo "Got incremental update image $update_file"
 	mkdir -p /update_layer
 	mount $update_file /update_layer
