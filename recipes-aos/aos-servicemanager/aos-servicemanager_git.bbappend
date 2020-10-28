@@ -52,6 +52,8 @@ do_install_append() {
 
     install -d ${D}${sysconfdir}/ssl/certs
     install -m 0644 ${WORKDIR}/rootCA.pem ${D}${sysconfdir}/ssl/certs/
+
+    install -d ${D}/var/aos/servicemanager
 }
 
 pkg_postinst_${PN}() {

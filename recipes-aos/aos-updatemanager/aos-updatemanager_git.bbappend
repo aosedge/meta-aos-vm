@@ -30,4 +30,6 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
+
+    install -d ${D}/var/aos/updatemanager
 }
