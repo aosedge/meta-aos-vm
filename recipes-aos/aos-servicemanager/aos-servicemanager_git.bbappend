@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
+BRANCH = "update_v3"
+
 SRC_URI_append = " \
     file://aos_servicemanager.cfg \
     file://aos-servicemanager.service \

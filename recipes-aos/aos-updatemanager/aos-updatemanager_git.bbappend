@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
+BRANCH = "OG/squashed_v3"
+
 SRC_URI_append = "\
     file://aos-updatemanager.service \
     file://aos_updatemanager.cfg \
