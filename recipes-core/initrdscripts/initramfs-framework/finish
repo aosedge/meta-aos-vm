@@ -27,6 +27,7 @@ switch_if_fail() {
 	if [ $? -ne 0 ]; then
 		echo "$1. Proceeding to switch_root"
 		[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
+		prepare_rootfs
 		do_switchroot
 	fi
 }
@@ -106,9 +107,11 @@ do_apply_update() {
 		echo "Apply full update"
 		rm -rf $ROOTFS_DIR/*
 		cp -rafd /update_layer/* $ROOTFS_DIR
+		switch_if_fail "Error: can't copy files"
 	else
 		echo "Apply incremental update"
 		cp -rafd /update_layer/* $ROOTFS_DIR
+		switch_if_fail "Error: can't copy files"
 		cd /update_layer
 		find . -type c -exec rm '-rf' '$ROOTFS_DIR/{}' \;
 		cd -
@@ -125,12 +128,7 @@ do_mount_full_update() {
 	root_device=$(df -P $ROOTFS_DIR | tail -n 1 | awk '/.*/ { print $1 }')
 	umount $ROOTFS_DIR
 	mount -o ro $update_file $ROOTFS_DIR
-	if [ $? -ne 0 ]; then
-		echo "Error: unable to mount full update image. Switching back to original rootfs"
-		mount -o ro $root_device $ROOTFS_DIR
-		[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
-		do_switchroot
-	fi
+	switch_if_fail "Error: can't mount full image"
 }
 
 do_mount_inc_update() {
