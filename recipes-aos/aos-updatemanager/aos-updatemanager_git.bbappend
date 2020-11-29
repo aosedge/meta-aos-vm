@@ -8,7 +8,7 @@ SRC_URI_append = "\
 "
 
 AOS_UM_UPDATE_MODULES ?= "\
-    filemodule \
+    boardconfigmodule \
     overlaymodule \
     efidualpart \
 "
