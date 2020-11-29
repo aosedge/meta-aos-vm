@@ -23,6 +23,21 @@ do_switchroot() {
 	exec switch_root -c /dev/console $ROOTFS_DIR ${bootparam_init:-/sbin/init}
 }
 
+prepare_rootfs() {
+	echo "Prepare rootfs"
+	
+	mkdir -p /data/etc/systemd/system/work
+	[ "$(ls -A /data/etc/systemd/system/work)" ] && rm -rf /data/etc/systemd/system/work/*
+	mkdir -p /data/etc/systemd/system/upper
+
+	mkdir -p /data/home/work
+	[ "$(ls -A /data/home/work)" ] && rm -rf /data/home/work/*
+	mkdir -p /data/home/upper
+
+	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/systemd/system,workdir=/data/etc/systemd/system/work,upperdir=/data/etc/systemd/system/upper $ROOTFS_DIR/etc/systemd/system
+	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
+}
+
 switch_if_fail() {
 	if [ $? -ne 0 ]; then
 		echo "$1. Proceeding to switch_root"
@@ -39,18 +54,6 @@ mount_data() {
 	mount $bootparam_userdata /data
 
 	switch_if_fail "Error: can't mount /data"
-
-	mkdir -p /data/var/work
-	[ "$(ls -A /data/var/work)" ] && rm -rf /data/var/work/*
-	mkdir -p /data/var/upper
-
-	mkdir -p /data/etc/work
-	[ "$(ls -A /data/etc/work)" ] && rm -rf /data/etc/work/*
-	mkdir -p /data/etc/upper
-
-	mkdir -p /data/home/work
-	[ "$(ls -A /data/home/work)" ] && rm -rf /data/home/work/*
-	mkdir -p /data/home/upper
 
 	rm -rf $UPDATE_DIR/$FAIL_FLAG
 }
@@ -140,14 +143,6 @@ do_mount_inc_update() {
 	switch_if_fail "Error: can't mount incremental image"
 	mount -t overlay overlay -o lowerdir=/update_layer:$ROOTFS_DIR $ROOTFS_DIR
 	switch_if_fail "Error: can't mount incremental image"
-}
-
-prepare_rootfs() {
-	echo "prepare_rootfs"
-	mkdir -p $ROOTFS_DIR/var
-	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/var/,workdir=/data/var/work,upperdir=/data/var/upper $ROOTFS_DIR/var
-	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/,workdir=/data/etc/work,upperdir=/data/etc/upper $ROOTFS_DIR/etc
-	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
 }
 
 finish_run() {
