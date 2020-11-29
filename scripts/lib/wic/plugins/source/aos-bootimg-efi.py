@@ -209,6 +209,13 @@ class BootimgEFIPlugin(SourcePlugin):
         except KeyError:
             raise WicError("bootimg-efi requires a loader, none specified")
 
+        if source_params['version']:
+            install_cmd = "install -d %s/aos" % hdddir
+            exec_cmd(install_cmd)
+
+            version = open("%s/hdd/boot/aos/version" % cr_workdir, "w")
+            version.write('VERSION = "%s"\n' % source_params['version'])
+            version.close()
 
     @classmethod
     def do_prepare_partition(cls, part, source_params, creator, cr_workdir,
