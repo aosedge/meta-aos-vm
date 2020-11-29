@@ -1,0 +1,183 @@
+SUMMARY = "An image which contains AOS components"
+
+IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
+
+IMAGE_LINGUAS = " "
+IMAGE_FSTYPES = "tar.bz2 squashfs wic.vmdk"
+LICENSE = "MIT"
+
+inherit core-image
+inherit extrausers
+
+IMAGE_FEATURES_append = " read-only-rootfs"
+
+# Set password to the root user. This is the requirement of the provisioning script.
+EXTRA_USERS_PARAMS = "usermod -P Password1 root;"
+
+# AOS packages
+IMAGE_INSTALL_append = " \
+    aos-servicemanager \
+    aos-updatemanager \
+    aos-certificatemanager \
+    aos-vis \
+    openssl-bin \
+    efibootmgr \
+"
+
+# System packages
+IMAGE_INSTALL_append = " \
+    mc \
+    netconfig \
+    openssh \
+    tzdata \
+"
+
+################################################################################
+# Update bundle generation
+################################################################################
+
+# Configuration
+
+BOARD_MODEL ?= "vm-dev;1.0"
+
+BUNDLE_ROOTFS ?= "none"
+BUNDLE_BOOT ?= "0"
+
+BOARD_ROOTFS_VERSION ?= "${PV}"
+BOARD_BOOT_VERSION ?= "${PV}"
+
+# Inherit
+
+inherit metadata-generator
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+
+SRC_URI += " \
+    file://bundle-aos.cfg \
+    file://bundle_templates \
+"
+
+python () {
+    d.delVarFlag("do_fetch", "noexec")
+    d.delVarFlag("do_unpack", "noexec")
+}
+
+# Variables
+
+BUNDLES_DIR ?= "${DEPLOY_DIR_IMAGE}/bundles"
+
+BUNDLE_CONFIG_PATH = "${WORKDIR}/bundle-aos.cfg"
+BUNDLE_WORK_DIR = "${WORKDIR}/bundle"
+
+BUNDLE_BOOT_FILE = "${IMAGE_BASENAME}-${MACHINE}-${BOARD_BOOT_VERSION}.boot.gz"
+BUNDLE_ROOTFS_FILE = "${IMAGE_BASENAME}-${MACHINE}-${BOARD_ROOTFS_VERSION}.rootfs.squashfs"
+
+BUNDLE_BOOT_ID = "boot"
+BUNDLE_ROOTFS_ID = "rootfs"
+
+# Dependencies
+
+do_create_bundle[vardeps] += "BUNDLE_BOOT BUNDLE_ROOTFS"
+
+# Tasks
+
+pack_bundle() {
+    mkdir -p ${BUNDLES_DIR}
+    tar cf ${BUNDLES_DIR}/${IMAGE_BASENAME}-${MACHINE}-${PV}.bundle.tar -C ${BUNDLE_WORK_DIR}/ .
+}
+
+create_part_gz() {
+    l_bundle_path=$1
+    l_output_file=$2
+    l_part=$3
+
+    mkdir -p ${l_bundle_path}
+    part_file=$(find ${WORKDIR}/build-wic -name "*direct.${l_part}")
+    gzip -c ${part_file} > "${l_bundle_path}/${l_output_file}"
+}
+
+create_boot_update() {
+    create_part_gz ${BUNDLE_WORK_DIR} ${BUNDLE_BOOT_FILE} "p1"
+}
+
+create_rootfs_full_update() {
+    cp ${WORKDIR}/deploy-${PN}-image-complete/${IMAGE_BASENAME}-${MACHINE}.squashfs ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE}
+}
+
+python do_create_bundle() {
+    import configparser
+    import shutil
+    import os
+
+    def override_config(d, cfg):
+        cfg["bundleConfig"]["workspaceBaseDir"] = d.getVar("WORKDIR")
+        cfg["bundleConfig"]["boardModel"] = d.getVar("BOARD_MODEL")
+
+        components = ""
+
+        bundle_boot = d.getVar("BUNDLE_BOOT")
+        boot_id = d.getVar("BUNDLE_BOOT_ID")
+
+        if bundle_boot == "1":
+            components += " "+boot_id
+            cfg[boot_id]["fileName"] = os.path.join(".", d.getVar("BUNDLE_BOOT_FILE"))
+            cfg[boot_id]["vendorVersion"] = d.getVar("BOARD_BOOT_VERSION")
+            cfg[boot_id]["type"] = "full"
+            
+        bundle_rootfs = d.getVar("BUNDLE_ROOTFS")
+        rootfs_id = d.getVar("BUNDLE_ROOTFS_ID")
+
+        if bundle_rootfs != "none":
+            components += " "+rootfs_id
+            cfg[rootfs_id]["fileName"] = os.path.join(".", d.getVar("BUNDLE_ROOTFS_FILE"))
+            cfg[rootfs_id]["vendorVersion"] = d.getVar("BOARD_ROOTFS_VERSION")
+            if bundle_rootfs == "full" or bundle_rootfs == "full":
+                cfg[rootfs_id]["type"] = bundle_rootfs
+            else:
+                raise RuntimeException("undefined rootfs update type: {}".format(bundle_rootfs))
+
+        cfg["bundleConfig"]["components"] = components
+
+    cfg = configparser.ConfigParser()
+
+    with open(d.getVar("BUNDLE_CONFIG_PATH")) as f:
+        cfg.read_file(f)
+
+    override_config(d, cfg)
+
+    metadata = init_metadata(cfg, d.getVar("BUNDLE_WORK_DIR"))
+
+    components = metadata.get_components()
+
+    if len(components) == 0:
+        bb.debug(1, "Skipping bundle generation")
+        return
+
+    metadata.write()
+
+    if "boot" in components:
+        bb.debug(1, "Generage boot image")
+        bb.build.exec_func("create_boot_update", d)
+
+    if "rootfs" in components:
+        bb.debug(1, "Generage rootfs image")
+        bb.build.exec_func("create_rootfs_full_update", d)
+
+    bb.build.exec_func("pack_bundle", d)
+}
+
+do_set_board_model() {
+    install -d ${IMAGE_ROOTFS}/etc/aos
+
+    echo "${BOARD_MODEL}" > ${IMAGE_ROOTFS}/etc/aos/board_model
+}
+
+do_set_rootfs_version() {
+    install -d ${IMAGE_ROOTFS}/etc/aos
+
+    echo "VERSION=\"${BOARD_ROOTFS_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
+}
+
+addtask set_board_model after do_rootfs before do_image_qa
+addtask set_rootfs_version after do_rootfs before do_image_qa
+addtask create_bundle after do_image_squashfs do_image_wic before do_image_complete

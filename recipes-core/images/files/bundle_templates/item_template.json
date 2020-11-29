@@ -1,0 +1,13 @@
+{
+    "id": "required",
+    "fileName": "required",
+    "vendorVersion": "required",
+    "description": "optional",
+    "requiredVersion": "optional",
+    "minVersion": "optional",
+    "maxVersion": "optional",
+    "annotations": {
+        "type": "required"
+    },
+    "runtimeDependencies": "optional"
+}

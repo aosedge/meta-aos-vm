@@ -7,7 +7,6 @@ SRC_URI_append = " \
     file://aos-servicemanager.service \
     file://aos.target \
     file://ipforwarding.conf \
-    file://model_name.txt \
     file://rootCA.pem \
 "
 
@@ -49,7 +48,6 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
 
     install -d ${D}${sysconfdir}/aos
-    install -m 0644 ${WORKDIR}/model_name.txt ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}${sysconfdir}/aos
 
     install -d ${D}${sysconfdir}/ssl/certs
