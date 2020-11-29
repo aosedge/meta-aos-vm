@@ -15,6 +15,7 @@ UPDATE_EXT="*.squashfs"
 
 do_switchroot() {
 	echo "Moving /dev, /proc and /sys onto rootfs..."
+
 	mount --move /dev $ROOTFS_DIR/dev
 	mount --move /proc $ROOTFS_DIR/proc
 	mount --move /sys $ROOTFS_DIR/sys
@@ -40,8 +41,8 @@ prepare_rootfs() {
 
 switch_if_fail() {
 	if [ $? -ne 0 ]; then
-		echo "$1. Proceeding to switch_root"
 		[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
+
 		prepare_rootfs
 		do_switchroot
 	fi
@@ -67,11 +68,7 @@ get_update_type() {
 	fi
 }
 
-#Possible actions are
-#full
-#incremental
-#apply
-#ignore
+# Possible actions are: full, incremental, apply, ignore
 get_action() {
 	[[ -f "$UPDATE_DIR/$DO_APPLY_FLAG" ]] && {
 		echo "apply"
@@ -99,25 +96,35 @@ set_updated_part_flag() {
 do_apply_update() {
 	update_type="$(get_update_type)"
 	local update_file="$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)"
+
 	echo "Got update file $update_file"
+	
 	mkdir -p /update_layer
 	mount $update_file /update_layer
 	switch_if_fail "Error: can't mount $update_file"
+
 	mount -o remount,rw $ROOTFS_DIR
 	switch_if_fail "Error: can't remount rootfs"
 
 	if [ x$update_type == x"full" ]; then
 		echo "Apply full update"
+
 		rm -rf $ROOTFS_DIR/*
 		cp -rafd /update_layer/* $ROOTFS_DIR
 		switch_if_fail "Error: can't copy files"
+
+		echo "Full update applied"
 	else
 		echo "Apply incremental update"
+
 		cp -rafd /update_layer/* $ROOTFS_DIR
 		switch_if_fail "Error: can't copy files"
+
 		cd /update_layer
 		find . -type c -exec rm '-rf' '$ROOTFS_DIR/{}' \;
 		cd -
+
+		echo "Incremental update applied"
 	fi
 
 	umount /update_layer
@@ -126,21 +133,28 @@ do_apply_update() {
 
 do_mount_full_update() {
 	echo "Mount full update rootfs image"
+
 	update_file="$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)"
+
 	echo "Got full update image $update_file"
+
 	root_device=$(df -P $ROOTFS_DIR | tail -n 1 | awk '/.*/ { print $1 }')
 	umount $ROOTFS_DIR
+
 	mount -o ro $update_file $ROOTFS_DIR
 	switch_if_fail "Error: can't mount full image"
 }
 
 do_mount_inc_update() {
-	echo "Mount incremental update image"
 	update_file=$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)
-	echo "Got incremental update image $update_file"
+
+	echo "Mount incremental update image $update_file"
+
 	mkdir -p /update_layer
+
 	mount $update_file /update_layer
 	switch_if_fail "Error: can't mount incremental image"
+
 	mount -t overlay overlay -o lowerdir=/update_layer:$ROOTFS_DIR $ROOTFS_DIR
 	switch_if_fail "Error: can't mount incremental image"
 }
@@ -164,28 +178,30 @@ finish_run() {
 
 		case "$action" in
 		full)
-			echo "Full"
+			echo "Action: full"
+
 			do_mount_full_update
 			set_updated_part_flag
 			;;
 		incremental)
-			echo "Incremental"
+			echo "Action: incremental"
+
 			do_mount_inc_update
 			set_updated_part_flag
 			;;
 		apply)
-			echo "Apply"
+			echo "Action: apply"
+
 			do_apply_update
 			;;
 		ignore)
-			echo "Ignoring update"
+			echo "Action: ignoring update"
 			;;
 		*)
 			echo "Fail: Unexpected action received- $action"
 		esac
 
 		prepare_rootfs
-
 		do_switchroot
 	else
 		debug "No rootfs has been set"
