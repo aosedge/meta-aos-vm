@@ -43,6 +43,8 @@ BOARD_MODEL ?= "vm-dev;1.0"
 BUNDLE_ROOTFS ?= "none"
 BUNDLE_BOOT ?= "0"
 
+ROOTFS_REF_VERSION ?= "${PV}"
+
 BOARD_ROOTFS_VERSION ?= "${PV}"
 BOARD_BOOT_VERSION ?= "${PV}"
 
@@ -75,9 +77,17 @@ BUNDLE_ROOTFS_FILE = "${IMAGE_BASENAME}-${MACHINE}-${BOARD_ROOTFS_VERSION}.rootf
 BUNDLE_BOOT_ID = "boot"
 BUNDLE_ROOTFS_ID = "rootfs"
 
+OSTREE_REPO_PATH ?= "${BUNDLES_DIR}/repo"
+OSTREE_REPO_TYPE = "archive"
+
+ROOTFS_ARCHIVE = "${WORKDIR}/deploy-${IMAGE_BASENAME}-image-complete/${IMAGE_LINK_NAME}.tar.bz2"
+ROOTFS_DIFF_DIR = "${WORKDIR}/rootfs_diff"
+
 # Dependencies
 
-do_create_bundle[vardeps] += "BUNDLE_BOOT BUNDLE_ROOTFS"
+do_create_bundle[vardeps] += "BUNDLE_BOOT BUNDLE_ROOTFS ROOTFS_REF_VERSION"
+
+DEPENDS_append = " ostree-native squashfs-tools-native"
 
 # Tasks
 
@@ -104,7 +114,54 @@ create_rootfs_full_update() {
     cp ${WORKDIR}/deploy-${PN}-image-complete/${IMAGE_BASENAME}-${MACHINE}.squashfs ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE}
 }
 
-python do_create_bundle() {
+init_ostree_repo() {
+    if [ ! -d ${OSTREE_REPO_PATH}/refs ]; then
+        echo "Ostree repo doesn't exist. Create ostree repo"
+
+        mkdir -p $(dirname "${OSTREE_REPO_PATH}")
+        ostree --repo=${OSTREE_REPO_PATH} init --mode=${OSTREE_REPO_TYPE}
+    fi
+}
+
+ostree_commit() {
+    ostree --repo=${OSTREE_REPO_PATH} commit \
+           --tree=tar=${ROOTFS_ARCHIVE} \
+           --skip-if-unchanged \
+           --branch=${BOARD_ROOTFS_VERSION} \
+           --subject="${BOARD_ROOTFS_VERSION}-${DATATIME}"
+}
+pack_bundle[vardepsexclude] = "DATETIME"
+
+create_rootfs_incremental_update() {
+    rm -rf ${ROOTFS_DIFF_DIR}
+    mkdir -p ${ROOTFS_DIFF_DIR}
+
+    ostree --repo=${OSTREE_REPO_PATH} diff ${ROOTFS_REF_VERSION} ${BOARD_ROOTFS_VERSION} |
+    while read -r item; do
+        action=${item%% *}
+        item=${item##* }
+
+        if [ ${action} = "A" ] || [ ${action} = "M" ]; then
+            if [ -d ${WORKDIR}/rootfs${item} ]; then
+                mkdir -p ${ROOTFS_DIFF_DIR}${item}
+            else
+                mkdir -p $(dirname ${ROOTFS_DIFF_DIR}${item})
+                cp -a ${WORKDIR}/rootfs${item} ${ROOTFS_DIFF_DIR}${item}
+            fi
+        elif [ ${action} = "D" ]; then
+            mkdir -p $(dirname ${ROOTFS_DIFF_DIR}${item})
+            mknod ${ROOTFS_DIFF_DIR}${item} c 0 0 
+        fi
+    done
+
+    if [ ! "$(ls -A ${ROOTFS_DIFF_DIR})" ]; then
+        bbwarn "incremental roofs update is empty"
+    fi
+
+    mksquashfs ${ROOTFS_DIFF_DIR} ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE}
+}
+
+fakeroot python do_create_bundle() {
     import configparser
     import shutil
     import os
@@ -131,10 +188,14 @@ python do_create_bundle() {
             components += " "+rootfs_id
             cfg[rootfs_id]["fileName"] = os.path.join(".", d.getVar("BUNDLE_ROOTFS_FILE"))
             cfg[rootfs_id]["vendorVersion"] = d.getVar("BOARD_ROOTFS_VERSION")
-            if bundle_rootfs == "full" or bundle_rootfs == "full":
+
+            if bundle_rootfs == "full" or bundle_rootfs == "incremental":
                 cfg[rootfs_id]["type"] = bundle_rootfs
             else:
-                raise RuntimeException("undefined rootfs update type: {}".format(bundle_rootfs))
+                bb.fatal("undefined rootfs update type: {}".format(bundle_rootfs))
+
+            if bundle_rootfs == "incremental" and d.getVar("ROOTFS_REF_VERSION") == d.getVar("BOARD_ROOTFS_VERSION"):
+                bb.fatal("rootfs ref version should not be equal current version: {}".format(d.getVar("ROOTFS_REF_VERSION")))
 
         cfg["bundleConfig"]["components"] = components
 
@@ -160,8 +221,16 @@ python do_create_bundle() {
         bb.build.exec_func("create_boot_update", d)
 
     if "rootfs" in components:
+        bb.build.exec_func("init_ostree_repo", d)
+
         bb.debug(1, "Generage rootfs image")
-        bb.build.exec_func("create_rootfs_full_update", d)
+
+        bb.build.exec_func("ostree_commit", d)
+
+        if d.getVar("BUNDLE_ROOTFS") == "full":
+            bb.build.exec_func("create_rootfs_full_update", d)
+        else:
+            bb.build.exec_func("create_rootfs_incremental_update", d)
 
     bb.build.exec_func("pack_bundle", d)
 }
