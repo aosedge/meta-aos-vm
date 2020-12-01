@@ -130,7 +130,6 @@ ostree_commit() {
            --branch=${BOARD_ROOTFS_VERSION} \
            --subject="${BOARD_ROOTFS_VERSION}-${DATATIME}"
 }
-pack_bundle[vardepsexclude] = "DATETIME"
 
 create_rootfs_incremental_update() {
     rm -rf ${ROOTFS_DIFF_DIR}
