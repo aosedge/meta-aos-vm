@@ -134,11 +134,10 @@ do_apply_update() {
 	else
 		echo "Apply incremental update"
 
-		cp -rafd /update_layer/* $ROOTFS_DIR
-		switch_if_fail "can't copy files"
-
 		cd /update_layer
-		find . -type c -exec rm '-rf' '$ROOTFS_DIR/{}' \;
+		find ./* -type c -exec rm -rf $ROOTFS_DIR/{} \;
+		find ./* -type d -exec mkdir -p {} $ROOTFS_DIR/{} \;
+		find ./* -type f -exec cp -rafd {} $ROOTFS_DIR/{} \;
 		cd -
 
 		echo "Incremental update applied"
