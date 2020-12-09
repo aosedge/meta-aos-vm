@@ -18,7 +18,7 @@ EXTRA_USERS_PARAMS = "usermod -P Password1 root;"
 IMAGE_INSTALL_append = " \
     aos-servicemanager \
     aos-updatemanager \
-    aos-certificatemanager \
+    aos-iamanager \
     aos-vis \
     openssl-bin \
     efibootmgr \

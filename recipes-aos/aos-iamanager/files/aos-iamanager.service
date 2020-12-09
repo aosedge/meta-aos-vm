@@ -1,11 +1,11 @@
 [Unit]
-Description=AOS Certificate Manager
+Description=AOS Identity and Access Manager
 Wants=network-online.target
 After=network-online.target
 PartOf=aos.target
 
 [Service]
-ExecStart=/usr/bin/aos_certificatemanager -c /etc/aos/aos_certificatemanager.cfg
+ExecStart=/usr/bin/aos_iamanager -c /etc/aos/aos_iamanager.cfg
 Restart=always
 RestartSec=10
 

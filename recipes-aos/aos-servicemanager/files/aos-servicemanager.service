@@ -1,7 +1,7 @@
 [Unit]
 Description=AOS Service Manager
-Wants=network-online.target aos-vis.service aos-certificatemanager.service
-After=network-online.target aos-vis.service aos-certificatemanager.service
+Wants=network-online.target aos-vis.service aos-iamanager.service
+After=network-online.target aos-vis.service aos-iamanager.service
 PartOf=aos.target
 
 [Service]
