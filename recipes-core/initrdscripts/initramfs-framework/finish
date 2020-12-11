@@ -66,7 +66,7 @@ switch_if_fail() {
 
 mount_data() {
 	mkdir -p /data
-	mount $bootparam_userdata /data
+	mount -o defaults,usrjquota=aquota.user,jqfmt=vfsv0 $bootparam_userdata /data
 
 	switch_if_fail "can't mount /data"
 
