@@ -11,7 +11,7 @@ SRC_URI_append = " \
 "
 
 AOS_SM_IDENTIFIERS = "\
-    visidentifier \
+    fileidentifier \
 "
 
 inherit systemd
