@@ -13,6 +13,8 @@ AOS_IAM_CERT_MODULES = "\
 
 inherit systemd
 
+SYSTEMD_SERVICE_${PN} = "aos-iamanager.service"
+
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_iamanager.cfg \
     ${systemd_system_unitdir}/aos-iamanager.service \

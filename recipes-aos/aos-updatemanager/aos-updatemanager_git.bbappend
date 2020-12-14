@@ -15,6 +15,8 @@ AOS_UM_UPDATE_MODULES ?= "\
 
 inherit systemd
 
+SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
+
 DEPENDS_append = "\
     pkgconfig-native \
     systemd \

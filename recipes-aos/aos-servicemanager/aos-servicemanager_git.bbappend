@@ -16,6 +16,8 @@ AOS_SM_IDENTIFIERS = "\
 
 inherit systemd
 
+SYSTEMD_SERVICE_${PN} = "aos-servicemanager.service aos.target"
+
 RDEPENDS_${PN} += "\
     libvis \
     nodejs\
