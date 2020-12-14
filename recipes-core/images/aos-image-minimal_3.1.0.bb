@@ -22,6 +22,7 @@ IMAGE_INSTALL_append = " \
     aos-vis \
     openssl-bin \
     efibootmgr \
+    iperf3 \
 "
 
 # System packages
