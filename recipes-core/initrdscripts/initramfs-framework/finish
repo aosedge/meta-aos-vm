@@ -35,6 +35,17 @@ do_switchroot() {
 	exec switch_root -c /dev/console $ROOTFS_DIR ${bootparam_init:-/sbin/init}
 }
 
+mount_machine_id() {
+	machineid="/data/etc/machine-id"
+	if [ ! -f $machineid ]; then
+		touch $machineid
+	fi
+
+	mount --bind $machineid $ROOTFS_DIR/etc/machine-id || {
+		echo "Unable to bind /etc/machine-id"
+	}
+}
+
 prepare_data() {
 	echo "Prepare rootfs"
 	
@@ -48,6 +59,8 @@ prepare_data() {
 
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/systemd/system,workdir=/data/etc/systemd/system/work,upperdir=/data/etc/systemd/system/upper $ROOTFS_DIR/etc/systemd/system
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
+
+	mount_machine_id
 
 	mount --move /data $ROOTFS_DIR/var
 }
