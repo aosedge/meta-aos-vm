@@ -36,7 +36,7 @@ do_switchroot() {
 }
 
 mount_machine_id() {
-	machineid="/data/etc/machine-id"
+	machineid="/data/machine-id"
 	if [ ! -f $machineid ]; then
 		touch $machineid
 	fi
