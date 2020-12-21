@@ -49,15 +49,10 @@ mount_machine_id() {
 prepare_data() {
 	echo "Prepare rootfs"
 	
-	mkdir -p /data/etc/systemd/system/work
-	[ "$(ls -A /data/etc/systemd/system/work)" ] && rm -rf /data/etc/systemd/system/work/*
-	mkdir -p /data/etc/systemd/system/upper
-
 	mkdir -p /data/home/work
 	[ "$(ls -A /data/home/work)" ] && rm -rf /data/home/work/*
 	mkdir -p /data/home/upper
 
-	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/etc/systemd/system,workdir=/data/etc/systemd/system/work,upperdir=/data/etc/systemd/system/upper $ROOTFS_DIR/etc/systemd/system
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
 
 	mount_machine_id
