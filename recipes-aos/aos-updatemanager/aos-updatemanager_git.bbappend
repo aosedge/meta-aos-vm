@@ -8,9 +8,9 @@ SRC_URI_append = "\
 "
 
 AOS_UM_UPDATE_MODULES ?= "\
-    boardconfigmodule \
-    overlaymodule \
-    efidualpart \
+    updatemodules/boardconfigmodule \
+    updatemodules/overlaymodule \
+    updatemodules/efidualpart \
 "
 
 inherit systemd
