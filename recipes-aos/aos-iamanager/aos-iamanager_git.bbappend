@@ -8,7 +8,11 @@ SRC_URI_append = "\
 "
 
 AOS_IAM_CERT_MODULES = "\
-    swmodule \
+    certhandler/modules/swmodule \
+"
+
+AOS_IAM_IDENT_MODULES = "\
+    identhandler/modules/visidentifier \
 "
 
 inherit systemd
