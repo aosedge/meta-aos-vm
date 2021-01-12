@@ -16,6 +16,7 @@ AOS_UM_UPDATE_MODULES ?= "\
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
+MIGRATION_SCRIPTS_PATH = "/usr/share/updatemanager/migration"
 
 DEPENDS_append = "\
     pkgconfig-native \
@@ -26,6 +27,7 @@ DEPENDS_append = "\
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_updatemanager.cfg \
     ${systemd_system_unitdir}/aos-updatemanager.service \
+    ${MIGRATION_SCRIPTS_PATH} \
 "
 
 do_install_append() {
@@ -36,4 +38,10 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
 
     install -d ${D}/var/aos/updatemanager
+
+    install -d ${D}${MIGRATION_SCRIPTS_PATH}
+    source_migration_path="src/aos_updatemanager/database/migration"
+    if [ -d ${S}/${source_migration_path} ]; then
+        install -m 0644 ${S}/${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
+    fi
 }
