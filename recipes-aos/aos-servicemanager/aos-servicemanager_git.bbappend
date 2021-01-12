@@ -33,12 +33,15 @@ RDEPENDS_${PN} += "\
     python3-websocket-client \
 "
 
+MIGRATION_SCRIPTS_PATH = "/usr/share/servicemanager/migration"
+
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_servicemanager.cfg \
     ${sysconfdir}/sysctl.d/*.conf \
     ${sysconfdir}/ssl/certs/*.pem \
     ${systemd_system_unitdir}/*.service \
     ${systemd_system_unitdir}/*.target \
+    ${MIGRATION_SCRIPTS_PATH} \
 "
 
 do_install_append() {
@@ -56,6 +59,12 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/rootCA.pem ${D}${sysconfdir}/ssl/certs/
 
     install -d ${D}/var/aos/servicemanager
+
+    install -d ${D}${MIGRATION_SCRIPTS_PATH}
+    source_migration_path="/src/aos_servicemanager/database/migration"
+    if [ -d ${S}${source_migration_path} ]; then
+        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
+    fi
 }
 
 pkg_postinst_${PN}() {
