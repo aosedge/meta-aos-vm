@@ -9,6 +9,7 @@ SRC_URI_append = "\
 
 AOS_VIS_PLUGINS ?= "\
     plugins/vinadapter \
+    plugins/boardmodeladapter \
     plugins/usersadapter \
     plugins/telemetryemulatoradapter \
     plugins/renesassimulatoradapter \
