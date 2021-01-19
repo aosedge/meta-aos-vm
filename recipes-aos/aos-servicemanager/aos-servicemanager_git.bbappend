@@ -8,6 +8,7 @@ SRC_URI_append = " \
     file://aos.target \
     file://ipforwarding.conf \
     file://rootCA.pem \
+    file://com.aos.servicemanage.conf \
 "
 
 AOS_SM_IDENTIFIERS = "\
@@ -34,6 +35,7 @@ RDEPENDS_${PN} += "\
 "
 
 MIGRATION_SCRIPTS_PATH = "/usr/share/servicemanager/migration"
+DBUS_CONF_PATH = "/usr/share/dbus-1/system.d"
 
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_servicemanager.cfg \
@@ -42,6 +44,7 @@ FILES_${PN} += " \
     ${systemd_system_unitdir}/*.service \
     ${systemd_system_unitdir}/*.target \
     ${MIGRATION_SCRIPTS_PATH} \
+    ${DBUS_CONF_PATH} \
 "
 
 do_install_append() {
@@ -65,6 +68,10 @@ do_install_append() {
     if [ -d ${S}${source_migration_path} ]; then
         install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
     fi
+
+    install -d ${D}${DBUS_CONF_PATH}
+    install -m 0644 ${WORKDIR}/com.aos.servicemanage.conf ${D}${DBUS_CONF_PATH}
+
 }
 
 pkg_postinst_${PN}() {
