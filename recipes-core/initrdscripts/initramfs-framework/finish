@@ -73,9 +73,11 @@ switch_if_fail() {
 }
 
 mount_data() {
-	mkdir -p /data
-	mount -o defaults,usrjquota=aquota.user,jqfmt=vfsv0 $bootparam_userdata /data
+	echo "Mount data $bootparam_userdata"
 
+	mkdir -p /data
+
+	mount -o defaults,usrjquota=aquota.user,jqfmt=vfsv0 $bootparam_userdata /data
 	switch_if_fail "can't mount /data"
 
 	rm -rf $UPDATE_DIR/$FAIL_FLAG
@@ -163,11 +165,13 @@ do_mount_full_update() {
 
 	echo "Mount full update image $update_file"
 
-	root_device=$(df -P $ROOTFS_DIR | tail -n 1 | awk '/.*/ { print $1 }')
-	umount $ROOTFS_DIR
+	mkdir -p /update_layer
 
-	mount -o ro $update_file $ROOTFS_DIR
+	mount $update_file /update_layer
 	switch_if_fail "can't mount full image"
+
+	mount --move  /update_layer $ROOTFS_DIR
+	switch_if_fail "can't move full image"
 }
 
 do_mount_inc_update() {
