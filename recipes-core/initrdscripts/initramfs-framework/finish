@@ -21,42 +21,30 @@ finish_enabled() {
 }
 
 do_switchroot() {
-	echo "Moving /dev, /proc and /sys onto rootfs..."
-
 	if grep -qs '/data ' /proc/mounts; then
 		prepare_data
 	fi
 
+	echo "Moving /dev, /proc and /sys onto rootfs..."
+		
 	mount --move /dev $ROOTFS_DIR/dev
 	mount --move /proc $ROOTFS_DIR/proc
 	mount --move /sys $ROOTFS_DIR/sys
+
+	echo "Switching root to '$ROOTFS_DIR'..."
 
 	cd $ROOTFS_DIR
 	exec switch_root -c /dev/console $ROOTFS_DIR ${bootparam_init:-/sbin/init}
 }
 
-mount_machine_id() {
-	machineid="/data/machine-id"
-	if [ ! -f $machineid ]; then
-		touch $machineid
-	fi
-
-	mount --bind $machineid $ROOTFS_DIR/etc/machine-id || {
-		echo "Unable to bind /etc/machine-id"
-	}
-}
 
 prepare_data() {
 	echo "Prepare rootfs"
 	
 	mkdir -p /data/home/work
-	[ "$(ls -A /data/home/work)" ] && rm -rf /data/home/work/*
 	mkdir -p /data/home/upper
 
 	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
-
-	mount_machine_id
-
 	mount --move /data $ROOTFS_DIR/var
 }
 
@@ -200,8 +188,6 @@ finish_run() {
 		}
 
 		mount_data
-
-		info "Switching root to '$ROOTFS_DIR'..."
 
 		action="$(get_action)"
 
