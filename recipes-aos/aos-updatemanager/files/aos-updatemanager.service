@@ -5,7 +5,7 @@ After=network-online.target aos-servicemanager.service
 PartOf=aos.target
 
 [Service]
-ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg
+ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg -v debug
 Restart=always
 RestartSec=10
 
