@@ -22,7 +22,7 @@ finish_enabled() {
 
 do_switchroot() {
 	if grep -qs '/data ' /proc/mounts; then
-		prepare_data
+		umount /data
 	fi
 
 	echo "Moving /dev, /proc and /sys onto rootfs..."
@@ -35,17 +35,6 @@ do_switchroot() {
 
 	cd $ROOTFS_DIR
 	exec switch_root -c /dev/console $ROOTFS_DIR ${bootparam_init:-/sbin/init}
-}
-
-
-prepare_data() {
-	echo "Prepare rootfs"
-	
-	mkdir -p /data/home/work
-	mkdir -p /data/home/upper
-
-	mount -t overlay overlay -o lowerdir=$ROOTFS_DIR/home/,workdir=/data/home/work,upperdir=/data/home/upper $ROOTFS_DIR/home
-	mount --move /data $ROOTFS_DIR/var
 }
 
 switch_if_fail() {
