@@ -1,0 +1,14 @@
+[Unit]
+Description=aos-firewall 
+Before=network-pre.target
+After=iptables.service
+Wants=network-pre.target
+ConditionPathExists=!/var/aos/unprovisioned_state
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/iptables-rules.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

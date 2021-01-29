@@ -1,3 +1,4 @@
 # !/bin/sh
 
-systemctl restart aos.target
+rm -rf /var/aos/unprovisioned_state
+systemctl restart aos-firewall
