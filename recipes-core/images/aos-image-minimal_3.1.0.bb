@@ -3,7 +3,7 @@ SUMMARY = "An image which contains AOS components"
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
 
 IMAGE_LINGUAS = " "
-IMAGE_FSTYPES = "tar.bz2 squashfs wic.vmdk"
+IMAGE_FSTYPES = "tar.bz2 wic.vmdk"
 LICENSE = "MIT"
 
 inherit core-image
@@ -84,6 +84,8 @@ OSTREE_REPO_TYPE = "archive"
 ROOTFS_ARCHIVE = "${WORKDIR}/deploy-${IMAGE_BASENAME}-image-complete/${IMAGE_LINK_NAME}.tar.bz2"
 ROOTFS_DIFF_DIR = "${WORKDIR}/rootfs_diff"
 
+ROOTFS_REMOVE_DIRS = "var home"
+
 # Dependencies
 
 do_create_bundle[vardeps] += "BUNDLE_BOOT BUNDLE_ROOTFS ROOTFS_REF_VERSION"
@@ -112,7 +114,7 @@ create_boot_update() {
 }
 
 create_rootfs_full_update() {
-    cp ${WORKDIR}/deploy-${PN}-image-complete/${IMAGE_BASENAME}-${MACHINE}.squashfs ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE}
+    mksquashfs ${IMAGE_ROOTFS} ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE} -e ${ROOTFS_REMOVE_DIRS}
 }
 
 init_ostree_repo() {
@@ -158,7 +160,7 @@ create_rootfs_incremental_update() {
         bbwarn "incremental roofs update is empty"
     fi
 
-    mksquashfs ${ROOTFS_DIFF_DIR} ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE}
+    mksquashfs ${ROOTFS_DIFF_DIR} ${BUNDLE_WORK_DIR}/${BUNDLE_ROOTFS_FILE} -e ${ROOTFS_REMOVE_DIRS}
 }
 
 fakeroot python do_create_bundle() {
