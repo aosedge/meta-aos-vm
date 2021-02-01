@@ -15,4 +15,6 @@ qemu-system-x86_64 \
 	-enable-kvm \
 	-m 2G \
 	-drive if=pflash,format=raw,readonly,file=/usr/share/OVMF/OVMF_CODE.fd \
-	-boot menu=on
+	-boot menu=on,
+	-nographic \
+	-serial mon:stdio
