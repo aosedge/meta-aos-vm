@@ -8,7 +8,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 qemu-system-x86_64 \
-	-device e1000,netdev=net0,mac=$(echo $FQDN|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/') \
+	-device e1000,netdev=net0 \
 	-netdev user,id=net0,hostfwd=tcp::2222-:22 \
 	-hda ${1} \
 	-cpu host \
