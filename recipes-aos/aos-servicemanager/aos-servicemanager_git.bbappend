@@ -11,10 +11,6 @@ SRC_URI_append = " \
     file://com.aos.servicemanage.conf \
 "
 
-AOS_SM_IDENTIFIERS = "\
-    fileidentifier \
-"
-
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-servicemanager.service aos.target"
