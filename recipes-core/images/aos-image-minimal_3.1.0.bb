@@ -81,7 +81,8 @@ BUNDLE_ROOTFS_ID = "rootfs"
 OSTREE_REPO_PATH ?= "${BUNDLES_DIR}/repo"
 OSTREE_REPO_TYPE = "archive"
 
-ROOTFS_ARCHIVE = "${WORKDIR}/deploy-${IMAGE_BASENAME}-image-complete/${IMAGE_LINK_NAME}.tar.bz2"
+IMAGE_ROOTFS = "${TMPDIR}/work-shared/${MACHINE}/${PN}-rootfs"
+ROOTFS_TAR = "${WORKDIR}/deploy-${IMAGE_BASENAME}-image-complete/${IMAGE_LINK_NAME}.tar.bz2"
 ROOTFS_DIFF_DIR = "${WORKDIR}/rootfs_diff"
 
 ROOTFS_REMOVE_DIRS = "var home"
@@ -128,7 +129,7 @@ init_ostree_repo() {
 
 ostree_commit() {
     ostree --repo=${OSTREE_REPO_PATH} commit \
-           --tree=tar=${ROOTFS_ARCHIVE} \
+           --tree=tar=${ROOTFS_TAR} \
            --skip-if-unchanged \
            --branch=${BOARD_ROOTFS_VERSION} \
            --subject="${BOARD_ROOTFS_VERSION}-${DATATIME}"
