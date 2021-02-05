@@ -6,6 +6,7 @@ PartOf=aos.target
 
 [Service]
 ExecStart=/usr/bin/aos_servicemanager -c /etc/aos/aos_servicemanager.cfg -v debug
+ExecStop=/bin/sh -c "/bin/kill -s TERM $MAINPID; while [ -d /proc/$MAINPID ]; do sleep 1; done"
 Restart=always
 RestartSec=10
 
