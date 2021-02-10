@@ -271,5 +271,5 @@ do_set_rootfs_link() {
 addtask set_rootfs_link after do_rootfs before do_image_wic do_image_qa
 addtask set_board_model after do_rootfs before do_image_qa
 addtask set_rootfs_version after do_rootfs before do_image_qa
-addtask create_bundle after do_install do_image_squashfs do_image_wic before do_image_complete
+addtask create_bundle after do_install do_image_tar do_image_squashfs do_image_wic before do_image_complete
 addtask update_fstab_on_rootfs after do_image_wic before do_image_tar do_create_bundle
