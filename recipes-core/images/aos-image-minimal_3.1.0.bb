@@ -70,6 +70,8 @@ python () {
 
 BUNDLES_DIR ?= "${DEPLOY_DIR_IMAGE}/bundles"
 
+BUILD_WIC_DIR="${WORKDIR}/build-wic"
+
 BUNDLE_CONFIG_PATH = "${WORKDIR}/bundle-aos.cfg"
 BUNDLE_WORK_DIR = "${WORKDIR}/bundle"
 
@@ -251,6 +253,13 @@ do_set_rootfs_version() {
     echo "VERSION=\"${BOARD_ROOTFS_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
 }
 
+do_update_fstab_on_rootfs() {
+    if [ -f ${BUILD_WIC_DIR}/fstab ]; then
+        cp -rf ${IMAGE_ROOTFS}/etc/fstab ${BUILD_WIC_DIR}/fstab.orig
+        cp -rf ${BUILD_WIC_DIR}/fstab ${IMAGE_ROOTFS}/etc/fstab
+    fi
+}
+
 # We need to have rootfs in work-shared dir for the layer functionality
 # But, according to the manual - IMAGE_ROOTFS variable is not configurable.
 # Creating symlink IMAGE_ROOTFS to work-shared to get an access to this rootfs by layers
@@ -263,3 +272,4 @@ addtask set_rootfs_link after do_rootfs before do_image_wic do_image_qa
 addtask set_board_model after do_rootfs before do_image_qa
 addtask set_rootfs_version after do_rootfs before do_image_qa
 addtask create_bundle after do_install do_image_squashfs do_image_wic before do_image_complete
+addtask update_fstab_on_rootfs after do_image_wic before do_image_tar do_create_bundle
