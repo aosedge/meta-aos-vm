@@ -12,7 +12,7 @@ inherit extrausers
 IMAGE_FEATURES_append = " read-only-rootfs"
 
 # Set password to the root user. This is the requirement of the provisioning script.
-EXTRA_USERS_PARAMS = "usermod -P Password1 root;"
+EXTRA_USERS_PARAMS = "usermod -P Password1 -s /bin/bash root;"
 
 # AOS packages
 IMAGE_INSTALL_append = " \
@@ -27,6 +27,7 @@ IMAGE_INSTALL_append = " \
 
 # System packages
 IMAGE_INSTALL_append = " \
+    bash \
     mc \
     netconfig \
     openssh \
