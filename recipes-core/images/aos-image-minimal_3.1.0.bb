@@ -81,7 +81,7 @@ BUNDLE_ROOTFS_ID = "rootfs"
 OSTREE_REPO_PATH ?= "${BUNDLES_DIR}/repo"
 OSTREE_REPO_TYPE = "archive"
 
-IMAGE_ROOTFS = "${TMPDIR}/work-shared/${MACHINE}/${PN}-rootfs"
+SHARED_ROOTFS_LINK = "${TMPDIR}/work-shared/${MACHINE}/${PN}-rootfs"
 ROOTFS_TAR = "${WORKDIR}/deploy-${IMAGE_BASENAME}-image-complete/${IMAGE_LINK_NAME}.tar.bz2"
 ROOTFS_DIFF_DIR = "${WORKDIR}/rootfs_diff"
 
@@ -250,6 +250,15 @@ do_set_rootfs_version() {
     echo "VERSION=\"${BOARD_ROOTFS_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
 }
 
+# We need to have rootfs in work-shared dir for the layer functionality
+# But, according to the manual - IMAGE_ROOTFS variable is not configurable.
+# Creating symlink IMAGE_ROOTFS to work-shared to get an access to this rootfs by layers
+do_set_rootfs_link() {
+    rm -rf ${SHARED_ROOTFS_LINK}
+    lnr ${IMAGE_ROOTFS} ${SHARED_ROOTFS_LINK}
+}
+
+addtask set_rootfs_link after do_rootfs before do_image_wic do_image_qa
 addtask set_board_model after do_rootfs before do_image_qa
 addtask set_rootfs_version after do_rootfs before do_image_qa
 addtask create_bundle after do_install do_image_squashfs do_image_wic before do_image_complete
