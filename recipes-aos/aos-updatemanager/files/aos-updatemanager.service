@@ -1,11 +1,11 @@
 [Unit]
 Description=AOS Update Manager
-Requires=network-online.target
-After=network-online.target
+Wants=network-online.target aos-servicemanager.service
+After=network-online.target aos-servicemanager.service
+PartOf=aos.target
 
 [Service]
-WorkingDirectory=/var/aos/updatemanager
-ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg
+ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg -v debug
 Restart=always
 RestartSec=10
 

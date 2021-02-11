@@ -7,4 +7,5 @@ SRC_URI += "\
     file://enable_overlay.cfg \
     file://iptables.cfg \
     file://enable_tpm.cfg \
+    file://enable_squashfs.cfg \
 "

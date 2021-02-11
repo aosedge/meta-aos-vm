@@ -1,11 +1,12 @@
 [Unit]
 Description=AOS Service Manager
-Requires=network-online.target aos-vis.service aos-certificatemanager.service
-After=network-online.target aos-vis.service aos-updatemanager.service aos-certificatemanager.service
+Wants=network-online.target aos-iamanager.service
+After=network-online.target aos-iamanager.service
+PartOf=aos.target
 
 [Service]
-WorkingDirectory=/var/aos/servicemanager
-ExecStart=/usr/bin/aos_servicemanager -c /etc/aos/aos_servicemanager.cfg
+ExecStart=/usr/bin/aos_servicemanager -c /etc/aos/aos_servicemanager.cfg -v debug
+ExecStop=/bin/sh -c "/bin/kill -s TERM $MAINPID; while [ -d /proc/$MAINPID ]; do sleep 1; done"
 Restart=always
 RestartSec=10
 
