@@ -1,0 +1,13 @@
+[Unit]
+Description=AOS Identity and Access Manager
+Wants=network-online.target aos-vis.service
+After=network-online.target aos-vis.service
+PartOf=aos.target
+
+[Service]
+ExecStart=/usr/bin/aos_iamanager -c /etc/aos/aos_iamanager.cfg -v debug
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
