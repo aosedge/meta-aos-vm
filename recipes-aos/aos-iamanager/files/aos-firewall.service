@@ -4,6 +4,7 @@ Before=network-pre.target
 After=iptables.service
 Wants=network-pre.target
 ConditionPathExists=!/var/aos/unprovisioned_state
+PartOf=aos.target
 
 [Service]
 Type=oneshot
