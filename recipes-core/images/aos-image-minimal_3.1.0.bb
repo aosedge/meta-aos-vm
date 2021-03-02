@@ -264,6 +264,7 @@ do_update_fstab_on_rootfs() {
 # But, according to the manual - IMAGE_ROOTFS variable is not configurable.
 # Creating symlink IMAGE_ROOTFS to work-shared to get an access to this rootfs by layers
 do_set_rootfs_link() {
+    install -d ${SHARED_ROOTFS_LINK}
     rm -rf ${SHARED_ROOTFS_LINK}
     lnr ${IMAGE_ROOTFS} ${SHARED_ROOTFS_LINK}
 }
