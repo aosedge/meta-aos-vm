@@ -1,7 +1,7 @@
 # short-description: Create an EFI disk image for genericx86*
 # long-description: Creates a partitioned EFI disk image for genericx86* machines
-part --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOARD_BOOT_VERSION}" --ondisk hda --label msdos --active --align 1024 --size 128M
-part --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOARD_BOOT_VERSION}" --ondisk hda --label msdos --align 1024 --size 128M
+part --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOOT_IMAGE_VERSION}" --ondisk hda --label msdos --active --align 1024 --size 128M
+part --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOOT_IMAGE_VERSION}" --ondisk hda --label msdos --align 1024 --size 128M
 part / --source rootfs --ondisk hda --fstype=ext4 --label platform --align 1024 --size 1024M --exclude-path ./var/ ./home/
 part /home --source rootfs --rootfs-dir=${IMAGE_ROOTFS} --ondisk hda --fstype=ext4 --label home --align 1024 --size 512M --change-directory ./home
 part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS} --ondisk hda --fstype=ext4 --label aos --align 1024 --size 2048M --fsoptions="defaults,usrjquota=aquota.user,jqfmt=vfsv0" --change-directory ./var
