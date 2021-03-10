@@ -6,4 +6,4 @@ part / --source rootfs --ondisk hda --fstype=ext4 --label platform --align 1024 
 part /home --source rootfs --rootfs-dir=${IMAGE_ROOTFS} --ondisk hda --fstype=ext4 --label home --align 1024 --size 512M --change-directory ./home
 part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS} --ondisk hda --fstype=ext4 --label aos --align 1024 --size 2048M --fsoptions="defaults,usrjquota=aquota.user,jqfmt=vfsv0" --change-directory ./var
 
-bootloader --ptable gpt --timeout=5 --append="root=/dev/hda3 ro userdata=/dev/hda5 rootfstype=ext4 console=ttyS0 console=tty0"
+bootloader --ptable gpt --timeout=5 --append="root=/dev/hda3 ro userdata=/dev/hda5 rootfstype=ext4 console=ttyS0"
