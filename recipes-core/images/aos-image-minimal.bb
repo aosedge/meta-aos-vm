@@ -60,13 +60,6 @@ set_rootfs_version() {
     echo "VERSION=\"${ROOTFS_IMAGE_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
 }
 
-do_update_fstab_on_rootfs() {
-    if [ -f ${BUILD_WIC_DIR}/fstab ]; then
-        cp -rf ${IMAGE_ROOTFS}/etc/fstab ${BUILD_WIC_DIR}/fstab.orig
-        cp -rf ${BUILD_WIC_DIR}/fstab ${IMAGE_ROOTFS}/etc/fstab
-    fi
-}
-
 # We need to have shared resources in work-shared dir for the layer and update functionality
 # Creating symlink IMAGE_ROOTFS and BUILD_WIC_DIR to work-shared to get an access to them by
 # layers and update
@@ -80,5 +73,4 @@ do_create_shared_links() {
     fi 
 }
 
-addtask update_fstab_on_rootfs after do_image_wic before do_image_tar
 addtask create_shared_links after do_image_wic before do_image_complete
