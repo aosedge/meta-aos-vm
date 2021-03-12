@@ -21,7 +21,7 @@ finish_enabled() {
 }
 
 do_switchroot() {
-	if grep -qs '/data ' /proc/mounts; then
+	if grep -qs '/data' /proc/mounts && [ ! -f "$UPDATE_DIR/$UPDATED_FLAG" ]; then
 		umount /data
 	fi
 
@@ -41,7 +41,7 @@ switch_if_fail() {
 	if [ $? -ne 0 ]; then
 		dmesg_msg "Initramfs: $1"
 
-		if grep -qs '/data ' /proc/mounts; then
+		if grep -qs '/data' /proc/mounts; then
 			[[ -d $UPDATE_DIR ]] && touch $UPDATE_DIR/$FAIL_FLAG
 		fi
 
