@@ -1,6 +1,6 @@
 # Configuration
 
-BOARD_MODEL = "vm-dev;1.0"
+BOARD_MODEL ?= "vm-dev;1.0"
 
 BUNDLE_IMAGE_VERSION ?= "3.1.0"
 
