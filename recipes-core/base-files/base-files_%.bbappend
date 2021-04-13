@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/base-files:"
 
-SRC_URI = " \
+SRC_URI += " \
 	file://fstab \
 "
 
