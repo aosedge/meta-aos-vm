@@ -34,6 +34,7 @@ IMAGE_INSTALL_append = " \
     openssh \
     tzdata \
     softhsm \
+    e2fsprogs \
 "
 
 # Variables
