@@ -24,6 +24,7 @@ IMAGE_INSTALL_append = " \
     openssl-bin \
     efibootmgr \
     iperf3 \
+    opensc \
 "
 
 # System packages
