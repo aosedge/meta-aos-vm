@@ -39,6 +39,6 @@ do_install_append() {
     install -m 0755 ${WORKDIR}/finish.sh ${D}${bindir}
     install -m 0744 ${WORKDIR}/iptables-rules.sh ${D}${bindir}
 
-    install -d ${D}/var/aos
-    install -m 0644 /dev/null ${D}/var/aos/unprovisioned_state
+    install -d ${D}/var/
+    install -m 0644 /dev/null ${D}/var/unprovisioned_state
 }
