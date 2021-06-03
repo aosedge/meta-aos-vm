@@ -7,6 +7,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 SRC_URI += "\
     file://eth.network \
+    file://lo.1.network \
 "
 
 do_install_append() {
