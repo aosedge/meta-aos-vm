@@ -12,6 +12,7 @@ SRC_URI_append = "\
 
 AOS_IAM_CERT_MODULES = "\
     certhandler/modules/swmodule \
+    certhandler/modules/pkcs11module \
 "
 
 AOS_IAM_IDENT_MODULES = "\
