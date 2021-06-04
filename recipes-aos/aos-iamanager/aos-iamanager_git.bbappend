@@ -8,6 +8,7 @@ SRC_URI_append = "\
     file://finish.sh \
     file://aos-firewall.service \
     file://iptables-rules.sh \
+    file://encrypt.sh \
 "
 
 AOS_IAM_CERT_MODULES = "\
@@ -39,6 +40,7 @@ do_install_append() {
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/finish.sh ${D}${bindir}
     install -m 0744 ${WORKDIR}/iptables-rules.sh ${D}${bindir}
+    install -m 0755 ${WORKDIR}/encrypt.sh ${D}${bindir}
 
     install -d ${D}/var/
     install -m 0644 /dev/null ${D}/var/unprovisioned_state
