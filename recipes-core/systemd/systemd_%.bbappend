@@ -7,6 +7,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI += "\
     file://crypttab \
     file://override.conf \
+    file://70-veth.network \
 "
 
 FILES_${PN} += " ${sysconfdir} \"
@@ -31,4 +32,7 @@ do_install_append () {
 
     install -d ${D}${sysconfdir}/systemd/system/systemd-cryptsetup@aos_partition.service.d/
     install -m 0644 ${WORKDIR}/override.conf ${D}${sysconfdir}/systemd/system/systemd-cryptsetup@aos_partition.service.d/
+
+    install -d ${D}${systemd_unitdir}/network/
+    install -m 0644 ${WORKDIR}/70-veth.network ${D}${systemd_unitdir}/network/
 }
