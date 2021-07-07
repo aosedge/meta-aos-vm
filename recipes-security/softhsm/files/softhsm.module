@@ -1,0 +1,2 @@
+module: /usr/lib/softhsm/libsofthsm2.so
+managed: yes

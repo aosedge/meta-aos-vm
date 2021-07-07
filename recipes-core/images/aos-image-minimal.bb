@@ -24,6 +24,7 @@ IMAGE_INSTALL_append = " \
     openssl-bin \
     efibootmgr \
     iperf3 \
+    opensc \
 "
 
 # System packages
@@ -33,6 +34,8 @@ IMAGE_INSTALL_append = " \
     netconfig \
     openssh \
     tzdata \
+    softhsm \
+    e2fsprogs \
 "
 
 # Variables
