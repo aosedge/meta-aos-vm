@@ -23,6 +23,8 @@ RDEPENDS_${PN} += "\
 MIGRATION_SCRIPTS_PATH = "/usr/share/servicemanager/migration"
 DBUS_CONF_PATH = "/usr/share/dbus-1/system.d"
 
+AOS_RUNNER ?= "crun"
+
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_servicemanager.cfg \
     ${sysconfdir}/sysctl.d/*.conf \
