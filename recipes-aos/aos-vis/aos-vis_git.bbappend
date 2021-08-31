@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-BRANCH = "master"
-
 SRC_URI_append = "\
     file://aos-vis.service \
     file://aos_vis.cfg \
