@@ -8,4 +8,5 @@ SRC_URI += "\
     file://iptables.cfg \
     file://enable_tpm.cfg \
     file://enable_squashfs.cfg \
+    file://cmdline_append.cfg \
 "
