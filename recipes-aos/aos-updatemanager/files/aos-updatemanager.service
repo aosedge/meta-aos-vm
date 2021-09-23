@@ -1,7 +1,7 @@
 [Unit]
 Description=AOS Update Manager
-Wants=network-online.target aos-servicemanager.service
-After=network-online.target aos-servicemanager.service
+Wants=network-online.target aos-communicationmanager.service
+After=network-online.target aos-communicationmanager.service
 PartOf=aos.target
 
 [Service]
