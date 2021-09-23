@@ -1,7 +1,7 @@
 [Unit]
 Description=Aos services
-Wants=aos-vis.service aos-iamanager.service aos-servicemanager.service aos-updatemanager.service
-After=aos-vis.service aos-iamanager.service aos-servicemanager.service aos-updatemanager.service
+Wants=aos-vis.service aos-iamanager.service aos-servicemanager.service aos-updatemanager.service aos-communicationmanager.service
+After=aos-vis.service aos-iamanager.service aos-servicemanager.service aos-updatemanager.service aos-communicationmanager.service
 
 [Install]
 WantedBy=multi-user.target
