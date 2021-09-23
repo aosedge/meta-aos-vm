@@ -21,6 +21,7 @@ IMAGE_INSTALL_append = " \
     aos-updatemanager \
     aos-iamanager \
     aos-vis \
+    aos-communicationmanager \
     openssl-bin \
     efibootmgr \
     iperf3 \
