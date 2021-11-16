@@ -3,7 +3,7 @@ LICENSE = "Apache-2.0"
 
 IMAGE_LINGUAS = " "
 
-inherit core-image extrausers
+inherit core-image extrausers ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux-image', '', d)}
 
 require aos-image-vm.inc
 
@@ -38,6 +38,8 @@ IMAGE_INSTALL_append = " \
     softhsm \
     e2fsprogs \
     coreutils \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-minimal', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-policycoreutils', '', d)} \
 "
 
 # Variables
