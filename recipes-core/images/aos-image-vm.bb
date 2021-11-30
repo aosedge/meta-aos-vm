@@ -45,6 +45,10 @@ IMAGE_INSTALL_append = " \
 # Variables
 
 BUILD_WIC_DIR="${WORKDIR}/build-wic"
+# In case of usage exclude directive in wks.in file, bitbake
+# tries to copy files without SELinux labeling savings, so avoid using
+# it with enabled SELinux.
+ROOTFS_EXCLUDE_PATHS = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '', '--exclude-path ./var/ ./home/', d)}"
 SHARED_RESOURCE_DIR = "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}"
 
 ROOTFS_POSTPROCESS_COMMAND_append += "set_board_model; set_rootfs_version;"
