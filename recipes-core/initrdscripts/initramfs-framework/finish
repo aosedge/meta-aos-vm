@@ -94,6 +94,11 @@ set_updated_part_flag() {
 	touch $UPDATE_DIR/$UPDATED_FLAG
 }
 
+clear_update_part_flags() {
+	echo "Clear update partition flags $UPDATE_DIR/$UPDATED_FLAG $UPDATE_DIR/$DO_UPDATE_FLAG"
+	rm -f $UPDATE_DIR/$UPDATED_FLAG $UPDATE_DIR/$DO_UPDATE_FLAG
+}
+
 do_apply_update() {
 	update_type="$(get_update_type)"
 	update_file="$(find $UPDATE_DIR -name ${UPDATE_EXT} | head -n1)"
@@ -202,6 +207,8 @@ finish_run() {
 			;;
 		ignore)
 			echo "Action: ignoring update"
+
+			clear_update_part_flags
 			;;
 		*)
 			echo "Fail: Unexpected action received- $action"
