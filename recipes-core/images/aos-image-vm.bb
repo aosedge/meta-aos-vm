@@ -40,6 +40,7 @@ IMAGE_INSTALL_append = " \
     coreutils \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-minimal', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-policycoreutils', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aos-selinux-autorelabel', '', d)} \
 "
 
 # Variables
