@@ -39,6 +39,7 @@ IMAGE_INSTALL_append = " \
     e2fsprogs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-minimal', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-policycoreutils', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aos-selinux-autorelabel', '', d)} \
 "
 
 # Variables
