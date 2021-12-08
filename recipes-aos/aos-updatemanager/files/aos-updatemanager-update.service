@@ -3,7 +3,8 @@ Description=AOS Update Manager
 Wants=network-online.target aos-communicationmanager.service
 After=network-online.target aos-communicationmanager.service
 PartOf=aos.target
-ConditionPathExists=!/var/update/rootfs/updated
+ConditionPathExists=/var/update/rootfs/updated
+FailureAction=reboot-force
 
 [Service]
 Type=notify
