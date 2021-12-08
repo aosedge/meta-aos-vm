@@ -6,7 +6,7 @@ PartOf=aos.target
 
 [Service]
 Type=notify
-ExecStart=/usr/bin/aos_vis -c /etc/aos/aos_vis.cfg
+ExecStart=/usr/bin/aos_vis -c /etc/aos/aos_vis.cfg -j
 Restart=always
 RestartSec=10
 
