@@ -5,6 +5,7 @@ After=network-online.target aos-vis.service var-aos.mount
 PartOf=aos.target
 
 [Service]
+Type=notify
 ExecStart=/usr/bin/aos_iamanager -c /etc/aos/aos_iamanager.cfg -v debug -j
 Restart=always
 RestartSec=10
