@@ -2,6 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI_append = "\
     file://aos-updatemanager.service \
+    file://aos-updatemanager-update.service \
     file://aos_updatemanager.cfg \
 "
 
@@ -12,7 +13,7 @@ AOS_UM_UPDATE_MODULES ?= "\
 
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
+SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service aos-updatemanager-update.service"
 MIGRATION_SCRIPTS_PATH = "/usr/share/updatemanager/migration"
 
 DEPENDS_append = "\
@@ -24,6 +25,7 @@ DEPENDS_append = "\
 FILES_${PN} += " \
     ${sysconfdir}/aos/aos_updatemanager.cfg \
     ${systemd_system_unitdir}/aos-updatemanager.service \
+    ${systemd_system_unitdir}/aos-updatemanager-update.service \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
@@ -33,6 +35,7 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
+    install -m 0644 ${WORKDIR}/aos-updatemanager-update.service ${D}${systemd_system_unitdir}/aos-updatemanager-update.service
 
     install -d ${D}/var/aos/updatemanager
 
