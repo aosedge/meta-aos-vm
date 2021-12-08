@@ -5,8 +5,9 @@ After=network-online.target aos-communicationmanager.service
 PartOf=aos.target
 
 [Service]
+Type=notify
 ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg -v debug -j
-Restart=on-failure
+Restart=always
 RestartSec=10
 
 [Install]

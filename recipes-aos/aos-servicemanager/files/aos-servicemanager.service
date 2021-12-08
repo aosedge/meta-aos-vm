@@ -5,6 +5,7 @@ After=network-online.target aos-iamanager.service
 PartOf=aos.target
 
 [Service]
+Type=notify
 ExecStart=/usr/bin/aos_servicemanager -c /etc/aos/aos_servicemanager.cfg -v debug -j
 ExecStop=/bin/sh -c "/bin/kill -s TERM $MAINPID; while [ -d /proc/$MAINPID ]; do sleep 1; done"
 Restart=always
