@@ -5,6 +5,7 @@ After=network-online.target
 PartOf=aos.target
 
 [Service]
+Type=notify
 ExecStart=/usr/bin/aos_vis -c /etc/aos/aos_vis.cfg
 Restart=always
 RestartSec=10
