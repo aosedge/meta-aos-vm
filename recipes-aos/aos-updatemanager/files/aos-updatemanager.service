@@ -3,13 +3,18 @@ Description=AOS Update Manager
 Wants=network-online.target aos-communicationmanager.service
 After=network-online.target aos-communicationmanager.service
 PartOf=aos.target
-ConditionPathExists=!/var/update/rootfs/updated
+OnFailure=aos-reboot.service
+StartLimitInterval=300
+StartLimitBurst=3
 
 [Service]
 Type=notify
 ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg -v debug -j
-Restart=always
-RestartSec=10
+# It is important to do not restart UM on normal exit. This case is used when system
+# reboot scheduled: UM returns exit code 0.
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=60
 
 [Install]
 WantedBy=multi-user.target
