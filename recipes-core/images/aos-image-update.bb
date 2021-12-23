@@ -3,7 +3,7 @@ LICENSE = "Apache-2.0"
 
 # Variables
 
-AOS_BASE_IMAGE = "aos-image-minimal"
+AOS_BASE_IMAGE = "aos-image-vm"
 
 BUNDLE_BOOT_ID = "boot"
 BUNDLE_ROOTFS_ID = "rootfs"

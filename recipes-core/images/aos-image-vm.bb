@@ -5,7 +5,7 @@ IMAGE_LINGUAS = " "
 
 inherit core-image extrausers
 
-require aos-image-minimal.inc
+require aos-image-vm.inc
 
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
 IMAGE_FSTYPES = "tar.bz2 wic.vmdk"
