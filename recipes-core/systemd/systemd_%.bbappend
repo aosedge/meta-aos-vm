@@ -14,7 +14,7 @@ FILES_${PN} += " ${sysconfdir} \"
 
 PACKAGECONFIG[p11kit] = "-Dp11kit=true -Dhomed=false, -Dp11kit=false, p11-kit"
 
-PACKAGECONFIG_append = "cryptsetup p11kit openssl"
+PACKAGECONFIG_append += " cryptsetup p11kit openssl "
 
 do_install_append () {
     install -d ${D}${sysconfdir}/systemd/system/multi-user.target.wants
