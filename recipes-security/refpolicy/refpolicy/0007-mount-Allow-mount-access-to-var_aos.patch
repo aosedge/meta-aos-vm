@@ -1,0 +1,52 @@
+From 12a95a4ec73451597f8bc83fde11ac970ac8f01a Mon Sep 17 00:00:00 2001
+From: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+Date: Tue, 4 Jan 2022 17:48:29 +0200
+Subject: [PATCH 7/8] [mount] Allow mount access to var_aos
+
+Signed-off-by: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+---
+ policy/modules/system/aos.if   | 18 ++++++++++++++++++
+ policy/modules/system/mount.te |  1 +
+ 2 files changed, 19 insertions(+)
+
+diff --git a/policy/modules/system/aos.if b/policy/modules/system/aos.if
+index 3d9d6f23a..a0a4b376a 100644
+--- a/policy/modules/system/aos.if
++++ b/policy/modules/system/aos.if
+@@ -75,3 +75,21 @@ interface(`files_getattr_aos_var_run_dir',`
+ 	allow $1 aos_var_run_t:dir getattr;
+ ')
+ 
++########################################
++## <summary>
++##	mounton a /var/aos directory.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`files_mounton_aos_dirs',`
++	gen_require(`
++		type aos_var_run_t;
++	')
++
++	allow $1 aos_var_run_t:dir mounton;
++')
++
+diff --git a/policy/modules/system/mount.te b/policy/modules/system/mount.te
+index 109ec06d3..44ebf4093 100644
+--- a/policy/modules/system/mount.te
++++ b/policy/modules/system/mount.te
+@@ -98,6 +98,7 @@ files_read_usr_files(mount_t)
+ files_list_all_mountpoints(mount_t)
+ files_dontaudit_write_all_mountpoints(mount_t)
+ files_dontaudit_setattr_all_mountpoints(mount_t)
++files_mounton_aos_dirs(mount_t)
+ 
+ fs_getattr_xattr_fs(mount_t)
+ fs_getattr_tmpfs(mount_t)
+-- 
+2.25.1
+

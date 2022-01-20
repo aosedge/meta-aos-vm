@@ -1,0 +1,27 @@
+From fdda627f58ae13b5a75b89cc76c54c07fcd9dec5 Mon Sep 17 00:00:00 2001
+From: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+Date: Fri, 17 Dec 2021 17:38:21 +0200
+Subject: [PATCH 4/8] [systemd_networkd_t] Allow reading var_t
+
+In case of ready-only rootfs, machine-id labeled as var_t.
+
+Signed-off-by: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+---
+ policy/modules/system/systemd.te | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/policy/modules/system/systemd.te b/policy/modules/system/systemd.te
+index 9bc636864..bb33c616d 100644
+--- a/policy/modules/system/systemd.te
++++ b/policy/modules/system/systemd.te
+@@ -868,6 +868,7 @@ dev_read_sysfs(systemd_networkd_t)
+ dev_write_kmsg(systemd_networkd_t)
+ 
+ files_read_etc_files(systemd_networkd_t)
++files_read_var_files(systemd_networkd_t)
+ files_watch_runtime_dirs(systemd_networkd_t)
+ files_watch_root_dirs(systemd_networkd_t)
+ files_list_runtime(systemd_networkd_t)
+-- 
+2.25.1
+
