@@ -1,0 +1,54 @@
+From 49b5496ff94fb93457d6ac2669d168f7c6f51615 Mon Sep 17 00:00:00 2001
+From: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+Date: Tue, 21 Dec 2021 17:29:15 +0200
+Subject: [PATCH 6/8] [systemd] Allow systemd_generator get aos_var_run file
+ attributes
+
+Signed-off-by: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+---
+ policy/modules/system/aos.if     | 19 +++++++++++++++++++
+ policy/modules/system/systemd.te |  1 +
+ 2 files changed, 20 insertions(+)
+
+diff --git a/policy/modules/system/aos.if b/policy/modules/system/aos.if
+index 870f62f3d..3d9d6f23a 100644
+--- a/policy/modules/system/aos.if
++++ b/policy/modules/system/aos.if
+@@ -56,3 +56,22 @@ interface(`aos_read_pid_files',`
+ 	files_search_pids($1)
+ 	read_files_pattern($1, aos_var_run_t, aos_var_run_t)
+ ')
++
++########################################
++## <summary>
++##	Get attributes of aos var run dirs.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`files_getattr_aos_var_run_dir',`
++	gen_require(`
++		type aos_var_run_t;
++	')
++
++	allow $1 aos_var_run_t:dir getattr;
++')
++
+diff --git a/policy/modules/system/systemd.te b/policy/modules/system/systemd.te
+index bb33c616d..7c913298a 100644
+--- a/policy/modules/system/systemd.te
++++ b/policy/modules/system/systemd.te
+@@ -433,6 +433,7 @@ files_list_boot(systemd_generator_t)
+ files_read_boot_files(systemd_generator_t)
+ files_search_all_mountpoints(systemd_generator_t)
+ files_list_usr(systemd_generator_t)
++files_getattr_aos_var_run_dir(systemd_generator_t)
+ 
+ fs_list_efivars(systemd_generator_t)
+ fs_getattr_xattr_fs(systemd_generator_t)
+-- 
+2.25.1
+

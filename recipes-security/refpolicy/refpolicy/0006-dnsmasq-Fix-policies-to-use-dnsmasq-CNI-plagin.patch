@@ -1,0 +1,31 @@
+From 7de6999b9b786ca640055120ca27262866f9034e Mon Sep 17 00:00:00 2001
+From: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+Date: Tue, 21 Dec 2021 14:06:56 +0200
+Subject: [PATCH 6/9] [dnsmasq] Fix policies to use dnsmasq CNI plagin
+
+Signed-off-by: Leonid Komarianskyi <leonid_komarianskyi@epam.com>
+---
+ policy/modules/services/dnsmasq.te | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/policy/modules/services/dnsmasq.te b/policy/modules/services/dnsmasq.te
+index 0fdaaf6c6..8f686f51e 100644
+--- a/policy/modules/services/dnsmasq.te
++++ b/policy/modules/services/dnsmasq.te
+@@ -49,6 +49,13 @@ files_var_lib_filetrans(dnsmasq_t, dnsmasq_lease_t, file)
+ allow dnsmasq_t dnsmasq_var_log_t:file append_file_perms;
+ allow dnsmasq_t dnsmasq_var_log_t:file create_file_perms;
+ allow dnsmasq_t dnsmasq_var_log_t:file setattr_file_perms;
++
++allow dnsmasq_t var_run_t:file { getattr open read };
++allow dnsmasq_t systemd_resolved_runtime_t:dir { read watch };
++allow dnsmasq_t etc_t:file map;
++
++systemd_read_resolved_runtime(dnsmasq_t)
++
+ logging_log_filetrans(dnsmasq_t, dnsmasq_var_log_t, file)
+ 
+ manage_dirs_pattern(dnsmasq_t, dnsmasq_runtime_t, dnsmasq_runtime_t)
+-- 
+2.25.1
+
