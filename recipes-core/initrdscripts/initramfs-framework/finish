@@ -118,8 +118,11 @@ do_apply_update() {
 	if [ x$update_type == x"full" ]; then
 		echo "Apply full update"
 
+		mount -t selinuxfs selinuxfs /sys/fs/selinux
+		/sbin/semodule -i /usr/share/selinux/aos/base.pp
+
 		rm -rf $ROOTFS_DIR/*
-		cp -rafd /update_layer/* $ROOTFS_DIR
+		cp -rafd --preserve=context /update_layer/* $ROOTFS_DIR
 		switch_if_fail "can't copy files"
 
 		echo "Full update applied"
@@ -138,6 +141,7 @@ do_apply_update() {
 	rm -f $UPDATE_DIR/$DO_APPLY_FLAG
 
 	umount /update_layer
+	umount /sys/fs/selinux
 	mount -o remount,ro $ROOTFS_DIR
 }
 
