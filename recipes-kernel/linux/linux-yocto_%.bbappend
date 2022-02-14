@@ -9,4 +9,5 @@ SRC_URI += "\
     file://enable_tpm.cfg \
     file://enable_squashfs.cfg \
     file://cmdline_append.cfg \
+    file://squashfs_xattrs.cfg \
 "
