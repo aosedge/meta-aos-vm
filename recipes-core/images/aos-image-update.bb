@@ -71,7 +71,7 @@ python do_create_metadata() {
     write_image_metadata(d.getVar("BUNDLE_WORK_DIR"), d.getVar("BOARD_MODEL"), components_metadata)
 }
 
-python do_create_bundle() {
+fakeroot python do_create_bundle() {
     if (not d.getVar("BUNDLE_ROOTFS") or d.getVar("BUNDLE_ROOTFS") == "none") and (not bb.utils.to_boolean(d.getVar("BUNDLE_BOOT"))):
        return
 
