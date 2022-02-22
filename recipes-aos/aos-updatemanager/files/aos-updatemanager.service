@@ -1,7 +1,7 @@
 [Unit]
 Description=AOS Update Manager
-Wants=network-online.target aos-communicationmanager.service
-After=network-online.target aos-communicationmanager.service
+Wants=network-online.target aos-iamanager.service aos-communicationmanager.service
+After=network-online.target aos-iamanager.service aos-communicationmanager.service
 PartOf=aos.target
 OnFailure=aos-reboot.service
 StartLimitInterval=300
