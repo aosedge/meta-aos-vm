@@ -37,6 +37,7 @@ IMAGE_INSTALL_append = " \
     tzdata \
     softhsm \
     e2fsprogs \
+    coreutils \
 "
 
 # Variables
