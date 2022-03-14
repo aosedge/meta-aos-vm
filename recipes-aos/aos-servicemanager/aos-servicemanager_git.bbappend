@@ -34,10 +34,10 @@ do_install_append() {
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}${sysconfdir}/aos
 
-    sed -i 's/"runner": "runc",/"runner": "${AOS_RUNNER}",/g' ${D}${sysconfdir}/aos/aos_servicemanager.cfg
-
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-servicemanager.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${S}/src/${GO_IMPORT}/runner/aos-service@.service ${D}${systemd_system_unitdir}
+    sed -i 's/{RUNNER}/${AOS_RUNNER}/g' ${D}${systemd_system_unitdir}/aos/aos-service@.service
 
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
