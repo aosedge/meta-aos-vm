@@ -2,7 +2,7 @@
 
 PIN=$(cat /var/.usrpin.txt)
 
-PASSWORD="$(cat /dev/urandom | base64 | head -c 10)"
+PASSWORD="$(dd if=/dev/urandom bs=10 count=1)"
 
 echo PIN=$PIN > /var/.usrpin;
 
