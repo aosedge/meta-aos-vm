@@ -35,7 +35,6 @@ IMAGE_INSTALL_append = " \
     openssh \
     tzdata \
     softhsm \
-    e2fsprogs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', ' \
         packagegroup-selinux-minimal \
         packagegroup-selinux-policycoreutils \
