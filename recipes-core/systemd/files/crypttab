@@ -1,1 +1,0 @@
-aos_partition /dev/hda6 - pkcs11-uri=auto,nofail,noauto
