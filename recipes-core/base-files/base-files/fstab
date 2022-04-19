@@ -10,5 +10,4 @@ tmpfs                /var/volatile        tmpfs      defaults              0  0
 #/dev/mmcblk0p1       /media/card          auto       defaults,sync,noauto  0  0
 
 /dev/hda4	/home	ext4	defaults	0	0
-/dev/hda5	/var	ext4	defaults	0	0
-/dev/mapper/aos_partition  /var/aos ext4 defaults,usrjquota=aquota.user,jqfmt=vfsv0,nofail,x-systemd.requires=systemd-cryptsetup@aos_partition	0	0
+/dev/hda5	/var	ext4	defaults,usrjquota=aquota.user,jqfmt=vfsv0	0	0
