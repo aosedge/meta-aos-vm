@@ -38,9 +38,11 @@ IMAGE_INSTALL_append = " \
     softhsm \
     e2fsprogs \
     coreutils \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-minimal', '', d)} \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-policycoreutils', '', d)} \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aos-selinux-autorelabel', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', ' \
+        packagegroup-selinux-minimal \
+        packagegroup-selinux-policycoreutils \
+        aos-selinux-autorelabel \
+        ', '', d)} \
 "
 
 # Variables
