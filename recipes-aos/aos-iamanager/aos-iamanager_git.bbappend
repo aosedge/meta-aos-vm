@@ -9,7 +9,6 @@ SRC_URI_append = "\
 "
 
 AOS_IAM_CERT_MODULES = "\
-    certhandler/modules/swmodule \
     certhandler/modules/pkcs11module \
 "
 
@@ -25,6 +24,10 @@ FILES_${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
     ${bindir} \
+"
+
+RDEPENDS_${PN} = " \
+    softhsm \
 "
 
 do_install_append() {
