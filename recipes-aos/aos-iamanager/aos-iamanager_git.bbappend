@@ -25,6 +25,7 @@ FILES_${PN} += " \
 RDEPENDS_${PN} = " \
     aos-provfirewall \
     aos-provfinish \
+    aos-setupdisk \
     softhsm \
 "
 
@@ -33,5 +34,5 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos_iamanager.cfg ${D}${sysconfdir}/aos
 
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/aos-iamanager.service ${D}${systemd_system_unitdir}
 }
