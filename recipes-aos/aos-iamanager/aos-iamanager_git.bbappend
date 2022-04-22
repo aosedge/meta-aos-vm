@@ -3,7 +3,6 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI_append = "\
     file://aos-iamanager.service \
     file://aos_iamanager.cfg \
-    file://finish.sh \
 "
 
 AOS_IAM_CERT_MODULES = "\
@@ -21,11 +20,11 @@ SYSTEMD_SERVICE_${PN} = "aos-iamanager.service"
 FILES_${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
-    ${bindir} \
 "
 
 RDEPENDS_${PN} = " \
     aos-provfirewall \
+    aos-provfinish \
     softhsm \
 "
 
@@ -35,10 +34,4 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
-
-    install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/finish.sh ${D}${bindir}
-
-    install -d ${D}${localstatedir}/aos
-    touch ${D}${localstatedir}/aos/.unprovisioned
 }
