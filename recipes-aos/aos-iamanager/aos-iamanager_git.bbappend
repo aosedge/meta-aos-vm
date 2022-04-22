@@ -4,8 +4,6 @@ SRC_URI_append = "\
     file://aos-iamanager.service \
     file://aos_iamanager.cfg \
     file://finish.sh \
-    file://aos-firewall.service \
-    file://iptables-rules.sh \
 "
 
 AOS_IAM_CERT_MODULES = "\
@@ -18,7 +16,7 @@ AOS_IAM_IDENT_MODULES = "\
 
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-iamanager.service aos-firewall.service"
+SYSTEMD_SERVICE_${PN} = "aos-iamanager.service"
 
 FILES_${PN} += " \
     ${sysconfdir} \
@@ -27,6 +25,7 @@ FILES_${PN} += " \
 "
 
 RDEPENDS_${PN} = " \
+    aos-provfirewall \
     softhsm \
 "
 
@@ -39,8 +38,7 @@ do_install_append() {
 
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/finish.sh ${D}${bindir}
-    install -m 0744 ${WORKDIR}/iptables-rules.sh ${D}${bindir}
 
-    install -d ${D}/var/
-    install -m 0644 /dev/null ${D}/var/unprovisioned_state
+    install -d ${D}${localstatedir}/aos
+    touch ${D}${localstatedir}/aos/.unprovisioned
 }
