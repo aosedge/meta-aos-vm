@@ -2,10 +2,11 @@
 Description=AOS Update Manager
 Wants=network-online.target aos-iamanager.service aos-communicationmanager.service
 After=network-online.target aos-iamanager.service aos-communicationmanager.service
-PartOf=aos.target
 OnFailure=aos-reboot.service
 StartLimitInterval=300
 StartLimitBurst=3
+ConditionPathExists=!/var/aos/.unprovisioned
+PartOf=aos.target
 
 [Service]
 Type=notify
