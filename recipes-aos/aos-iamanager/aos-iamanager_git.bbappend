@@ -13,6 +13,8 @@ AOS_IAM_IDENT_MODULES = "\
     identhandler/modules/visidentifier \
 "
 
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/iam/migration"
+
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-iamanager.service"
@@ -20,6 +22,7 @@ SYSTEMD_SERVICE_${PN} = "aos-iamanager.service"
 FILES_${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
+    ${MIGRATION_SCRIPTS_PATH} \
 "
 
 RDEPENDS_${PN} = " \
@@ -35,4 +38,10 @@ do_install_append() {
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-iamanager.service ${D}${systemd_system_unitdir}
+
+    install -d ${D}${MIGRATION_SCRIPTS_PATH}
+    source_migration_path="/src/${GO_IMPORT}/database/migration"
+    if [ -d ${S}${source_migration_path} ]; then
+        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
+    fi
 }
