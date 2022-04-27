@@ -59,4 +59,4 @@ docker run \
 	-v "$HOME"/.ssh:/home/yocto/.ssh \
 	-v "$HOME"/.gitconfig:/home/yocto/.gitconfig \
 	-v "${WORKSPACE}":/home/yocto/workspace \
-	-ti --rm "$IMAGE_NAME"
+	-ti --rm "$DOCKER_IMAGE_NAME"
