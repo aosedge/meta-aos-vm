@@ -17,18 +17,17 @@ EXTRA_USERS_PARAMS = "usermod -P Password1 -s /bin/bash root;"
 
 # AOS packages
 IMAGE_INSTALL_append = " \
+    aos-communicationmanager \
+    aos-iamanager \
     aos-servicemanager \
     aos-updatemanager \
-    aos-iamanager \
     aos-vis \
-    aos-communicationmanager \
-    openssl-bin \
-    iperf3 \
 "
 
 # System packages
 IMAGE_INSTALL_append = " \
     bash \
+    iperf3 \
     mc \
     netconfig \
     openssh \
