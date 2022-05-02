@@ -15,7 +15,7 @@ inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
 
-MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/updatemanager/migration"
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/um/migration"
 
 DEPENDS_append = "\
     pkgconfig-native \
