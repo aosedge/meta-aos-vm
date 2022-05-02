@@ -23,7 +23,6 @@ IMAGE_INSTALL_append = " \
     aos-vis \
     aos-communicationmanager \
     openssl-bin \
-    efibootmgr \
     iperf3 \
 "
 
