@@ -1,7 +1,9 @@
 [Unit]
 Description=AOS Service Manager
 Wants=network-online.target aos-iamanager.service
-After=network-online.target aos-iamanager.service
+After=network-online.target aos-iamanager.service 
+Requires=var-aos-workdirs.mount var-aos-downloads.mount var-aos-storages.mount var-aos-states.mount
+After=var-aos-workdirs.mount var-aos-downloads.mount var-aos-storages.mount var-aos-states.mount
 ConditionPathExists=!/var/aos/.unprovisioned
 PartOf=aos.target
 
