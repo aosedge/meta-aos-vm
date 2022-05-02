@@ -1,8 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI_append = "\
-    file://aos-iamanager.service \
     file://aos_iamanager.cfg \
+    file://aos-iamanager.service \
 "
 
 AOS_IAM_CERT_MODULES = "\
