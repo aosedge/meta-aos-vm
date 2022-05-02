@@ -28,6 +28,7 @@ FILES_${PN} += " \
 RDEPENDS_${PN} = " \
     aos-provfirewall \
     aos-provfinish \
+    aos-rootca \
     aos-setupdisk \
     softhsm \
 "
