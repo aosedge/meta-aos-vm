@@ -9,7 +9,7 @@ inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-communicationmanager.service"
 
-MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/communicationmanager/migration"
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/cm/migration"
 
 FILES_${PN} += " \
     ${sysconfdir} \
