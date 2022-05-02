@@ -45,3 +45,10 @@ do_install_append() {
         install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
     fi
 }
+
+pkg_postinst_${PN}() {
+    # Add aosiam to /etc/hosts
+    if ! grep -q 'aosiam' $D${sysconfdir}/hosts ; then
+        echo '127.0.0.1	aosiam' >> $D${sysconfdir}/hosts
+    fi
+}

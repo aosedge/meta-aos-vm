@@ -52,3 +52,10 @@ do_install_append() {
     install -d ${D}${VIS_CERTS_PATH}
     install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}${VIS_CERTS_PATH}
 }
+
+pkg_postinst_${PN}() {
+    # Add wwwivi to /etc/hosts
+    if ! grep -q 'wwwivi' $D${sysconfdir}/hosts ; then
+        echo '127.0.0.1	wwwivi' >> $D${sysconfdir}/hosts
+    fi
+}
