@@ -51,18 +51,8 @@ do_install_append() {
 }
 
 pkg_postinst_${PN}() {
-    # Add wwwivi to /etc/hosts
-    if ! grep -q 'wwwivi' $D${sysconfdir}/hosts ; then
-        echo '127.0.0.1	wwwivi' >> $D${sysconfdir}/hosts
-    fi
-
     # Add aossm to /etc/hosts
     if ! grep -q 'aossm' $D${sysconfdir}/hosts ; then
         echo '127.0.0.1	aossm' >> $D${sysconfdir}/hosts
-    fi
-
-    # Add aosiam to /etc/hosts
-    if ! grep -q 'aosiam' $D${sysconfdir}/hosts ; then
-        echo '127.0.0.1	aosiam' >> $D${sysconfdir}/hosts
     fi
 }
