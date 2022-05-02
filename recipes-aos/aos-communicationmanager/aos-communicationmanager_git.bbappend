@@ -9,25 +9,23 @@ inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-communicationmanager.service"
 
-MIGRATION_SCRIPTS_PATH = "/usr/share/communicationmanager/migration"
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/communicationmanager/migration"
 
 FILES_${PN} += " \
-    ${sysconfdir}/aos/aos_communicationmanager.cfg \
-    ${systemd_system_unitdir}/*.service \
+    ${sysconfdir} \
+    ${systemd_system_unitdir} \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
 do_install_append() {
-    install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
-
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_communicationmanager.cfg ${D}${sysconfdir}/aos
 
-    install -d ${D}/var/aos/communicationmanager
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/aos-communicationmanager.service ${D}${systemd_system_unitdir}
 
     install -d ${D}${MIGRATION_SCRIPTS_PATH}
-    source_migration_path="/src/aos_communicationmanager/database/migration"
+    source_migration_path="/src/${GO_IMPORT}/database/migration"
     if [ -d ${S}${source_migration_path} ]; then
         install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
     fi
