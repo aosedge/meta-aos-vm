@@ -4,13 +4,17 @@ SRC_URI_append = " \
     file://aos_servicemanager.cfg \
     file://aos-servicemanager.service \
     file://ipforwarding.conf \
-    file://rootCA.pem \
 "
 
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-servicemanager.service"
 
+RDEPENDS_${PN} += "\
+    aos-rootca \
+"
+
+# Base layer for services
 RDEPENDS_${PN} += "\
     python3 \
     python3-core \
@@ -37,9 +41,6 @@ do_install_append() {
 
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
-
-    install -d ${D}${sysconfdir}/ssl/certs
-    install -m 0644 ${WORKDIR}/rootCA.pem ${D}${sysconfdir}/ssl/certs/
 
     install -d ${D}${MIGRATION_SCRIPTS_PATH}
     source_migration_path="/src/${GO_IMPORT}/database/migration"
