@@ -27,6 +27,7 @@ FILES_${PN} += " \
 "
 
 RDEPENDS_${PN} += "\
+    aos-rootca \
     ${@bb.utils.contains('AOS_VIS_PLUGINS', 'plugins/telemetryemulatoradapter', 'telemetry-emulator', '', d)} \
 "
 

@@ -17,6 +17,10 @@ FILES_${PN} += " \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
+RDEPENDS_${PN} += "\
+    aos-rootca \
+"
+
 do_install_append() {
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_communicationmanager.cfg ${D}${sysconfdir}/aos

@@ -23,6 +23,10 @@ DEPENDS_append = "\
     efivar \
 "
 
+RDEPENDS_${PN} = " \
+    aos-rootca \
+"
+
 FILES_${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
