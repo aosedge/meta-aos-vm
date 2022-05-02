@@ -17,38 +17,34 @@ RDEPENDS_${PN} += "\
     python3-core \
 "
 
-MIGRATION_SCRIPTS_PATH = "/usr/share/servicemanager/migration"
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/servicemanager/migration"
 
 AOS_RUNNER ?= "crun"
 
 FILES_${PN} += " \
-    ${sysconfdir}/aos/aos_servicemanager.cfg \
-    ${sysconfdir}/ssl/certs/*.pem \
-    ${systemd_system_unitdir}/*.service \
-    ${systemd_system_unitdir}/*.target \
+    ${sysconfdir} \
+    ${systemd_system_unitdir} \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
 do_install_append() {
-    install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/*.service ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/*.target ${D}${systemd_system_unitdir}
-
-    install -d ${D}${sysconfdir}/sysctl.d
-    install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
-
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}${sysconfdir}/aos
 
     sed -i 's/"runner": "runc",/"runner": "${AOS_RUNNER}",/g' ${D}${sysconfdir}/aos/aos_servicemanager.cfg
 
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/aos-servicemanager.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/aos.target ${D}${systemd_system_unitdir}
+
+    install -d ${D}${sysconfdir}/sysctl.d
+    install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
+
     install -d ${D}${sysconfdir}/ssl/certs
     install -m 0644 ${WORKDIR}/rootCA.pem ${D}${sysconfdir}/ssl/certs/
 
-    install -d ${D}/var/aos/servicemanager
-
     install -d ${D}${MIGRATION_SCRIPTS_PATH}
-    source_migration_path="/src/aos_servicemanager/database/migration"
+    source_migration_path="/src/${GO_IMPORT}/database/migration"
     if [ -d ${S}${source_migration_path} ]; then
         install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
     fi

@@ -1,9 +1,9 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI_append = "\
+    file://aos_updatemanager.cfg \
     file://aos-updatemanager.service \
     file://aos-reboot.service \
-    file://aos_updatemanager.cfg \
 "
 
 AOS_UM_UPDATE_MODULES ?= "\
@@ -14,7 +14,8 @@ AOS_UM_UPDATE_MODULES ?= "\
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
-MIGRATION_SCRIPTS_PATH = "/usr/share/updatemanager/migration"
+
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/updatemanager/migration"
 
 DEPENDS_append = "\
     pkgconfig-native \
@@ -23,9 +24,8 @@ DEPENDS_append = "\
 "
 
 FILES_${PN} += " \
-    ${sysconfdir}/aos/aos_updatemanager.cfg \
-    ${systemd_system_unitdir}/aos-updatemanager.service \
-    ${systemd_system_unitdir}/aos-reboot.service \
+    ${sysconfdir} \
+    ${systemd_system_unitdir} \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
@@ -37,10 +37,8 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos-updatemanager.service ${D}${systemd_system_unitdir}/aos-updatemanager.service
     install -m 0644 ${WORKDIR}/aos-reboot.service ${D}${systemd_system_unitdir}/aos-reboot.service
 
-    install -d ${D}/var/aos/updatemanager
-
     install -d ${D}${MIGRATION_SCRIPTS_PATH}
-    source_migration_path="src/aos_updatemanager/database/migration"
+    source_migration_path="src/${GO_IMPORT}/database/migration"
     if [ -d ${S}/${source_migration_path} ]; then
         install -m 0644 ${S}/${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
     fi
