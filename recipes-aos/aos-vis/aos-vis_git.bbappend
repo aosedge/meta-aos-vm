@@ -13,6 +13,8 @@ AOS_VIS_PLUGINS ?= "\
     plugins/renesassimulatoradapter \
 "
 
+VIS_CERTS_PATH = "${base_prefix}/usr/share/aos/vis/certs"
+
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "aos-vis.service"
@@ -20,7 +22,8 @@ SYSTEMD_SERVICE_${PN} = "aos-vis.service"
 FILES_${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
-    /var/vis/data/*.pem \
+    ${VIS_CERTS_PATH} \
+    ${localstatedir} \
 "
 
 RDEPENDS_${PN} += "\
@@ -38,12 +41,14 @@ do_install_append() {
         fi
     fi
 
+    install -d ${D}/${localstatedir}/aos/vis
+
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_vis.cfg ${D}${sysconfdir}/aos
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-vis.service ${D}${systemd_system_unitdir}/aos-vis.service
 
-    install -d ${D}/var/vis/crypt
-    install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}/var/vis/crypt
+    install -d ${D}${VIS_CERTS_PATH}
+    install -m 0644 ${S}/src/${GO_IMPORT}/data/*.pem ${D}${VIS_CERTS_PATH}
 }

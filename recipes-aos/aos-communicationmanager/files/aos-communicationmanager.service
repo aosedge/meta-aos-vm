@@ -2,6 +2,8 @@
 Description=AOS Communication Manager
 Wants=network-online.target aos-iamanager.service aos-servicemanager.service
 After=network-online.target aos-iamanager.service aos-servicemanager.service
+Requires=var-aos-workdirs.mount var-aos-downloads.mount
+After=var-aos-workdirs.mount var-aos-downloads.mount
 ConditionPathExists=!/var/aos/.unprovisioned
 PartOf=aos.target
 

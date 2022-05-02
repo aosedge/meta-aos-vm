@@ -17,7 +17,7 @@ RDEPENDS_${PN} += "\
     python3-core \
 "
 
-MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/servicemanager/migration"
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/sm/migration"
 
 AOS_RUNNER ?= "crun"
 
