@@ -1,14 +1,11 @@
-VIRTUAL-RUNTIME_dev_manager ?= "busybox-mdev"
-
 PACKAGE_INSTALL = " \
-    initramfs-framework-base \
+    initramfs-module-rundir \
+    initramfs-module-udev \
+    initramfs-module-lvm \
+    initramfs-module-opendisk \
+    initramfs-module-aosupdate \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'initramfs-module-selinux', '', d)} \
     busybox \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', ' \
-        packagegroup-selinux-minimal \
-        policycoreutils-hll \
-        policycoreutils-loadpolicy \
-        ', '', d)} \
+    softhsm \
+    lvm2 \
 "
-
-# Do not pollute the initrd image with rootfs features
-IMAGE_FEATURES = ""
