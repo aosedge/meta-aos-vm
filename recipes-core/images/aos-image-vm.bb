@@ -22,6 +22,7 @@ IMAGE_INSTALL_append = " \
     aos-servicemanager \
     aos-updatemanager \
     aos-vis \
+    aos-deprov \
 "
 
 # System packages
