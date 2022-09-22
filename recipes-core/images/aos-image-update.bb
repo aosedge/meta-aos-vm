@@ -68,7 +68,7 @@ python do_create_metadata() {
         components_metadata.append(create_component_metadata(d.getVar("BUNDLE_BOOT_ID"), d.getVar("PART_IMAGE_FILE"),
             d.getVar("BOOT_IMAGE_VERSION"), d.getVar("BUNDLE_BOOT_DESC")))
 
-    write_image_metadata(d.getVar("BUNDLE_WORK_DIR"), d.getVar("BOARD_MODEL"), components_metadata)
+    write_image_metadata(d.getVar("BUNDLE_WORK_DIR"), components_metadata)
 }
 
 fakeroot python do_create_bundle() {
