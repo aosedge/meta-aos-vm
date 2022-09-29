@@ -5,8 +5,8 @@ LICENSE = "Apache-2.0"
 
 AOS_BASE_IMAGE = "aos-image-vm"
 
-BUNDLE_BOOT_ID = "boot"
-BUNDLE_ROOTFS_ID = "rootfs"
+BUNDLE_BOOT_ID = "vm-dev-boot"
+BUNDLE_ROOTFS_ID = "vm-dev-rootfs"
 
 BUNDLE_BOOT_DESC = "boot image"
 BUNDLE_ROOTFS_DESC = "rootfs image"
