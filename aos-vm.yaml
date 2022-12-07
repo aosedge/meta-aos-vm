@@ -1,0 +1,92 @@
+desc: "Aos virtual development machine"
+min_ver: "0.11"
+
+variables:
+  # Aos node configuration
+  NODE_0_ID: "node0"
+
+  # Build configuration
+  YOCTOS_WORK_DIR: "yocto"
+  MACHINE: "genericx86-64"
+  DISTRO: "aos-vm-dev"
+
+common_data:
+  # Sources used by all nodes
+  common_sources: &COMMON_SOURCES
+    - type: git
+      url: "https://git.yoctoproject.org/poky"
+      rev: "aa00730418"
+    - type: git
+      url: "https://git.openembedded.org/meta-openembedded"
+      rev: "7203130ed"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-virtualization"
+      rev: "beea119"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-security"
+      rev: "c62970f"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-selinux"
+      rev: "1a13839"
+    - type: git
+      url: "https://github.com/aoscloud/meta-aos"
+      rev: "main"
+    - type: git
+      url: "https://github.com/aoscloud/meta-aos-vm"
+      rev: "main"
+
+  # Common configuration options for all nodes
+  common_conf: &COMMON_CONF
+    - [SSTATE_DIR, "${TOPDIR}/../../../common_data/sstate"]
+    - [DL_DIR, "${TOPDIR}/../../../common_data/downloads"]
+
+    - [MACHINE, "%{MACHINE}"]
+    - [DISTRO, "%{DISTRO}"]
+
+    # Skip warning about missing "virtualization" distro feature
+    - [SKIP_META_VIRT_SANITY_CHECK, "1"]
+
+    # Use custom wks file
+    - [WKS_FILE, "aos-vm.wks.in"]
+
+    # Temporary disable SE linux
+    - [DISTRO_FEATURES_remove, "pam selinux"]
+
+components:
+  node0:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_0_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
+
+      layers:
+        - "../poky/meta-poky"
+        - "../poky/meta-yocto-bsp"
+        - "../poky/meta"
+        - "../meta-openembedded/meta-filesystems"
+        - "../meta-openembedded/meta-networking"
+        - "../meta-openembedded/meta-oe"
+        - "../meta-openembedded/meta-perl"
+        - "../meta-openembedded/meta-python"
+        - "../meta-security"
+        - "../meta-selinux"
+        - "../meta-virtualization"
+        - "../meta-aos"
+        - "../meta-aos-vm/meta-aos-vm-common"
+
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+
+  image:
+    default: true
+    builder:
+      type: archive
+      name: "aos-vm.tar"
+      items:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_0_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
