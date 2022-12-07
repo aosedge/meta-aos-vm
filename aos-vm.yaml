@@ -78,6 +78,7 @@ components:
         - "../meta-virtualization"
         - "../meta-aos"
         - "../meta-aos-vm/meta-aos-vm-common"
+        - "../meta-aos-vm/meta-aos-vm-main"
 
       build_target: aos-image-vm
       target_images:

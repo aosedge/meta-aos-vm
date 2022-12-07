@@ -15,16 +15,6 @@ IMAGE_FEATURES_append = " read-only-rootfs"
 # Set password to the root user. This is the requirement of the provisioning script.
 EXTRA_USERS_PARAMS = "usermod -P Password1 -s /bin/bash root;"
 
-# AOS packages
-IMAGE_INSTALL_append = " \
-    aos-communicationmanager \
-    aos-iamanager \
-    aos-servicemanager \
-    aos-updatemanager \
-    aos-vis \
-    aos-deprov \
-"
-
 # System packages
 IMAGE_INSTALL_append = " \
     bash \
@@ -53,19 +43,13 @@ BUILD_WIC_DIR = "${WORKDIR}/build-wic"
 ROOTFS_EXCLUDE_PATHS = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '', '--exclude-path ./var/ ./home/', d)}"
 SHARED_RESOURCE_DIR = "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}"
 
-ROOTFS_POSTPROCESS_COMMAND_append += "set_board_model; set_rootfs_version;"
+ROOTFS_POSTPROCESS_COMMAND_append += "set_rootfs_version;"
 
 # Dependencies
 
 do_create_shared_links[cleandirs] = "${SHARED_RESOURCE_DIR}"
 
 # Tasks
-
-set_board_model() {
-    install -d ${IMAGE_ROOTFS}/etc/aos
-
-    echo "${BOARD_MODEL}" > ${IMAGE_ROOTFS}/etc/aos/board_model
-}
 
 set_rootfs_version() {
     install -d ${IMAGE_ROOTFS}/etc/aos
