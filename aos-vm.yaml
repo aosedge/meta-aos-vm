@@ -4,6 +4,9 @@ min_ver: "0.11"
 variables:
   # Aos node configuration
   NODE_0_ID: "node0"
+  NODE_1_ID: "node1"
+  NODE_2_ID: "node2"
+  NODE_LIST: "%{NODE_0_ID}"
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
@@ -52,6 +55,21 @@ common_data:
     # Temporary disable SE linux
     - [DISTRO_FEATURES_remove, "pam selinux"]
 
+  node_layers: &COMMON_LAYERS
+    - "../poky/meta-poky"
+    - "../poky/meta-yocto-bsp"
+    - "../poky/meta"
+    - "../meta-openembedded/meta-filesystems"
+    - "../meta-openembedded/meta-networking"
+    - "../meta-openembedded/meta-oe"
+    - "../meta-openembedded/meta-perl"
+    - "../meta-openembedded/meta-python"
+    - "../meta-security"
+    - "../meta-selinux"
+    - "../meta-virtualization"
+    - "../meta-aos"
+    - "../meta-aos-vm/meta-aos-vm-common"
+
 components:
   node0:
     build-dir: "%{YOCTOS_WORK_DIR}"
@@ -84,6 +102,37 @@ components:
       target_images:
         - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
 
+  node1:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_1_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
+
+      layers: *COMMON_LAYERS
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+
+  node2:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources: *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_2_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
+
+      layers: *COMMON_LAYERS
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+
   image:
     default: true
     builder:
@@ -91,3 +140,20 @@ components:
       name: "aos-vm.tar"
       items:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_0_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+
+parameters:
+  MULTINODE:
+    desc: "Build multi-node"
+    "no":
+      default: true
+    "yes":
+      overrides:
+        variables:
+          NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
+
+        components:
+          image:
+            builder:
+              items:
+                - "%{YOCTOS_WORK_DIR}/build-%{NODE_1_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+                - "%{YOCTOS_WORK_DIR}/build-%{NODE_2_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
