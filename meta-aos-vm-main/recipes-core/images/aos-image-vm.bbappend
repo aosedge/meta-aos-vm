@@ -8,10 +8,10 @@ IMAGE_INSTALL_append = " \
     aos-deprov \
 "
 
-ROOTFS_POSTPROCESS_COMMAND_append += "set_board_model;"
+ROOTFS_POSTPROCESS_COMMAND_append += "set_unit_model;"
 
-set_board_model() {
+set_unit_model() {
     install -d ${IMAGE_ROOTFS}/etc/aos
 
-    echo "${BOARD_MODEL}" > ${IMAGE_ROOTFS}/etc/aos/board_model
+    echo "${UNIT_MODEL}" > ${IMAGE_ROOTFS}/etc/aos/unit_model
 }
