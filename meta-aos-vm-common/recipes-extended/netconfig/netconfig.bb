@@ -5,13 +5,13 @@ SUMMARY = "Network configuration files"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-SRC_URI += "\
-    file://eth.network \
-    file://lo.1.network \
+SRC_URI += " \
+    file://wired.network \
     file://veth.network \
 "
 
 do_install_append() {
     install -d ${D}${sysconfdir}/systemd/network/
-    install -m 0644 ${WORKDIR}/*.network ${D}${sysconfdir}/systemd/network
+    install -m 0644 ${WORKDIR}/wired.network ${D}${sysconfdir}/systemd/network/20-wired.network
+    install -m 0644 ${WORKDIR}/veth.network ${D}${sysconfdir}/systemd/network/20-veth.network
 }
