@@ -90,6 +90,7 @@ common_data:
     - "../meta-virtualization"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
+    - "../meta-aos-vm/meta-aos-vm-node"
 
 components:
   node0:
@@ -138,6 +139,9 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
 
+        - [NODE_ID, "%{NODE_1_ID}"]
+        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_1_ID}"]
+
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
       target_images:
@@ -152,6 +156,9 @@ components:
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
+
+        - [NODE_ID, "%{NODE_2_ID}"]
+        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_2_ID}"]
 
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
