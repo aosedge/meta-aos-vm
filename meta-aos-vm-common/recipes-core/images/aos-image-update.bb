@@ -14,10 +14,6 @@ BUNDLE_ROOTFS_DESC = "rootfs image"
 BUNDLE_BOOT ?= "1"
 BUNDLE_ROOTFS ?= "full"
 
-# Require
-
-require ${AOS_BASE_IMAGE}.inc
-
 # Inherit
 
 inherit rootfs-image-generator part-image-generator metadata-generator bundle-generator

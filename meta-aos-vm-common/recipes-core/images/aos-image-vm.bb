@@ -5,8 +5,6 @@ IMAGE_LINGUAS = " "
 
 inherit core-image extrausers ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux-image', '', d)}
 
-require aos-image-vm.inc
-
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
 IMAGE_FSTYPES = "tar.bz2 wic.vmdk"
 
