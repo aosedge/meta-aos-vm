@@ -26,6 +26,12 @@ python do_update_config() {
 
     data = {**node_info, **data}
 
+    # Set alternative names for server certificates
+
+    for cert_module in data["CertModules"]:
+        if "ExtendedKeyUsage" in cert_module and "serverAuth" in cert_module["ExtendedKeyUsage"]:
+            cert_module["AlternativeNames"] = [d.getVar("NODE_ID")]
+
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)
 }
