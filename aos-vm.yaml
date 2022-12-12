@@ -2,6 +2,15 @@ desc: "Aos virtual development machine"
 min_ver: "0.11"
 
 variables:
+  # Aos unit configuration
+  UNIT_MODEL: "vm-dev"
+  UNIT_VERSION: "1.0"
+
+  BUNDLE_IMAGE_VERSION: "4.0.1"
+  ROOTFS_REF_VERSION: "4.0.0"
+  BUNDLE_BOOT: "1"
+  BUNDLE_ROOTFS: "full"
+
   # Aos node configuration
   NODE_0_ID: "node0"
   NODE_1_ID: "node1"
@@ -54,6 +63,18 @@ common_data:
 
     # Temporary disable SE linux
     - [DISTRO_FEATURES_remove, "pam selinux"]
+
+      # Unit model
+    - [UNIT_MODEL, "%{UNIT_MODEL}"]
+    - [UNIT_VERSION, "%{UNIT_VERSION}"]
+
+    # Image versions
+    - [BUNDLE_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [ROOTFS_REF_VERSION, "%{ROOTFS_REF_VERSION}"]
+    - [BOOT_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [BUNDLE_BOOT, "%{BUNDLE_BOOT}"]
+    - [BUNDLE_ROOTFS, "%{BUNDLE_ROOTFS}"]
 
   node_layers: &COMMON_LAYERS
     - "../poky/meta-poky"
