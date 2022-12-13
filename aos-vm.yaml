@@ -111,6 +111,8 @@ components:
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
         - [NODE_LIST, "%{NODE_LIST}"]
 
+        - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
+
       layers:
         - "../poky/meta-poky"
         - "../poky/meta-yocto-bsp"
@@ -192,3 +194,17 @@ parameters:
               items:
                 - "%{YOCTOS_WORK_DIR}/build-%{NODE_1_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
                 - "%{YOCTOS_WORK_DIR}/build-%{NODE_2_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+
+  # Aos VIS data provider
+  VIS_DATA_PROVIDER:
+    desc: "Specifies plugin for VIS automotive data"
+    renesassimulator:
+      default: true
+      overrides:
+        variables:
+          AOS_VIS_DATA_PROVIDER: "renesassimulatoradapter"
+
+    telemetryemulator:
+      overrides:
+        variables:
+          AOS_VIS_DATA_PROVIDER: "telemetryemulatoradapter"
