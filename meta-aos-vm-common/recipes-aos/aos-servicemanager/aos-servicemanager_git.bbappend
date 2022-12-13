@@ -2,6 +2,11 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://ipforwarding.conf \
+    file://aos-dirs-service.conf \
+"
+
+FILES_${PN} += " \
+    ${sysconfdir}/systemd/system/aos-servicemanager.service.d/ \
 "
 
 # Base layer for services
@@ -13,6 +18,9 @@ RDEPENDS_${PN} += "\
 do_install_append() {
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
+
+    install -d ${D}${sysconfdir}/systemd/system/aos-servicemanager.service.d
+    install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-servicemanager.service.d/20-aos-dirs-service.conf
 }
 
 pkg_postinst_${PN}() {
