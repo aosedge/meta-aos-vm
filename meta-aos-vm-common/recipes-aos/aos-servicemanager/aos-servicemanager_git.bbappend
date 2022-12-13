@@ -1,17 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI_append = " \
-    file://aos_servicemanager.cfg \
-    file://aos-servicemanager.service \
+SRC_URI += " \
     file://ipforwarding.conf \
-"
-
-inherit systemd
-
-SYSTEMD_SERVICE_${PN} = "aos-servicemanager.service"
-
-RDEPENDS_${PN} += "\
-    aos-rootca \
 "
 
 # Base layer for services
@@ -20,38 +10,36 @@ RDEPENDS_${PN} += "\
     python3-core \
 "
 
-MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/sm/migration"
-
-AOS_RUNNER ?= "crun"
-
-FILES_${PN} += " \
-    ${sysconfdir} \
-    ${systemd_system_unitdir} \
-    ${MIGRATION_SCRIPTS_PATH} \
-"
-
 do_install_append() {
-    install -d ${D}${sysconfdir}/aos
-    install -m 0644 ${WORKDIR}/aos_servicemanager.cfg ${D}${sysconfdir}/aos
-
-    install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/aos-servicemanager.service ${D}${systemd_system_unitdir}
-    install -m 0644 ${S}/src/${GO_IMPORT}/runner/aos-service@.service ${D}${systemd_system_unitdir}
-    sed -i 's/runc/${AOS_RUNNER}/g' ${D}${systemd_system_unitdir}/aos-service@.service
-
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
-
-    install -d ${D}${MIGRATION_SCRIPTS_PATH}
-    source_migration_path="/src/${GO_IMPORT}/database/migration"
-    if [ -d ${S}${source_migration_path} ]; then
-        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
-    fi
 }
 
 pkg_postinst_${PN}() {
-    # Add aossm to /etc/hosts
-    if ! grep -q 'aossm' $D${sysconfdir}/hosts ; then
-        echo '127.0.0.1	aossm' >> $D${sysconfdir}/hosts
-    fi
 }
+
+python do_update_config() {
+    import json
+
+    file_name = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_servicemanager.cfg")
+
+    with open(file_name) as f:
+        data = json.load(f)
+
+    node_id = d.getVar("NODE_ID")
+    main_node_id = d.getVar("MAIN_NODE_ID")
+
+    # Update IAM servers
+
+    data["IAMProtectedServerURL"] = node_id+":8089"
+    data["IAMPublicServerURL"] = node_id+":8090"
+
+    # Update CM server
+
+    data["CMServerURL"] = main_node_id+":8093"
+
+    with open(file_name, "w") as f:
+        json.dump(data, f, indent=4)
+}
+
+addtask update_config after do_install before do_package
