@@ -1,43 +1,54 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-
-SRC_URI_append = " \
-    file://aos_communicationmanager.cfg \
-    file://aos-communicationmanager.service \
-"
-
-inherit systemd
-
-SYSTEMD_SERVICE_${PN} = "aos-communicationmanager.service"
-
-MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/cm/migration"
-
-FILES_${PN} += " \
-    ${sysconfdir} \
-    ${systemd_system_unitdir} \
-    ${MIGRATION_SCRIPTS_PATH} \
-"
-
-RDEPENDS_${PN} += "\
-    aos-rootca \
-"
-
-do_install_append() {
-    install -d ${D}${sysconfdir}/aos
-    install -m 0644 ${WORKDIR}/aos_communicationmanager.cfg ${D}${sysconfdir}/aos
-
-    install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/aos-communicationmanager.service ${D}${systemd_system_unitdir}
-
-    install -d ${D}${MIGRATION_SCRIPTS_PATH}
-    source_migration_path="/src/${GO_IMPORT}/database/migration"
-    if [ -d ${S}${source_migration_path} ]; then
-        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
-    fi
-}
-
 pkg_postinst_${PN}() {
-    # Add aoscm to /etc/hosts
-    if ! grep -q 'aoscm' $D${sysconfdir}/hosts ; then
-        echo '127.0.0.1	aoscm' >> $D${sysconfdir}/hosts
-    fi
 }
+
+python do_update_config() {
+    import json
+
+    file_name = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_communicationmanager.cfg")
+
+    with open(file_name) as f:
+        data = json.load(f)
+
+    nodes = d.getVar("NODE_LIST").split()
+    node_id = d.getVar("NODE_ID")
+ 
+    # Update IAM servers
+    
+    data["IAMProtectedServerURL"]= node_id+":8089"
+    data["IAMPublicServerURL"] = node_id+":8090"
+
+    # Update SM controller
+
+    sm_controller = data["SMController"]
+
+    if len(nodes) > 1:
+        sm_controller["FileServerURL"] = node_id+":8094" 
+ 
+    sm_controller["NodeIDs"] = []
+
+    for node in nodes:
+        sm_controller["NodeIDs"].append(node)
+
+    # Update CM controller
+
+    um_controller = data["UMController"]
+
+    if len(nodes) > 1:
+        um_controller["FileServerURL"] = node_id+":8092" 
+ 
+    um_controller["UMClients"] = []
+
+    for node in nodes:
+        um_client = {"UMID": node}
+
+        if node == node_id:
+            um_client["IsLocal"] = True
+            um_client["Priority"] = 1
+
+        um_controller["UMClients"].append(um_client)
+
+    with open(file_name, "w") as f:
+        json.dump(data, f, indent=4)
+}
+
+addtask update_config after do_install before do_package
