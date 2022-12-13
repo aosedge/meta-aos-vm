@@ -2,6 +2,8 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://aos-reboot.service \
+    file://aos-dirs-service.conf \
+    file://reboot-on-failure.conf \
 "
 
 AOS_UM_UPDATE_MODULES = " \
@@ -11,19 +13,22 @@ AOS_UM_UPDATE_MODULES = " \
 
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} += "aos-reboot.service"
-
 RDEPENDS_${PN} += " \
     efibootmgr \
 "
 
 FILES_${PN} += " \
+    ${sysconfdir}/systemd/system/aos-updatemanager.service.d/ \
     ${systemd_system_unitdir} \
 "
 
 do_install_append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-reboot.service ${D}${systemd_system_unitdir}/aos-reboot.service
+
+    install -d ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d
+    install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d/20-aos-dirs-service.conf
+    install -m 0644 ${WORKDIR}/reboot-on-failure.conf ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d/20-reboot-on-failure.conf
 }
 
 pkg_postinst_${PN}() {
