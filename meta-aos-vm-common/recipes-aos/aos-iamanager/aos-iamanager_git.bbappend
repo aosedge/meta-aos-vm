@@ -7,7 +7,8 @@ RDEPENDS_${PN} += " \
     softhsm \
 "
 
-pkg_postinst_${PN}[noexec] = "1"
+pkg_postinst_${PN}() {
+}
 
 python do_update_config() {
     import json
