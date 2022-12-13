@@ -76,6 +76,9 @@ common_data:
     - [BUNDLE_BOOT, "%{BUNDLE_BOOT}"]
     - [BUNDLE_ROOTFS, "%{BUNDLE_ROOTFS}"]
 
+    # Node configuration
+    - [MAIN_NODE_ID, "%{NODE_0_ID}"]
+
   node_layers: &COMMON_LAYERS
     - "../poky/meta-poky"
     - "../poky/meta-yocto-bsp"
