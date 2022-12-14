@@ -14,11 +14,11 @@ POLICY_TYPE = "mcs"
 POLICY_MLS_SENS = "0"
 
 # Patch for targeted policy
-SRC_URI_append += " \
+SRC_URI += " \
         file://0001-refpolicy-targeted-make-unconfined_u-the-default-sel.patch \
 "
 
-SRC_URI_append += " \
+SRC_URI += " \
         file://0001-journald-mount-Allow-using-machine-id-for-ro-rootfs.patch \
         file://0002-aos-Add-policies-for-aos-components.patch \
         file://0003-systemd-Allow-getaatr-access-to-cgroup-domain.patch \
