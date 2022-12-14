@@ -186,6 +186,7 @@ parameters:
     "yes":
       overrides:
         variables:
+          UNIT_MODEL: "vm-dev-multinode"
           NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
 
         components:
