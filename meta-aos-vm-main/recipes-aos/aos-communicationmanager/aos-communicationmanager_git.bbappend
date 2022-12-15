@@ -8,6 +8,11 @@ FILES_${PN} += " \
     ${sysconfdir}/systemd/system/aos-communicationmanager.service.d/ \
 "
 
+python __anonymous() {
+    if len(d.getVar("NODE_LIST").split()) > 1:
+        d.appendVar("RDEPENDS_"+d.getVar('PN'), "nfs-exports")
+}
+
 do_install_append() {
     install -d ${D}${sysconfdir}/systemd/system/aos-communicationmanager.service.d
     install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-communicationmanager.service.d/10-aos-dirs-service.conf
