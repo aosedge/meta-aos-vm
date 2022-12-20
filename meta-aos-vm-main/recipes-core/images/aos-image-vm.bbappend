@@ -4,6 +4,7 @@ IMAGE_INSTALL_append = " \
     aos-iamanager \
     aos-servicemanager \
     aos-updatemanager \
+    aos-provfirewall \
     aos-vis \
     aos-deprov \
 "
