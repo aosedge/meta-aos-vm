@@ -18,9 +18,6 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-communicationmanager.service.d/10-aos-dirs-service.conf
 }
 
-pkg_postinst_${PN}() {
-}
-
 python do_update_config() {
     import json
 
