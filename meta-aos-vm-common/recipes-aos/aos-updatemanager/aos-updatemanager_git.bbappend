@@ -31,9 +31,6 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/reboot-on-failure.conf ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d/20-reboot-on-failure.conf
 }
 
-pkg_postinst_${PN}() {
-}
-
 python do_update_config() {
     import json
 

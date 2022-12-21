@@ -23,9 +23,6 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-servicemanager.service.d/20-aos-dirs-service.conf
 }
 
-pkg_postinst_${PN}() {
-}
-
 python do_update_config() {
     import json
 
