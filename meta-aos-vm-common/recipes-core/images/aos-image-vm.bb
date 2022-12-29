@@ -31,7 +31,7 @@ IMAGE_INSTALL_append = " \
 # Variables
 INITRAMFS_BOOT_PARAMS = " \
     vardir.disk=/dev/hda5 opendisk.target=/dev/hda6 opendisk.pkcs11=softhsm \
-    opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin aosupdate.disk=/dev/aosvg/downloads aosupdate.path=update_rootfs \
+    opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=um/update_rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux.module=/usr/share/selinux/aos/base.pp', '', d)} \
 "
 BUILD_WIC_DIR = "${WORKDIR}/build-wic"
