@@ -69,6 +69,8 @@ common_data:
     - [UNIT_VERSION, "%{UNIT_VERSION}"]
 
     # Image versions
+    - [BUNDLE_DIR, "${TOPDIR}/../.."]
+    - [BUNDLE_OSTREE_REPO, "${TOPDIR}/../../rootfs_repo"]
     - [BUNDLE_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
     - [ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
     - [ROOTFS_REF_VERSION, "%{ROOTFS_REF_VERSION}"]

@@ -5,8 +5,8 @@ LICENSE = "Apache-2.0"
 
 AOS_BASE_IMAGE = "aos-image-vm"
 
-BUNDLE_BOOT_ID = "vm-dev-boot"
-BUNDLE_ROOTFS_ID = "vm-dev-rootfs"
+BUNDLE_BOOT_ID = "${UNIT_MODEL}-${UNIT_VERSION}-${NODE_ID}-boot"
+BUNDLE_ROOTFS_ID = "${UNIT_MODEL}-${UNIT_VERSION}-${NODE_ID}-rootfs"
 
 BUNDLE_BOOT_DESC = "boot image"
 BUNDLE_ROOTFS_DESC = "rootfs image"
@@ -26,21 +26,22 @@ do_create_bundle[cleandirs] = "${BUNDLE_WORK_DIR}"
 # Configure part-image-generator
 
 PART_IMAGE_DIR = "${BUNDLE_WORK_DIR}"
-PART_IMAGE_FILE = "${AOS_BASE_IMAGE}-${MACHINE}-${BOOT_IMAGE_VERSION}.boot.gz"
+PART_IMAGE_FILE = "${IMAGE_BASENAME}-${MACHINE}-${BOOT_IMAGE_VERSION}.boot.gz"
 PART_IMAGE_PARTNO = "${@ "1" if bb.utils.to_boolean(d.getVar('BUNDLE_BOOT')) else "" }"
-PART_SOURCE_DIR =  "${TMPDIR}/work-shared/${AOS_BASE_IMAGE}-${MACHINE}/build-wic"
+PART_SOURCE_DIR =  "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}/build-wic"
 
 # Configure rootfs-image-generator
 
 ROOTFS_IMAGE_DIR = "${BUNDLE_WORK_DIR}"
-ROOTFS_IMAGE_FILE = "${AOS_BASE_IMAGE}-${MACHINE}-${ROOTFS_IMAGE_VERSION}.rootfs.squashfs"
+ROOTFS_IMAGE_FILE = "${IMAGE_BASENAME}-${MACHINE}-${ROOTFS_IMAGE_VERSION}.rootfs.squashfs"
 ROOTFS_IMAGE_TYPE = "${BUNDLE_ROOTFS}"
-ROOTFS_SOURCE_DIR =  "${TMPDIR}/work-shared/${AOS_BASE_IMAGE}-${MACHINE}/rootfs"
+ROOTFS_SOURCE_DIR =  "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}/rootfs"
+ROOTFS_OSTREE_REPO = "${BUNDLE_OSTREE_REPO}/${NODE_ID}"
 
 # Configure bundle-generator
 
-BUNDLE_DIR = "${DEPLOY_DIR_IMAGE}/update"
-BUNDLE_FILE = "${IMAGE_BASENAME}-${MACHINE}-${BUNDLE_IMAGE_VERSION}.bundle.tar"
+BUNDLE_DIR ?= "${DEPLOY_DIR}/update"
+BUNDLE_FILE ?= "${UNIT_MODEL}-${UNIT_VERSION}-${NODE_ID}-${BUNDLE_IMAGE_VERSION}.tar"
 
 # Tasks
 
