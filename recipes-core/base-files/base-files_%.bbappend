@@ -1,1 +1,0 @@
-FILESEXTRAPATHS_append := "${THISDIR}/base-files:"

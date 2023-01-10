@@ -1,6 +1,0 @@
-[Match]
-Name=lo
-
-[Address]
-Label=lo:1
-Address=10.0.0.7/24

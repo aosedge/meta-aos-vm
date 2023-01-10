@@ -1,0 +1,213 @@
+desc: "Aos virtual development machine"
+min_ver: "0.11"
+
+variables:
+  # Aos unit configuration
+  UNIT_MODEL: "vm-dev"
+  UNIT_VERSION: "1.0"
+
+  BUNDLE_IMAGE_VERSION: "4.0.0"
+  ROOTFS_REF_VERSION: "4.0.0"
+  BUNDLE_BOOT: "1"
+  BUNDLE_ROOTFS: "full"
+
+  # Aos node configuration
+  NODE_0_ID: "node0"
+  NODE_1_ID: "node1"
+  NODE_2_ID: "node2"
+  NODE_LIST: "%{NODE_0_ID}"
+
+  # Build configuration
+  YOCTOS_WORK_DIR: "yocto"
+  MACHINE: "genericx86-64"
+  DISTRO: "aos-vm-dev"
+
+common_data:
+  # Sources used by all nodes
+  common_sources: &COMMON_SOURCES
+    - type: git
+      url: "https://git.yoctoproject.org/poky"
+      rev: "aa00730418"
+    - type: git
+      url: "https://git.openembedded.org/meta-openembedded"
+      rev: "7203130ed"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-virtualization"
+      rev: "beea119"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-security"
+      rev: "c62970f"
+    - type: git
+      url: "https://git.yoctoproject.org/meta-selinux"
+      rev: "1a13839"
+    - type: git
+      url: "https://github.com/aoscloud/meta-aos"
+      rev: "v7.0.1"
+    - type: git
+      url: "https://github.com/aoscloud/meta-aos-vm"
+      rev: "v4.0.0"
+
+  # Common configuration options for all nodes
+  common_conf: &COMMON_CONF
+    - [SSTATE_DIR, "${TOPDIR}/../../../common_data/sstate"]
+    - [DL_DIR, "${TOPDIR}/../../../common_data/downloads"]
+
+    - [MACHINE, "%{MACHINE}"]
+    - [DISTRO, "%{DISTRO}"]
+
+    # Skip warning about missing "virtualization" distro feature
+    - [SKIP_META_VIRT_SANITY_CHECK, "1"]
+
+    # Use custom wks file
+    - [WKS_FILE, "aos-vm.wks.in"]
+
+    # Temporary disable SE linux
+    - [DISTRO_FEATURES_remove, "pam selinux"]
+
+      # Unit model
+    - [UNIT_MODEL, "%{UNIT_MODEL}"]
+    - [UNIT_VERSION, "%{UNIT_VERSION}"]
+
+    # Image versions
+    - [BUNDLE_DIR, "${TOPDIR}/../.."]
+    - [BUNDLE_OSTREE_REPO, "${TOPDIR}/../../rootfs_repo"]
+    - [BUNDLE_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [ROOTFS_REF_VERSION, "%{ROOTFS_REF_VERSION}"]
+    - [BOOT_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [BUNDLE_BOOT, "%{BUNDLE_BOOT}"]
+    - [BUNDLE_ROOTFS, "%{BUNDLE_ROOTFS}"]
+
+    # Node configuration
+    - [MAIN_NODE_ID, "%{NODE_0_ID}"]
+
+  node_layers: &COMMON_LAYERS
+    - "../poky/meta-poky"
+    - "../poky/meta-yocto-bsp"
+    - "../poky/meta"
+    - "../meta-openembedded/meta-filesystems"
+    - "../meta-openembedded/meta-networking"
+    - "../meta-openembedded/meta-oe"
+    - "../meta-openembedded/meta-perl"
+    - "../meta-openembedded/meta-python"
+    - "../meta-security"
+    - "../meta-selinux"
+    - "../meta-virtualization"
+    - "../meta-aos"
+    - "../meta-aos-vm/meta-aos-vm-common"
+    - "../meta-aos-vm/meta-aos-vm-node"
+
+components:
+  node0:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_0_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
+
+        - [NODE_ID, "%{NODE_0_ID}"]
+        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
+        - [NODE_LIST, "%{NODE_LIST}"]
+
+        - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
+
+      layers:
+        - "../poky/meta-poky"
+        - "../poky/meta-yocto-bsp"
+        - "../poky/meta"
+        - "../meta-openembedded/meta-filesystems"
+        - "../meta-openembedded/meta-networking"
+        - "../meta-openembedded/meta-oe"
+        - "../meta-openembedded/meta-perl"
+        - "../meta-openembedded/meta-python"
+        - "../meta-security"
+        - "../meta-selinux"
+        - "../meta-virtualization"
+        - "../meta-aos"
+        - "../meta-aos-vm/meta-aos-vm-common"
+        - "../meta-aos-vm/meta-aos-vm-main"
+
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+
+  node1:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_1_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
+
+        - [NODE_ID, "%{NODE_1_ID}"]
+        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_1_ID}"]
+
+      layers: *COMMON_LAYERS
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+
+  node2:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources: *COMMON_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build-%{NODE_2_ID}"
+      conf:
+        - *COMMON_CONF
+        - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
+
+        - [NODE_ID, "%{NODE_2_ID}"]
+        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_2_ID}"]
+
+      layers: *COMMON_LAYERS
+      build_target: aos-image-vm
+      target_images:
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+
+  image:
+    default: true
+    builder:
+      type: archive
+      name: "aos-vm.tar"
+      items:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_0_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+
+parameters:
+  MULTINODE:
+    desc: "Build multi-node"
+    "no":
+      default: true
+    "yes":
+      overrides:
+        variables:
+          UNIT_MODEL: "vm-dev-multinode"
+          NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
+
+        components:
+          image:
+            builder:
+              items:
+                - "%{YOCTOS_WORK_DIR}/build-%{NODE_1_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+                - "%{YOCTOS_WORK_DIR}/build-%{NODE_2_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+
+  # Aos VIS data provider
+  VIS_DATA_PROVIDER:
+    desc: "Specifies plugin for VIS automotive data"
+    renesassimulator:
+      default: true
+      overrides:
+        variables:
+          AOS_VIS_DATA_PROVIDER: "renesassimulatoradapter"
+
+    telemetryemulator:
+      overrides:
+        variables:
+          AOS_VIS_DATA_PROVIDER: "telemetryemulatoradapter"
