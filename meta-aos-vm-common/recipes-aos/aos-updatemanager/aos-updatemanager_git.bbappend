@@ -34,9 +34,10 @@ do_install_append() {
 python do_update_config() {
     import json
 
-    file_name = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_updatemanager.cfg")
+    file_name_source = oe.path.join(d.getVar("WORKDIR"), "aos_updatemanager.cfg")
+    file_name_dest = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_updatemanager.cfg")
 
-    with open(file_name) as f:
+    with open(file_name_source) as f:
         data = json.load(f)
 
     node_id = d.getVar("NODE_ID")
@@ -55,7 +56,7 @@ python do_update_config() {
     for update_module in data["UpdateModules"]:
         update_module["ID"] = d.getVar("UNIT_MODEL")+"-"+d.getVar("UNIT_VERSION")+"-"+node_id+"-"+update_module["ID"]
 
-    with open(file_name, "w") as f:
+    with open(file_name_dest, "w") as f:
         json.dump(data, f, indent=4)
 }
 
