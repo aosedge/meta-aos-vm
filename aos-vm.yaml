@@ -15,7 +15,12 @@ variables:
   NODE_0_ID: "node0"
   NODE_1_ID: "node1"
   NODE_2_ID: "node2"
+  NODE_0_IP: "10.0.0.100"
+  NODE_1_IP: "10.0.0.101"
+  NODE_2_IP: "10.0.0.102"
   NODE_LIST: "%{NODE_0_ID}"
+  VIS_HOSTNAME: "%{NODE_0_IP} wwwivi"
+  HOSTS_MAIN_NODE: ""
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
@@ -80,6 +85,7 @@ common_data:
 
     # Node configuration
     - [MAIN_NODE_ID, "%{NODE_0_ID}"]
+    - [NODE_GW_IP, "10.0.0.1"]
 
   node_layers: &COMMON_LAYERS
     - "../poky/meta-poky"
@@ -107,6 +113,8 @@ components:
       work_dir: "build-%{NODE_0_ID}"
       conf:
         - *COMMON_CONF
+        - [NODE_IP, "%{NODE_0_IP}/24"]
+        - [HOSTNAMES, "%{HOSTS_MAIN_NODE};%{VIS_HOSTNAME}"]
         - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
 
         - [NODE_ID, "%{NODE_0_ID}"]
@@ -144,6 +152,8 @@ components:
       work_dir: "build-%{NODE_1_ID}"
       conf:
         - *COMMON_CONF
+        - [NODE_IP, "%{NODE_1_IP}/24"]
+        - [HOSTNAMES, "%{NODE_0_IP} %{NODE_0_ID};%{NODE_2_IP} %{NODE_2_ID};%{VIS_HOSTNAME}"]
         - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
 
         - [NODE_ID, "%{NODE_1_ID}"]
@@ -162,6 +172,8 @@ components:
       work_dir: "build-%{NODE_2_ID}"
       conf:
         - *COMMON_CONF
+        - [NODE_IP, "%{NODE_2_IP}/24"]
+        - [HOSTNAMES, "%{NODE_0_IP} %{NODE_0_ID};%{NODE_1_IP} %{NODE_1_ID};%{VIS_HOSTNAME}"]
         - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
 
         - [NODE_ID, "%{NODE_2_ID}"]
@@ -190,6 +202,7 @@ parameters:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
           NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
+          HOSTS_MAIN_NODE: "%{NODE_1_IP} %{NODE_1_ID};%{NODE_2_IP} %{NODE_2_ID}"
 
         components:
           image:
