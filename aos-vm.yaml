@@ -16,6 +16,11 @@ variables:
   NODE_1_ID: ""
   NODE_2_ID: ""
 
+  # Network configuration
+  NODE_0_IP: "10.0.0.100"
+  NODE_1_IP: ""
+  NODE_2_IP: ""
+
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
   MACHINE: "genericx86-64"
@@ -79,6 +84,8 @@ common_data:
 
     # Node configuration
     - [MAIN_NODE_ID, "%{NODE_0_ID}"]
+    - [NODE_GW_IP, "10.0.0.1"]
+    - [HOST_NAMES, "%{NODE_0_IP}=wwwivi"]
 
   node_layers: &COMMON_LAYERS
     - "../poky/meta-poky"
@@ -110,6 +117,12 @@ components:
         - [NODE_ID, "%{NODE_0_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
         - [NODE_LIST, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+
+        - [NODE_IP, "%{NODE_0_IP}/24"]
+        - [
+            HOST_NAMES:append,
+            " %{NODE_1_IP}=%{NODE_1_ID} %{NODE_2_IP}=%{NODE_2_ID}",
+          ]
 
         - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
 
@@ -146,6 +159,9 @@ components:
         - [NODE_ID, "%{NODE_1_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_1_ID}"]
 
+        - [NODE_IP, "%{NODE_1_IP}/24"]
+        - [HOST_NAMES:append, " %{NODE_0_IP}=%{NODE_0_ID}"]
+
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
       target_images:
@@ -163,6 +179,9 @@ components:
 
         - [NODE_ID, "%{NODE_2_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_2_ID}"]
+
+        - [NODE_IP, "%{NODE_2_IP}/24"]
+        - [HOST_NAMES:append, " %{NODE_0_IP}=%{NODE_0_ID}"]
 
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
@@ -188,6 +207,7 @@ parameters:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
           NODE_1_ID: "node1"
+          NODE_1_IP: "10.0.0.101"
 
         components:
           image:
@@ -205,6 +225,7 @@ parameters:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
           NODE_2_ID: "node2"
+          NODE_2_IP: "10.0.0.102"
 
         components:
           image:
