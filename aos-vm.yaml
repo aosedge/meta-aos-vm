@@ -13,9 +13,8 @@ variables:
 
   # Aos node configuration
   NODE_0_ID: "node0"
-  NODE_1_ID: "node1"
-  NODE_2_ID: "node2"
-  NODE_LIST: "%{NODE_0_ID}"
+  NODE_1_ID: ""
+  NODE_2_ID: ""
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
@@ -100,18 +99,17 @@ common_data:
 components:
   node0:
     build-dir: "%{YOCTOS_WORK_DIR}"
-    sources:
-      - *COMMON_SOURCES
+    sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_0_ID}"
+      work_dir: "build-node0"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
 
         - [NODE_ID, "%{NODE_0_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
-        - [NODE_LIST, "%{NODE_LIST}"]
+        - [NODE_LIST, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
 
         - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
 
@@ -137,11 +135,10 @@ components:
 
   node1:
     build-dir: "%{YOCTOS_WORK_DIR}"
-    sources:
-      - *COMMON_SOURCES
+    sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_1_ID}"
+      work_dir: "build-node1"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
@@ -159,7 +156,7 @@ components:
     sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_2_ID}"
+      work_dir: "build-node2"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
@@ -178,29 +175,46 @@ components:
       type: archive
       name: "aos-vm.tar"
       items:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_0_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+        - "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
 
 parameters:
-  MULTINODE:
-    desc: "Build multi-node"
+  NODE1:
+    desc: "builds additional node 1"
     "no":
-      default: true
+      default: false
     "yes":
+      default: true
       overrides:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
-          NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
+          NODE_1_ID: "node1"
 
         components:
           image:
             builder:
               items:
-                - "%{YOCTOS_WORK_DIR}/build-%{NODE_1_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
-                - "%{YOCTOS_WORK_DIR}/build-%{NODE_2_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+                - "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+
+  NODE2:
+    desc: "builds additional node 2"
+    "no":
+      default: true
+    "yes":
+      default: false
+      overrides:
+        variables:
+          UNIT_MODEL: "vm-dev-multinode"
+          NODE_2_ID: "node2"
+
+        components:
+          image:
+            builder:
+              items:
+                - "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
 
   # Aos VIS data provider
   VIS_DATA_PROVIDER:
-    desc: "Specifies plugin for VIS automotive data"
+    desc: "specifies plugin for VIS automotive data"
     renesassimulator:
       default: true
       overrides:
