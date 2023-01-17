@@ -6,8 +6,8 @@ variables:
   UNIT_MODEL: "vm-dev"
   UNIT_VERSION: "1.0"
 
-  BUNDLE_IMAGE_VERSION: "4.0.0"
-  ROOTFS_REF_VERSION: "4.0.0"
+  BUNDLE_IMAGE_VERSION: "4.0.1"
+  ROOTFS_REF_VERSION: "4.0.1"
   BUNDLE_BOOT: "1"
   BUNDLE_ROOTFS: "full"
 
@@ -49,7 +49,7 @@ common_data:
       rev: "v7.0.1"
     - type: git
       url: "https://github.com/aoscloud/meta-aos-vm"
-      rev: "v4.0.0"
+      rev: "v4.0.1"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
