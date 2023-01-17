@@ -6,16 +6,20 @@ variables:
   UNIT_MODEL: "vm-dev"
   UNIT_VERSION: "1.0"
 
-  BUNDLE_IMAGE_VERSION: "4.0.0"
-  ROOTFS_REF_VERSION: "4.0.0"
+  BUNDLE_IMAGE_VERSION: "4.0.1"
+  ROOTFS_REF_VERSION: "4.0.1"
   BUNDLE_BOOT: "1"
   BUNDLE_ROOTFS: "full"
 
   # Aos node configuration
   NODE_0_ID: "node0"
-  NODE_1_ID: "node1"
-  NODE_2_ID: "node2"
-  NODE_LIST: "%{NODE_0_ID}"
+  NODE_1_ID: ""
+  NODE_2_ID: ""
+
+  # Network configuration
+  NODE_0_IP: "10.0.0.100"
+  NODE_1_IP: ""
+  NODE_2_IP: ""
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
@@ -45,7 +49,7 @@ common_data:
       rev: "v7.0.1"
     - type: git
       url: "https://github.com/aoscloud/meta-aos-vm"
-      rev: "v4.0.0"
+      rev: "v4.0.1"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -80,6 +84,8 @@ common_data:
 
     # Node configuration
     - [MAIN_NODE_ID, "%{NODE_0_ID}"]
+    - [NODE_GW_IP, "10.0.0.1"]
+    - [HOST_NAMES, "%{NODE_0_IP}=wwwivi"]
 
   node_layers: &COMMON_LAYERS
     - "../poky/meta-poky"
@@ -100,18 +106,23 @@ common_data:
 components:
   node0:
     build-dir: "%{YOCTOS_WORK_DIR}"
-    sources:
-      - *COMMON_SOURCES
+    sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_0_ID}"
+      work_dir: "build-node0"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
 
         - [NODE_ID, "%{NODE_0_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
-        - [NODE_LIST, "%{NODE_LIST}"]
+        - [NODE_LIST, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+
+        - [NODE_IP, "%{NODE_0_IP}/24"]
+        - [
+            HOST_NAMES:append,
+            " %{NODE_1_IP}=%{NODE_1_ID} %{NODE_2_IP}=%{NODE_2_ID}",
+          ]
 
         - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
 
@@ -137,17 +148,19 @@ components:
 
   node1:
     build-dir: "%{YOCTOS_WORK_DIR}"
-    sources:
-      - *COMMON_SOURCES
+    sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_1_ID}"
+      work_dir: "build-node1"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
 
         - [NODE_ID, "%{NODE_1_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_1_ID}"]
+
+        - [NODE_IP, "%{NODE_1_IP}/24"]
+        - [HOST_NAMES:append, " %{NODE_0_IP}=%{NODE_0_ID}"]
 
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
@@ -159,13 +172,16 @@ components:
     sources: *COMMON_SOURCES
     builder:
       type: yocto
-      work_dir: "build-%{NODE_2_ID}"
+      work_dir: "build-node2"
       conf:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
 
         - [NODE_ID, "%{NODE_2_ID}"]
         - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_2_ID}"]
+
+        - [NODE_IP, "%{NODE_2_IP}/24"]
+        - [HOST_NAMES:append, " %{NODE_0_IP}=%{NODE_0_ID}"]
 
       layers: *COMMON_LAYERS
       build_target: aos-image-vm
@@ -178,29 +194,48 @@ components:
       type: archive
       name: "aos-vm.tar"
       items:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_0_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+        - "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
 
 parameters:
-  MULTINODE:
-    desc: "Build multi-node"
+  NODE1:
+    desc: "builds additional node 1"
     "no":
-      default: true
+      default: false
     "yes":
+      default: true
       overrides:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
-          NODE_LIST: "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"
+          NODE_1_ID: "node1"
+          NODE_1_IP: "10.0.0.101"
 
         components:
           image:
             builder:
               items:
-                - "%{YOCTOS_WORK_DIR}/build-%{NODE_1_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
-                - "%{YOCTOS_WORK_DIR}/build-%{NODE_2_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+                - "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+
+  NODE2:
+    desc: "builds additional node 2"
+    "no":
+      default: true
+    "yes":
+      default: false
+      overrides:
+        variables:
+          UNIT_MODEL: "vm-dev-multinode"
+          NODE_2_ID: "node2"
+          NODE_2_IP: "10.0.0.102"
+
+        components:
+          image:
+            builder:
+              items:
+                - "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
 
   # Aos VIS data provider
   VIS_DATA_PROVIDER:
-    desc: "Specifies plugin for VIS automotive data"
+    desc: "specifies plugin for VIS automotive data"
     renesassimulator:
       default: true
       overrides:

@@ -22,6 +22,8 @@ FILES_${PN} += " \
     ${systemd_system_unitdir} \
 "
 
+do_install[vardeps] = "NODE_ID UNIT_MODEL UNIT_VERSION"
+
 do_install_append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-reboot.service ${D}${systemd_system_unitdir}/aos-reboot.service

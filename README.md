@@ -29,17 +29,19 @@ parameters. You can check them with `--help-config` command line option:
 
 ```sh
 moulin aos-vm.yaml --help-config
-usage: moulin aos-vm.yaml [--MULTINODE {no,yes}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
+usage: moulin aos-vm.yaml [--NODE1 {no,yes}] [--NODE2 {no,yes}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
 
 Config file description: Aos virtual development machine
 
 options:
-  --MULTINODE {no,yes}  Build multi-node
+  --NODE1 {no,yes}      builds additional node 1
+  --NODE2 {no,yes}      builds additional node 2
   --VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}
-                        Specifies plugin for VIS automotive data
+                        specifies plugin for VIS automotive data
 ```
 
-By default the only one node is built. To enable multi-node build `--MULTINODE=yes` option shall be used.
+By default the main node and one additional node are built. To add second additional node, `--NODE2=yes` option shall
+be used. To build only one main node, use the following options: `--NODE1=no --NODE2=no`.
 
 Moulin will generate build.ninja file. After that run `ninja` to build the images. This will take some time and disk
 space as it builds images for each VM dev node.

@@ -14,14 +14,9 @@ node_list=(node0 node1 node2)
 nodes_ram=(2G 2G 2G)
 nodes_cpu=(1 1 1)
 nodes_mac=(52:54:00:00:00:01 52:54:00:00:00:02 52:54:00:00:00:03)
-# TODO: nodes are not accesible by hostnames from the host. Need to be resolved.
-# As WA add static node IP's.
-nodes_ip=(10.0.0.100 10.0.0.101 10.0.0.102)
 
 bridge_name="aos-br0"
 bridge_ip="10.0.0.1/24"
-dhcp_range="10.0.0.100,10.0.0.200"
-wwwivi_node=${node_list[0]}
 
 image_path="$1"
 image_tar="$image_path/aos-vm.tar"
@@ -79,21 +74,9 @@ if [ -z "$(ip link show | grep $bridge_name)" ]; then
         touch /etc/qemu/bridge.conf
     fi
 
-    if [ ! grep -q $bridge_name /etc/qemu/bridge.conf ]; then
+    if [ ! $(grep -q $bridge_name /etc/qemu/bridge.conf) ]; then
         echo "allow $bridge_name" >>/etc/qemu/bridge.conf
     fi
-fi
-
-# Setup DHCP
-
-if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
-    echo "Starting DHCP server..."
-
-    for i in ${!node_list[@]}; do
-        dhcp_hosts="$dhcp_hosts --dhcp-host ${nodes_mac[$i]},${node_list[$i]},${nodes_ip[$i]}"
-    done
-
-    dnsmasq --interface=$bridge_name --bind-interfaces --dhcp-range=$dhcp_range $dhcp_hosts --cname=wwwivi,$wwwivi_node
 fi
 
 # Run nodes
@@ -122,7 +105,7 @@ fi
 echo "Started nodes:$started_nodes"
 
 echo "To provide internat connection for nodes, enable masquarading on internet providing interface:"
-echo "    sudo iptables -t nat -A POSTROUTING -o <interface> -j MASQUERADE"
+echo "    iptables -t nat -A POSTROUTING -o <interface> -j MASQUERADE"
 
 for node in $started_nodes; do
     echo "Use following command to access $node console:"
@@ -132,14 +115,6 @@ done
 # Wait all nodes finished
 
 wait
-
-dhcp_pid=$(ps aux | grep -E "[d]nsmasq.*$bridge_name" | awk '{print $2}')
-
-if [ ! -z "$dhcp_pid" ]; then
-    echo "Stopping DHCP server..."
-
-    kill -9 $dhcp_pid
-fi
 
 # Delete bridge
 
