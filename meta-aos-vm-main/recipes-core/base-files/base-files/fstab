@@ -4,7 +4,7 @@
 proc                 /proc                proc       defaults              0  0
 devpts               /dev/pts             devpts     mode=0620,ptmxmode=0666,gid=5      0  0
 
-/dev/hda4            /home                ext4       defaults,noatime       0  0
+/dev/sda4            /home                ext4       defaults,noatime       0  0
 
 /dev/aosvg/downloads /var/aos/downloads   ext4       defaults,nofail,noatime,x-systemd.device-timeout=5s  0  0
 /dev/aosvg/workdirs  /var/aos/workdirs    ext4       defaults,nofail,noatime,x-systemd.device-timeout=5s  0  0
