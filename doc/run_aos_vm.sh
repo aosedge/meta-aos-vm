@@ -80,6 +80,14 @@ if [ -z "$(ip link show | grep $bridge_name)" ]; then
     fi
 fi
 
+# Setup DNS
+
+if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
+    echo "Starting DNS server..."
+
+    dnsmasq --interface=$bridge_name --bind-interfaces
+fi
+
 # Run nodes
 
 for i in ${!node_list[@]}; do
@@ -116,6 +124,14 @@ done
 # Wait all nodes finished
 
 wait
+
+dhcp_pid=$(ps aux | grep -E "[d]nsmasq.*$bridge_name" | awk '{print $2}')
+
+if [ ! -z "$dhcp_pid" ]; then
+    echo "Stopping DHCP server..."
+
+    kill -9 $dhcp_pid
+fi
 
 # Delete bridge
 
