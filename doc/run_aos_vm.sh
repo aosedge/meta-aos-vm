@@ -33,7 +33,8 @@ start_node() {
     mkdir -p /tmp/aos-vm/
 
     qemu-system-x86_64 \
-        -name $node -hda $node_image \
+        -name $node -drive file=$node_image,if=none,id=root-image \
+        -device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
         -cpu host -smp cpus=$cpu -m $mem -enable-kvm \
         -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
         -nic bridge,br=$bridge_name,model=virtio-net-pci,mac=$mac \
@@ -52,6 +53,8 @@ start_node() {
 
 if [ -f "$image_tar" ]; then
     echo "Extracting Aos VM images..."
+
+    rm $image_path/*.vmdk
 
     tar -xvf $image_tar -C $1 --strip-components=6
 
@@ -77,6 +80,14 @@ if [ -z "$(ip link show | grep $bridge_name)" ]; then
     if [ ! $(grep -q $bridge_name /etc/qemu/bridge.conf) ]; then
         echo "allow $bridge_name" >>/etc/qemu/bridge.conf
     fi
+fi
+
+# Setup DNS
+
+if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
+    echo "Starting DNS server..."
+
+    dnsmasq --interface=$bridge_name --bind-interfaces
 fi
 
 # Run nodes
@@ -115,6 +126,14 @@ done
 # Wait all nodes finished
 
 wait
+
+dhcp_pid=$(ps aux | grep -E "[d]nsmasq.*$bridge_name" | awk '{print $2}')
+
+if [ ! -z "$dhcp_pid" ]; then
+    echo "Stopping DHCP server..."
+
+    kill -9 $dhcp_pid
+fi
 
 # Delete bridge
 
