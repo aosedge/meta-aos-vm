@@ -28,9 +28,11 @@ IMAGE_INSTALL_append = " \
         ', '', d)} \
 "
 
+IMAGE_DISK ?= "sda"
+
 # Variables
 INITRAMFS_BOOT_PARAMS = " \
-    vardir.disk=/dev/sda5 opendisk.target=/dev/sda6 opendisk.pkcs11=softhsm \
+    vardir.disk=/dev/${IMAGE_DISK}5 opendisk.target=/dev/${IMAGE_DISK}6 opendisk.pkcs11=softhsm \
     opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=um/update_rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux.module=/usr/share/selinux/aos/base.pp', '', d)} \
 "
