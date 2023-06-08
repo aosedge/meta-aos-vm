@@ -2,7 +2,7 @@ SUMMARY = "python libs layer"
 
 require recipes-aos-layers/base-layer/base-layer.inc
 
-LAYER_FEATURES_${PN} = " \
+LAYER_FEATURES:${PN} = " \
     python3-compression \
     python3-crypt \
     python3-json \

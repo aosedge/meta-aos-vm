@@ -2,7 +2,7 @@ SUMMARY = "nodejs layer"
 
 require recipes-aos-layers/base-layer/base-layer.inc
 
-LAYER_FEATURES_${PN} = " \
+LAYER_FEATURES:${PN} = " \
     nodejs \
 "
 

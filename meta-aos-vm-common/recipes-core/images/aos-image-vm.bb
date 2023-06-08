@@ -8,13 +8,13 @@ inherit core-image extrausers ${@bb.utils.contains('DISTRO_FEATURES', 'selinux',
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
 IMAGE_FSTYPES = "tar.bz2 wic.vmdk"
 
-IMAGE_FEATURES_append = " read-only-rootfs"
+IMAGE_FEATURES:append = " read-only-rootfs"
 
 # Set password to the root user. This is the requirement of the provisioning script.
 EXTRA_USERS_PARAMS = "usermod -P Password1 -s /bin/bash root;"
 
 # System packages
-IMAGE_INSTALL_append = " \
+IMAGE_INSTALL:append = " \
     bash \
     iperf3 \
     mc \
@@ -43,7 +43,7 @@ BUILD_WIC_DIR = "${WORKDIR}/build-wic"
 ROOTFS_EXCLUDE_PATHS = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '', '--exclude-path ./var/ ./home/', d)}"
 SHARED_RESOURCE_DIR = "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}"
 
-ROOTFS_POSTPROCESS_COMMAND_append += "set_rootfs_version;"
+ROOTFS_POSTPROCESS_COMMAND:append = "set_rootfs_version;"
 
 # Dependencies
 
@@ -62,11 +62,11 @@ set_rootfs_version() {
 # layers and update
 do_create_shared_links() {
     if [ -d ${IMAGE_ROOTFS} ]; then
-        lnr ${IMAGE_ROOTFS} ${SHARED_RESOURCE_DIR}/rootfs
+        ln -r -s ${IMAGE_ROOTFS} ${SHARED_RESOURCE_DIR}/rootfs
     fi
 
     if [ -d ${BUILD_WIC_DIR} ]; then
-        lnr ${BUILD_WIC_DIR} ${SHARED_RESOURCE_DIR}/build-wic
+        ln -r -s ${BUILD_WIC_DIR} ${SHARED_RESOURCE_DIR}/build-wic
     fi 
 }
 

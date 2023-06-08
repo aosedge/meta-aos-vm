@@ -9,11 +9,11 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir} \
 "
 
-RDEPENDS_${PN} = "aos-setupdisk"
+RDEPENDS:${PN} = "aos-setupdisk"
 
 do_install() {
     install -d ${D}${bindir}

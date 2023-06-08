@@ -1,10 +1,10 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://aos-dirs-service.conf \
 "
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir}/systemd/system/aos-communicationmanager.service.d/ \
 "
 
@@ -13,7 +13,7 @@ python __anonymous() {
         d.appendVar("RDEPENDS_"+d.getVar('PN'), "nfs-exports")
 }
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${sysconfdir}/systemd/system/aos-communicationmanager.service.d
     install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-communicationmanager.service.d/10-aos-dirs-service.conf
 }

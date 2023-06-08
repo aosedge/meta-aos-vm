@@ -1,21 +1,21 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://ipforwarding.conf \
     file://aos-dirs-service.conf \
 "
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir}/systemd/system/aos-servicemanager.service.d/ \
 "
 
 # Base layer for services
-RDEPENDS_${PN} += "\
+RDEPENDS:${PN} += "\
     python3 \
     python3-core \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
 

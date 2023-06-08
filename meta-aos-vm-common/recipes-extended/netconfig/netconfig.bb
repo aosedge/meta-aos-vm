@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SUMMARY = "Network configuration files"
 
@@ -10,7 +10,7 @@ SRC_URI += " \
     file://veth.network \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${sysconfdir}/systemd/network/
     install -m 0644 ${WORKDIR}/wired.network ${D}${sysconfdir}/systemd/network/20-wired.network
 

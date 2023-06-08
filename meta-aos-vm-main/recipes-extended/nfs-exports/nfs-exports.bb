@@ -10,4 +10,4 @@ do_install() {
     echo "/var/aos/states   *(rw,no_root_squash,sync,no_wdelay,no_subtree_check)" >> ${D}${sysconfdir}/exports
 }
 
-RDEPENDS_${PN} = "packagegroup-core-nfs-server"
+RDEPENDS:${PN} = "packagegroup-core-nfs-server"

@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://aos-reboot.service \
@@ -13,18 +13,18 @@ AOS_UM_UPDATE_MODULES = " \
 
 inherit systemd
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
     efibootmgr \
 "
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir}/systemd/system/aos-updatemanager.service.d/ \
     ${systemd_system_unitdir} \
 "
 
 do_install[vardeps] = "NODE_ID UNIT_MODEL UNIT_VERSION"
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-reboot.service ${D}${systemd_system_unitdir}/aos-reboot.service
 

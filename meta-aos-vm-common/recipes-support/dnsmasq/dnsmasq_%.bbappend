@@ -7,5 +7,5 @@ do_install () {
                install
 }
 
-SYSTEMD_SERVICE_${PN} = ""
+SYSTEMD_SERVICE:${PN} = ""
 SYSTEMD_AUTO_ENABLE ?= "disable"

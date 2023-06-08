@@ -1,5 +1,5 @@
 # AOS packages
-IMAGE_INSTALL_append = " \
+IMAGE_INSTALL:append = " \
     aos-iamanager \
     aos-servicemanager \
     aos-updatemanager \
