@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://aos-vis-service.conf \
@@ -8,16 +8,16 @@ AOS_IAM_IDENT_MODULES = " \
     identhandler/modules/visidentifier \
 "
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir}/systemd/system/aos-iamanager.service.d/ \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${sysconfdir}/systemd/system/aos-iamanager.service.d
     install -m 0644 ${WORKDIR}/aos-vis-service.conf ${D}${sysconfdir}/systemd/system/aos-iamanager.service.d/10-aos-vis-service.conf
 }
 
-python do_update_config_append() {
+python do_update_config:append() {
     # Add remote IAM's configuration
 
     data["RemoteIams"] = []

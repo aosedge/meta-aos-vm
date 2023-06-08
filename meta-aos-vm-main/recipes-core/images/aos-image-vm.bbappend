@@ -1,5 +1,5 @@
 # AOS packages
-IMAGE_INSTALL_append = " \
+IMAGE_INSTALL:append = " \
     aos-communicationmanager \
     aos-iamanager \
     aos-servicemanager \
@@ -9,7 +9,7 @@ IMAGE_INSTALL_append = " \
     aos-deprov \
 "
 
-ROOTFS_POSTPROCESS_COMMAND_append += "set_unit_model;"
+ROOTFS_POSTPROCESS_COMMAND:append = "set_unit_model;"
 
 set_unit_model() {
     install -d ${IMAGE_ROOTFS}/etc/aos

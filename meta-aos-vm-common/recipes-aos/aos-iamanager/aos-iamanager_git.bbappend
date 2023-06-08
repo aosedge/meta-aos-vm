@@ -2,7 +2,7 @@ AOS_IAM_CERT_MODULES = " \
     certhandler/modules/pkcs11module \
 "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
     aos-setupdisk \
     softhsm \
 "

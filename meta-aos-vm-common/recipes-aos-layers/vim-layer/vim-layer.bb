@@ -2,11 +2,11 @@ SUMMARY = "vim layer"
 
 require recipes-aos-layers/base-layer/base-layer.inc
 
-LAYER_FEATURES_${PN} = " \
+LAYER_FEATURES:${PN} = " \
     vim \
 "
 
-LAYER_WHITEOUTS_${PN} = " \
+LAYER_WHITEOUTS:${PN} = " \
     /var/cache/fontconfig \
     /usr/share/fontconfig/* \
     /usr/share/applications/gvim.desktop \
