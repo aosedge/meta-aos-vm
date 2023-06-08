@@ -11,7 +11,7 @@ IMAGE_FSTYPES = "tar.bz2 wic.vmdk"
 IMAGE_FEATURES:append = " read-only-rootfs"
 
 # Set password to the root user. This is the requirement of the provisioning script.
-EXTRA_USERS_PARAMS = "usermod -P Password1 -s /bin/bash root;"
+EXTRA_USERS_PARAMS = "usermod -p '\$6\$1A1UsrSPWS8nQFZP\$dI8sN.4/y00EWaLEN22tWcLtrBKD08hZTitCub4BhEC2qrDZhQF3YKapF3bXLFq0rsj6xhlJehrEHDJfDFcsF/' -s /bin/bash root;"
 
 # System packages
 IMAGE_INSTALL:append = " \
