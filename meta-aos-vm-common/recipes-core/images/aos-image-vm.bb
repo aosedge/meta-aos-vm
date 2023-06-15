@@ -30,8 +30,6 @@ IMAGE_INSTALL:append = " \
     aos-deprov \
 "
 
-IMAGE_DISK ?= "sda"
-
 # Variables
 INITRAMFS_BOOT_PARAMS = " \
     vardir.disk=/dev/${IMAGE_DISK}5 opendisk.target=/dev/${IMAGE_DISK}6 opendisk.pkcs11=softhsm \
