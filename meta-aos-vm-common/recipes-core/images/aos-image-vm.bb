@@ -31,8 +31,8 @@ IMAGE_INSTALL:append = " \
 "
 
 # Variables
-INITRAMFS_BOOT_PARAMS = " \
-    vardir.disk=/dev/${IMAGE_DISK}5 opendisk.target=/dev/${IMAGE_DISK}6 opendisk.pkcs11=softhsm \
+AOS_INITRAMFS_BOOT_PARAMS = " \
+    vardir.disk=/dev/${AOS_IMAGE_DISK}5 opendisk.target=/dev/${AOS_IMAGE_DISK}6 opendisk.pkcs11=softhsm \
     opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=um/update_rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux.module=/usr/share/selinux/aos/base.pp', '', d)} \
 "
