@@ -66,28 +66,45 @@ common_data:
     - [SKIP_META_VIRT_SANITY_CHECK, "1"]
 
     # Temporary disable SE linux
-    - [DISTRO_FEATURES_remove, "pam selinux"]
+    - [DISTRO_FEATURES:remove, "pam selinux"]
 
       # Unit model
-    - [UNIT_MODEL, "%{UNIT_MODEL}"]
-    - [UNIT_VERSION, "%{UNIT_VERSION}"]
+    - [AOS_UNIT_MODEL, "%{UNIT_MODEL}"]
+    - [AOS_UNIT_VERSION, "%{UNIT_VERSION}"]
 
     # Image versions
-    - [BUNDLE_DIR, "${TOPDIR}/../.."]
-    - [BUNDLE_OSTREE_REPO, "${TOPDIR}/../../rootfs_repo"]
-    - [BUNDLE_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
-    - [ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
-    - [ROOTFS_REF_VERSION, "%{ROOTFS_REF_VERSION}"]
-    - [BOOT_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
-    - [BUNDLE_BOOT, "%{BUNDLE_BOOT}"]
-    - [BUNDLE_ROOTFS, "%{BUNDLE_ROOTFS}"]
+    - [AOS_BUNDLE_DIR, "${TOPDIR}/../.."]
+    - [AOS_BUNDLE_OSTREE_REPO, "${TOPDIR}/../../rootfs_repo"]
+    - [AOS_BUNDLE_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [AOS_ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [AOS_ROOTFS_REF_VERSION, "%{ROOTFS_REF_VERSION}"]
+    - [AOS_BOOT_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [AOS_BUNDLE_BOOT, "%{BUNDLE_BOOT}"]
+    - [AOS_BUNDLE_ROOTFS, "%{BUNDLE_ROOTFS}"]
 
     # Node configuration
-    - [MAIN_NODE_ID, "%{NODE_0_ID}"]
-    - [NODE_GW_IP, "10.0.0.1"]
-    - [HOST_NAMES, "%{NODE_0_IP}=wwwivi"]
+    - [AOS_MAIN_NODE_ID, "%{NODE_0_ID}"]
+    - [AOS_MAIN_NODE_HOSTNAME, "%{NODE_0_ID}"]
+    - [AOS_NODE_GW_IP, "10.0.0.1"]
+    - [AOS_HOSTS, "%{NODE_0_IP}=wwwivi"]
 
-  node_layers: &COMMON_LAYERS
+  main_layers: &MAIN_LAYERS
+    - "../poky/meta-poky"
+    - "../poky/meta-yocto-bsp"
+    - "../poky/meta"
+    - "../meta-openembedded/meta-filesystems"
+    - "../meta-openembedded/meta-networking"
+    - "../meta-openembedded/meta-oe"
+    - "../meta-openembedded/meta-perl"
+    - "../meta-openembedded/meta-python"
+    - "../meta-security"
+    - "../meta-selinux"
+    - "../meta-virtualization"
+    - "../meta-aos"
+    - "../meta-aos-vm/meta-aos-vm-common"
+    - "../meta-aos-vm/meta-aos-vm-main"
+
+  node_layers: &NODE_LAYERS
     - "../poky/meta-poky"
     - "../poky/meta-yocto-bsp"
     - "../poky/meta"
@@ -114,31 +131,13 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
 
-        - [NODE_ID, "%{NODE_0_ID}"]
-        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_0_ID}"]
-        - [NODE_LIST, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_NODE_ID, "%{NODE_0_ID}"]
+        - [AOS_REMOTE_NODE_IDS, "%{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_NODE_IP, "%{NODE_0_IP}/24"]
+        - [AOS_HOSTS:append, " %{NODE_1_HOST} %{NODE_2_HOST}"]
+        - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
 
-        - [NODE_IP, "%{NODE_0_IP}/24"]
-        - [HOST_NAMES:append, " %{NODE_1_HOST} %{NODE_2_HOST}"]
-
-        - [VIS_DATA_PROVIDER, "%{AOS_VIS_DATA_PROVIDER}"]
-
-      layers:
-        - "../poky/meta-poky"
-        - "../poky/meta-yocto-bsp"
-        - "../poky/meta"
-        - "../meta-openembedded/meta-filesystems"
-        - "../meta-openembedded/meta-networking"
-        - "../meta-openembedded/meta-oe"
-        - "../meta-openembedded/meta-perl"
-        - "../meta-openembedded/meta-python"
-        - "../meta-security"
-        - "../meta-selinux"
-        - "../meta-virtualization"
-        - "../meta-aos"
-        - "../meta-aos-vm/meta-aos-vm-common"
-        - "../meta-aos-vm/meta-aos-vm-main"
-
+      layers: *MAIN_LAYERS
       build_target: aos-image-vm
       target_images:
         - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
@@ -153,13 +152,11 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_1_ID}"]
 
-        - [NODE_ID, "%{NODE_1_ID}"]
-        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_1_ID}"]
+        - [AOS_NODE_ID, "%{NODE_1_ID}"]
+        - [AOS_NODE_IP, "%{NODE_1_IP}/24"]
+        - [AOS_HOSTS:append, " %{NODE_0_HOST}"]
 
-        - [NODE_IP, "%{NODE_1_IP}/24"]
-        - [HOST_NAMES:append, " %{NODE_0_HOST}"]
-
-      layers: *COMMON_LAYERS
+      layers: *NODE_LAYERS
       build_target: aos-image-vm
       target_images:
         - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
@@ -174,13 +171,11 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "aos-vm-%{NODE_2_ID}"]
 
-        - [NODE_ID, "%{NODE_2_ID}"]
-        - [NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_2_ID}"]
+        - [AOS_NODE_ID, "%{NODE_2_ID}"]
+        - [AOS_NODE_IP, "%{NODE_2_IP}/24"]
+        - [AOS_HOSTS:append, " %{NODE_0_HOST}"]
 
-        - [NODE_IP, "%{NODE_2_IP}/24"]
-        - [HOST_NAMES:append, " %{NODE_0_HOST}"]
-
-      layers: *COMMON_LAYERS
+      layers: *NODE_LAYERS
       build_target: aos-image-vm
       target_images:
         - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
@@ -239,9 +234,9 @@ parameters:
       default: true
       overrides:
         variables:
-          AOS_VIS_DATA_PROVIDER: "renesassimulatoradapter"
+          VIS_DATA_PROVIDER: "renesassimulatoradapter"
 
     telemetryemulator:
       overrides:
         variables:
-          AOS_VIS_DATA_PROVIDER: "telemetryemulatoradapter"
+          VIS_DATA_PROVIDER: "telemetryemulatoradapter"
