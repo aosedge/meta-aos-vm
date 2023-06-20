@@ -33,12 +33,12 @@ start_node() {
     mkdir -p /tmp/aos-vm/
 
     qemu-system-x86_64 \
-        -name $node -drive file=$node_image,if=none,id=root-image \
+        -name "$node" -drive file="$node_image",if=none,id=root-image \
         -device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
-        -cpu host -smp cpus=$cpu -m $mem -enable-kvm \
+        -cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
         -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
-        -nic bridge,br=$bridge_name,model=virtio-net-pci,mac=$mac \
-        -nographic -serial mon:unix:/tmp/aos-vm/$node.sock,server,nowait
+        -nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
+        -nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
 
     ret="$?"
 
@@ -54,13 +54,13 @@ start_node() {
 if [ -f "$image_tar" ]; then
     echo "Extracting Aos VM images..."
 
-    rm $image_path/*.vmdk
+    rm "$image_path"/*.vmdk
 
-    tar -xvf $image_tar -C $1 --strip-components=6
+    tar -xvf "$image_tar" -C "$1" --strip-components=6
 
     echo "Removing tar archive..."
 
-    rm $image_tar
+    rm "$image_tar"
 fi
 
 # Create bridge
@@ -77,7 +77,7 @@ if [ -z "$(ip link show | grep $bridge_name)" ]; then
         touch /etc/qemu/bridge.conf
     fi
 
-    if [ ! $(grep -q $bridge_name /etc/qemu/bridge.conf) ]; then
+    if [ ! "$(grep -q $bridge_name /etc/qemu/bridge.conf)" ]; then
         echo "allow $bridge_name" >>/etc/qemu/bridge.conf
     fi
 fi
@@ -92,7 +92,7 @@ fi
 
 # Run nodes
 
-for i in ${!node_list[@]}; do
+for i in "${!node_list[@]}"; do
     node=${node_list[$i]}
     node_image="$image_path/aos-vm-$node-genericx86-64.wic.vmdk"
 
@@ -102,7 +102,7 @@ for i in ${!node_list[@]}; do
 
     echo "Starting $node..."
 
-    start_node $node $node_image ${nodes_cpu[$i]} ${nodes_ram[$i]} ${nodes_mac[$i]} &
+    start_node "$node" "$node_image" "${nodes_cpu[$i]}" "${nodes_ram[$i]}" "${nodes_mac[$i]}" &
 
     started_nodes="$started_nodes $node"
 done
@@ -132,7 +132,7 @@ dhcp_pid=$(ps aux | grep -E "[d]nsmasq.*$bridge_name" | awk '{print $2}')
 if [ ! -z "$dhcp_pid" ]; then
     echo "Stopping DHCP server..."
 
-    kill -9 $dhcp_pid
+    kill -9 "$dhcp_pid"
 fi
 
 # Delete bridge
