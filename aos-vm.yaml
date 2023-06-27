@@ -34,19 +34,19 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "aa00730418"
+      rev: "bab87089ad"
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "7203130ed"
+      rev: "6334241447"
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "beea119"
+      rev: "521459b"
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "c62970f"
+      rev: "eb631c1"
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "1a13839"
+      rev: "eac9055"
     - type: git
       url: "https://github.com/aoscloud/meta-aos"
       rev: "v7.0.3"
