@@ -132,9 +132,16 @@ components:
         - [IMAGE_BASENAME, "aos-vm-%{NODE_0_ID}"]
 
         - [AOS_NODE_ID, "%{NODE_0_ID}"]
-        - [AOS_REMOTE_NODE_IDS, "%{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_SM_NODES, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_UM_NODES, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_IAM_NODES, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
+        - [AOS_IAM_HOSTNAMES, "%{NODE_0_ID} %{NODE_1_ID} %{NODE_2_ID}"]
         - [AOS_NODE_IP, "%{NODE_0_IP}/24"]
         - [AOS_HOSTS:append, " %{NODE_1_HOST} %{NODE_2_HOST}"]
+        - [
+            AOS_UM_COMPONENT_PREFIX,
+            "${AOS_UNIT_MODEL}-${AOS_UNIT_VERSION}-%{NODE_0_ID}-",
+          ]
         - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
 
       layers: *MAIN_LAYERS
@@ -155,6 +162,10 @@ components:
         - [AOS_NODE_ID, "%{NODE_1_ID}"]
         - [AOS_NODE_IP, "%{NODE_1_IP}/24"]
         - [AOS_HOSTS:append, " %{NODE_0_HOST}"]
+        - [
+            AOS_UM_COMPONENT_PREFIX,
+            "${AOS_UNIT_MODEL}-${AOS_UNIT_VERSION}-%{NODE_1_ID}-",
+          ]
 
       layers: *NODE_LAYERS
       build_target: aos-image-vm
@@ -174,6 +185,10 @@ components:
         - [AOS_NODE_ID, "%{NODE_2_ID}"]
         - [AOS_NODE_IP, "%{NODE_2_IP}/24"]
         - [AOS_HOSTS:append, " %{NODE_0_HOST}"]
+        - [
+            AOS_UM_COMPONENT_PREFIX,
+            "${AOS_UNIT_MODEL}-${AOS_UNIT_VERSION}-%{NODE_2_ID}-",
+          ]
 
       layers: *NODE_LAYERS
       build_target: aos-image-vm
