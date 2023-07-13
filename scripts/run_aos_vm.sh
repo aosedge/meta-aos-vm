@@ -54,13 +54,13 @@ start_node() {
 if [ -f "$image_tar" ]; then
     echo "Extracting Aos VM images..."
 
-    rm "$image_path"/*.vmdk
+    rm -f "$image_path"/*.vmdk
 
-    tar -xvf "$image_tar" -C "$1" --strip-components=6
+    tar -xvf "$image_tar" -C "$1"
 
     echo "Removing tar archive..."
 
-    rm "$image_tar"
+    rm -f "$image_tar"
 fi
 
 # Create bridge
