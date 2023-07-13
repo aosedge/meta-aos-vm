@@ -68,6 +68,9 @@ common_data:
     # Temporary disable SE linux
     - [DISTRO_FEATURES:remove, "pam selinux"]
 
+    # Deploy grub configuration
+    - [EXTRA_IMAGEDEPENDS:append, "grub-config"]
+
       # Unit model
     - [AOS_UNIT_MODEL, "%{UNIT_MODEL}"]
     - [AOS_UNIT_VERSION, "%{UNIT_VERSION}"]
@@ -122,6 +125,7 @@ common_data:
 
 components:
   node0:
+    default: true
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources: *COMMON_SOURCES
     builder:
@@ -147,9 +151,16 @@ components:
       layers: *MAIN_LAYERS
       build_target: aos-image-vm
       target_images:
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.ext4"
+        - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "tmp/deploy/images/%{MACHINE}/bzImage"
+        - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+        - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
   node1:
+    default: false
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources: *COMMON_SOURCES
     builder:
@@ -170,9 +181,16 @@ components:
       layers: *NODE_LAYERS
       build_target: aos-image-vm
       target_images:
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.ext4"
+        - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "tmp/deploy/images/%{MACHINE}/bzImage"
+        - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+        - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
   node2:
+    default: false
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources: *COMMON_SOURCES
     builder:
@@ -193,15 +211,62 @@ components:
       layers: *NODE_LAYERS
       build_target: aos-image-vm
       target_images:
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.ext4"
+        - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "tmp/deploy/images/%{MACHINE}/bzImage"
+        - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+        - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
-  image:
-    default: true
-    builder:
-      type: archive
-      name: "aos-vm.tar"
-      items:
-        - "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.wic.vmdk"
+images:
+  node0:
+    type: gpt
+    desc: "Node 0 image"
+    partitions:
+      boot_a:
+        gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+        type: vfat
+        size: 128 MiB
+        items:
+          "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+          "bzImage": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/bzImage"
+          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+      boot_b:
+        gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+        type: vfat
+        size: 128 MiB
+        items:
+          "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+          "bzImage": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/bzImage"
+          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+      rootfs:
+        gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+        type: raw_image
+        image_path: "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_0_ID}-%{MACHINE}.ext4"
+
+      home:
+        gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+        type: ext4
+        size: 512 MiB
+        items:
+          "/": "%{YOCTOS_WORK_DIR}/build-node0/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+
+      var:
+        gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+        type: ext4
+        size: 512 MiB
+        items:
+          "/": "%{YOCTOS_WORK_DIR}/build-node0/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
+
+      aos:
+        gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
+        type: empty
+        size: 1024 MiB
 
 parameters:
   NODE1:
@@ -218,10 +283,57 @@ parameters:
           NODE_1_HOST: "%{NODE_1_IP}=%{NODE_1_ID}"
 
         components:
-          image:
-            builder:
-              items:
-                - "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.wic.vmdk"
+          node1:
+            default: true
+
+        images:
+          node1:
+            type: gpt
+            desc: "Node 1 image"
+            partitions:
+              boot_a:
+                gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+                type: vfat
+                size: 128 MiB
+                items:
+                  "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+                  "bzImage": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/bzImage"
+                  "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+                  "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+              boot_b:
+                gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+                type: vfat
+                size: 128 MiB
+                items:
+                  "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+                  "bzImage": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/bzImage"
+                  "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+                  "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+              rootfs:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: raw_image
+                image_path: "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_1_ID}-%{MACHINE}.ext4"
+
+              home:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: ext4
+                size: 512 MiB
+                items:
+                  "/": "%{YOCTOS_WORK_DIR}/build-node1/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+
+              var:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: ext4
+                size: 512 MiB
+                items:
+                  "/": "%{YOCTOS_WORK_DIR}/build-node1/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
+
+              aos:
+                gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
+                type: empty
+                size: 1024 MiB
 
   NODE2:
     desc: "builds additional node 2"
@@ -237,10 +349,57 @@ parameters:
           NODE_2_HOST: "%{NODE_2_IP}=%{NODE_2_ID}"
 
         components:
-          image:
-            builder:
-              items:
-                - "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.wic.vmdk"
+          node2:
+            default: true
+
+        images:
+          node2:
+            type: gpt
+            desc: "Node 2 image"
+            partitions:
+              boot_a:
+                gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+                type: vfat
+                size: 128 MiB
+                items:
+                  "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+                  "bzImage": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/bzImage"
+                  "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+                  "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+              boot_b:
+                gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+                type: vfat
+                size: 128 MiB
+                items:
+                  "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+                  "bzImage": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/bzImage"
+                  "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+                  "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub.cfg"
+
+              rootfs:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: raw_image
+                image_path: "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_2_ID}-%{MACHINE}.ext4"
+
+              home:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: ext4
+                size: 512 MiB
+                items:
+                  "/": "%{YOCTOS_WORK_DIR}/build-node2/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+
+              var:
+                gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
+                type: ext4
+                size: 512 MiB
+                items:
+                  "/": "%{YOCTOS_WORK_DIR}/build-node2/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
+
+              aos:
+                gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
+                type: empty
+                size: 1024 MiB
 
   # Aos VIS data provider
   VIS_DATA_PROVIDER:
