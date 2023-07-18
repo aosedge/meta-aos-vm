@@ -271,7 +271,7 @@ images:
       aos:
         gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
         type: empty
-        size: 1024 MiB
+        size: 2048 MiB
 
 parameters:
   NODE1:
