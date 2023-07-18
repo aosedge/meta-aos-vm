@@ -156,6 +156,7 @@ components:
         - "tmp/deploy/images/%{MACHINE}/bzImage"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
@@ -186,6 +187,7 @@ components:
         - "tmp/deploy/images/%{MACHINE}/bzImage"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
@@ -216,6 +218,7 @@ components:
         - "tmp/deploy/images/%{MACHINE}/bzImage"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
@@ -233,6 +236,7 @@ images:
           "bzImage": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/bzImage"
           "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub.cfg"
+          "aos/version": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
       boot_b:
         gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
@@ -243,6 +247,7 @@ images:
           "bzImage": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/bzImage"
           "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/grub.cfg"
+          "aos/version": "%{YOCTOS_WORK_DIR}/build-node0/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
       rootfs:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
@@ -300,6 +305,7 @@ parameters:
                   "bzImage": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/bzImage"
                   "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
                   "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                  "aos/version": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
               boot_b:
                 gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
@@ -310,6 +316,7 @@ parameters:
                   "bzImage": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/bzImage"
                   "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
                   "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                  "aos/version": "%{YOCTOS_WORK_DIR}/build-node1/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
               rootfs:
                 gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
@@ -366,6 +373,7 @@ parameters:
                   "bzImage": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/bzImage"
                   "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
                   "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                  "aos/version": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
               boot_b:
                 gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
@@ -376,6 +384,7 @@ parameters:
                   "bzImage": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/bzImage"
                   "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
                   "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                  "aos/version": "%{YOCTOS_WORK_DIR}/build-node2/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
               rootfs:
                 gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
