@@ -8,8 +8,6 @@ variables:
 
   BUNDLE_IMAGE_VERSION: "4.2.0"
   ROOTFS_REF_VERSION: "4.1.0"
-  BUNDLE_BOOT: "1"
-  BUNDLE_ROOTFS: "full"
 
   # Aos node configuration
   NODE_ID: "node0"
@@ -141,6 +139,71 @@ components:
         - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
+
+  fota:
+    builder:
+      type: custom_script
+      work_dir: "fota"
+      script: "yocto/meta-aos/scripts/fota_builder.py"
+      args: "-v"
+      target_images:
+        - "output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-%{BUNDLE_IMAGE_VERSION}.tar"
+
+      additional_deps:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.tar.bz2"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/bzImage"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub.cfg"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
+
+      components:
+        boot:
+          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-boot"
+          enabled: true
+          method: "raw"
+          description: "%{NODE_ID} boot image"
+          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+          partition:
+            gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+            type: vfat
+            size: 128 MiB
+            items:
+              "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+              "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/bzImage"
+              "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+              "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub.cfg"
+              "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
+
+        rootfs-full:
+          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
+          enabled: true
+          method: "overlay"
+          type: "full"
+          description: "%{NODE_ID} rootfs image"
+          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
+          exclude:
+            - "/var/*"
+            - "/home/*"
+
+          rootfs: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.tar.bz2"
+
+        rootfs-incremental:
+          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
+          enabled: false
+          method: "overlay"
+          type: "incremental"
+          description: "%{NODE_ID} rootfs image"
+          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          requiredVersion: "%{ROOTFS_REF_VERSION}"
+          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
+          exclude:
+            - "/var/*"
+            - "/home/*"
+
+          rootfs: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.tar.bz2"
 
 images:
   "%{NODE_ID}":
