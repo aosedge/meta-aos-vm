@@ -15,11 +15,13 @@ node_list=(node0 node1 node2)
 image_path="$1"
 image_tar="$image_path/aos-vm.tar"
 
+mkdir -p "$image_path"
+
 # Find node images
 
 for i in "${!node_list[@]}"; do
     node=${node_list[$i]}
-    node_image="$image_path/$node.img"
+    node_image="$node.img"
 
     if [ ! -f "$node_image" ]; then
         continue
