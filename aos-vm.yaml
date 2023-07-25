@@ -140,6 +140,31 @@ components:
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
         - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
+  layers:
+    builder:
+      type: custom_script
+      work_dir: "layers"
+      script: "yocto/meta-aos/scripts/layer_builder.py"
+      target_images:
+        - "layers/nodejs-layer.tar"
+
+      additional_deps:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.tar.bz2"
+
+      layers:
+        yocto_dir: "%{YOCTOS_WORK_DIR}"
+        build_dir: "build-%{NODE_ID}"
+        conf:
+          - [AOS_BASE_IMAGE, "aos-image-vm"]
+          - [AOS_LAYER_DEPLOY_DIR, "${TOPDIR}/../../output/layers"]
+        items:
+          nodejs-layer:
+            target: "aos-nodejs-layer"
+          pylibs-layer:
+            target: "aos-pylibs-layer"
+          libvis-layer:
+            target: "aos-libvis-layer"
+
   fota:
     builder:
       type: custom_script
