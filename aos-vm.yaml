@@ -27,19 +27,19 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "bab87089ad"
+      rev: "kirkstone"
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "6334241447"
+      rev: "kirkstone"
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "521459b"
+      rev: "kirkstone"
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "eb631c1"
+      rev: "kirkstone"
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "eac9055"
+      rev: "kirkstone"
     - type: git
       url: "https://github.com/aoscloud/meta-aos"
       rev: "develop"
