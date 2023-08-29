@@ -8,7 +8,7 @@ require recipes-core/images/aos-image.inc
 inherit core-image extrausers
 
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
-IMAGE_FSTYPES = "tar.bz2 ext4"
+IMAGE_FSTYPES = "ext4"
 
 # Set password to the root user. This is the requirement of the provisioning script.
 EXTRA_USERS_PARAMS = "usermod -p '\$6\$1A1UsrSPWS8nQFZP\$dI8sN.4/y00EWaLEN22tWcLtrBKD08hZTitCub4BhEC2qrDZhQF3YKapF3bXLFq0rsj6xhlJehrEHDJfDFcsF/' -s /bin/bash root;"
