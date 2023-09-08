@@ -5,3 +5,8 @@ AOS_INITRAMFS_SCRIPTS += " \
     lvm2 \
     softhsm \
 "
+
+python () {
+    if 'selinux' in d.getVar('DISTRO_FEATURES').split():
+        d.setVar('INITRAMFS_MAXSIZE', '196608')
+}
