@@ -206,3 +206,18 @@ ninja layers
 ```
 
 After above operations, demo Aos layers could be found in `output/layers` folder.
+
+## Use Docker Environment
+
+```bash
+cd docker
+
+# build docker image
+docker build . -f Dockerfile --build-arg "USER_ID=$(id -u)" --build-arg "USER_GID=$(id -g)" -t aos_yocto_image:latest
+
+# create directory for building VM
+cd ..
+
+# launch container
+./run_docker.sh -w  . -d aos_yocto_image:latest
+```
