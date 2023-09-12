@@ -58,9 +58,6 @@ common_data:
     # Skip warning about missing "virtualization" distro feature
     - [SKIP_META_VIRT_SANITY_CHECK, "1"]
 
-    # Temporary disable SE linux
-    - [DISTRO_FEATURES:remove, "pam selinux"]
-
     # Deploy grub configuration
     - [EXTRA_IMAGEDEPENDS:append, "grub-config"]
 
