@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Fix for tzdata for docker image build
 ENV TZ=UTC
@@ -7,10 +7,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install necessery for build packages
 RUN apt-get update && apt-get install -y \
     apt-utils gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat \
-    cpio python python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
-    python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm \
+    cpio python2 python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
+    python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev xterm \
     vim locales rsync devscripts debhelper dkms curl imx-code-signing-tool jq \
-    clang-format-10
+    ninja-build zstd liblz4-tool dosfstools mtools
 
 RUN apt-get install --reinstall -y ca-certificates
 
@@ -48,4 +48,8 @@ USER $USER_NAME
 RUN mkdir -p /home/$USER_NAME/workspace
 RUN chown $USER_NAME:$USER_NAME /home/$USER_NAME/workspace
 ENV BUILD_DIR /home/$USER_NAME/workspace
+
+RUN pip3 install --user git+https://github.com/xen-troops/moulin
+ENV PATH="${PATH}:/home/${USER_NAME}/.local/bin"
+
 WORKDIR $BUILD_DIR
