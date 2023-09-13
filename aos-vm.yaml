@@ -305,7 +305,6 @@ parameters:
                 - [AOS_IAM_NODES, "%{NODE_ID} node1"]
                 - [AOS_IAM_HOSTNAMES, "%{NODE_ID} node1"]
                 - [AOS_HOSTS:append, " 10.0.0.101=node1"]
-                - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
 
               layers: *MAIN_LAYERS
 
