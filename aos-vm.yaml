@@ -75,6 +75,9 @@ common_data:
     - [AOS_NODE_GW_IP, "10.0.0.1"]
     - [AOS_HOSTS, "%{MAIN_NODE_IP}=wwwivi"]
 
+    # Generate home RW partition
+    - [AOS_HOME_PART_SIZE, "524288"]
+
   main_layers: &MAIN_LAYERS
     - "../poky/meta-poky"
     - "../poky/meta-yocto-bsp"
@@ -129,13 +132,13 @@ components:
       build_target: aos-image-vm
       target_images:
         - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.ext4"
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-home.ext4"
+        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-var.ext4"
         - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
         - "tmp/deploy/images/%{MACHINE}/bzImage"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
         - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
-        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
-        - "tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
 
   layers:
     builder:
@@ -256,17 +259,13 @@ images:
 
       home:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
-        type: ext4
-        size: 512 MiB
-        items:
-          "/": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/home"
+        type: raw_image
+        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-home.ext4"
 
       var:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
-        type: ext4
-        size: 512 MiB
-        items:
-          "/": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/work/genericx86_64-aosvm-linux/aos-image-vm/1.0-r0/rootfs/var"
+        type: raw_image
+        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-var.ext4"
 
       aos:
         gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
