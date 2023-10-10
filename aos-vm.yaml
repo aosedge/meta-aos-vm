@@ -211,6 +211,9 @@ components:
           type: "full"
           description: "%{NODE_ID} rootfs image"
           vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          exclude:
+            - "home/*"
+            - "var/*"
           fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
         rootfs-incremental:
@@ -223,6 +226,9 @@ components:
           description: "%{NODE_ID} rootfs image"
           vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
           requiredVersion: "%{ROOTFS_REF_VERSION}"
+          exclude:
+            - "home/*"
+            - "var/*"
           fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
 images:
