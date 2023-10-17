@@ -19,7 +19,7 @@ bridge_name="aos-br0"
 bridge_ip="10.0.0.1/24"
 
 image_path="$1"
-image_tar="$image_path/aos-vm.tar"
+image_tar="$image_path/aos-vm.tar.gz"
 
 # Functions
 
@@ -56,7 +56,7 @@ if [ -f "$image_tar" ]; then
 
     rm -f "$image_path"/*.vmdk
 
-    tar -xvf "$image_tar" -C "$1"
+    tar -xvzf "$image_tar" -C "$1"
 
     echo "Removing tar archive..."
 

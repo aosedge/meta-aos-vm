@@ -40,3 +40,4 @@ done
 echo "Createing archive..."
 
 tar -C "$image_path" -cvf "${image_tar}" ${vm_disks} --remove-files
+gzip "${image_tar}"
