@@ -2,14 +2,6 @@
 
 This repository contains AodEdge Yocto layers for building Aos virtual machine.
 
-## Status
-
-This is Aos VM release 4.2.0. This release provides the following features:
-
-* Aos images for different node types: single, main, secondary
-* Generating FOTA bundles
-* Generating Aos layers
-
 ## Requirements
 
 1. Ubuntu 18.0+ or any other Linux distribution which is supported by Poky/OE
