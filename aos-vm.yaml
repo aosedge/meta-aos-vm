@@ -22,6 +22,8 @@ variables:
   MACHINE: "genericx86-64"
   DISTRO: "aos-vm-dev"
 
+  AOS_BASE_IMAGE: "aos-vm-%{NODE_ID}"
+
 common_data:
   # Sources used by all nodes
   common_sources: &COMMON_SOURCES
@@ -126,8 +128,9 @@ components:
       work_dir: "build-%{NODE_ID}"
       conf:
         - *COMMON_CONF
-        - [IMAGE_BASENAME, "aos-vm-%{NODE_ID}"]
+        - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
 
+        - [AOS_BASE_IMAGE, "aos-image-vm"]
         - [AOS_NODE_ID, "%{NODE_ID}"]
         - [AOS_NODE_IP, "%{NODE_IP}/24"]
         - [
@@ -137,9 +140,9 @@ components:
 
       build_target: aos-image-vm
       target_images:
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.ext4"
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-home.ext4"
-        - "tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-var.ext4"
+        - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
+        - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-home.ext4"
+        - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-var.ext4"
         - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
         - "tmp/deploy/images/%{MACHINE}/bzImage"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
@@ -157,7 +160,7 @@ components:
         - "output/layers/libvis-layer.tar"
 
       additional_deps:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.ext4"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
 
       layers:
         yocto_dir: "%{YOCTOS_WORK_DIR}"
@@ -167,8 +170,10 @@ components:
         items:
           nodejs-layer:
             target: "aos-nodejs-layer"
+
           pylibs-layer:
             target: "aos-pylibs-layer"
+
           libvis-layer:
             target: "aos-libvis-layer"
 
@@ -182,7 +187,7 @@ components:
         - "output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.ext4"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/bzImage"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
@@ -267,17 +272,17 @@ images:
       rootfs:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
         type: raw_image
-        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}.ext4"
+        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
 
       home:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
         type: raw_image
-        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-home.ext4"
+        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-home.ext4"
 
       var:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
         type: raw_image
-        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-vm-%{NODE_ID}-%{MACHINE}-var.ext4"
+        image_path: "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-var.ext4"
 
       aos:
         gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
