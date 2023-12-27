@@ -2,22 +2,17 @@
 
 This repository contains AodEdge Yocto layers for building Aos virtual machine.
 
-## Status
-
-This is Aos VM release 4.2.0. This release provides the following features:
-
-* Aos images for different node types: single, main, secondary
-* Generating FOTA bundles
-* Generating Aos layers
-
 ## Requirements
 
 1. Ubuntu 18.0+ or any other Linux distribution which is supported by Poky/OE
+
 2. Development packages for Yocto. Refer to [Yocto manual]
    (<https://docs.yoctoproject.org/brief-yoctoprojectqs/index.html#build-host-packages>).
+
 3. You need `Moulin` of version 0.20 or newer installed in your PC. Recommended way is to install it for your user only:
    `pip3 install --user git+https://github.com/xen-troops/moulin`. Make sure that your `PATH` environment variable
     includes `${HOME}/.local/bin`.
+
 4. Ninja build system: `sudo apt install ninja-build` on Ubuntu
 
 ## Fetch
