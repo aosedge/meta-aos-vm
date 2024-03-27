@@ -4,10 +4,6 @@ SRC_URI += " \
     file://aos-vis-service.conf \
 "
 
-AOS_IAM_IDENT_MODULES = " \
-    identhandler/modules/visidentifier \
-"
-
 FILES:${PN} += " \
     ${sysconfdir}/systemd/system/aos-iamanager.service.d/ \
 "
