@@ -27,3 +27,5 @@ IMAGE_INSTALL:append = " \
 IMAGE_INSTALL:append = " \
     aos-deprov \
 "
+
+TOOLCHAIN_HOST_TASK:append = " nativesdk-protobuf nativesdk-protobuf-dev nativesdk-grpc nativesdk-grpc-compiler"
