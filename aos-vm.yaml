@@ -153,7 +153,7 @@ components:
     builder:
       type: custom_script
       work_dir: "layers"
-      script: "yocto/meta-aos/scripts/layer_builder.py"
+      script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
         - "output/layers/nodejs-layer.tar"
         - "output/layers/pylibs-layer.tar"
@@ -163,9 +163,9 @@ components:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
 
       layers:
-        yocto_dir: "%{YOCTOS_WORK_DIR}"
+        yocto_dir: "../%{YOCTOS_WORK_DIR}"
         build_dir: "build-%{NODE_ID}"
-        output_dir: "output/layers"
+        output_dir: "../output/layers"
         base_image: "aos-image-vm"
         items:
           nodejs-layer:
