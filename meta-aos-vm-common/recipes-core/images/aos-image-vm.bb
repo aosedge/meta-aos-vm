@@ -28,4 +28,9 @@ IMAGE_INSTALL:append = " \
     aos-deprov \
 "
 
+# Set fixed rootfs size
+IMAGE_ROOTFS_SIZE ?= "1048576"
+IMAGE_OVERHEAD_FACTOR ?= "1.0"
+IMAGE_ROOTFS_EXTRA_SPACE ?= "524288"
+
 TOOLCHAIN_HOST_TASK:append = " nativesdk-protobuf nativesdk-protobuf-dev nativesdk-grpc nativesdk-grpc-compiler"
