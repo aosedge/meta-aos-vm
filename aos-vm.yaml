@@ -87,9 +87,6 @@ common_data:
     - [AOS_HOME_PART_SIZE, "524288"]
 
   main_layers: &MAIN_LAYERS
-    - "../poky/meta-poky"
-    - "../poky/meta-yocto-bsp"
-    - "../poky/meta"
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-networking"
     - "../meta-openembedded/meta-oe"
