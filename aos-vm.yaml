@@ -6,8 +6,8 @@ variables:
   UNIT_MODEL: "vm-dev"
   UNIT_VERSION: "1.0"
 
-  BUNDLE_IMAGE_VERSION: "4.2.1"
-  ROOTFS_REF_VERSION: "4.2.0"
+  BUNDLE_IMAGE_VERSION: "4.3.0"
+  ROOTFS_REF_VERSION: "4.2.1"
 
   # Aos node configuration
   NODE_ID: "node0"
@@ -29,15 +29,15 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "f754b5d45b"
+      rev: "b6f6c72945"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "402affcc0"
+      rev: "8bb165335"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "88327090"
+      rev: "cb2bc17e"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
@@ -49,11 +49,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aoscloud/meta-aos"
-      rev: "v7.2.2"
+      rev: "v7.3.0"
 
     - type: git
       url: "https://github.com/aoscloud/meta-aos-vm"
-      rev: "v4.2.1"
+      rev: "v4.3.0"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
