@@ -100,9 +100,6 @@ common_data:
     - "../meta-aos-vm/meta-aos-vm-main"
 
   node_layers: &NODE_LAYERS
-    - "../poky/meta-poky"
-    - "../poky/meta-yocto-bsp"
-    - "../poky/meta"
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-networking"
     - "../meta-openembedded/meta-oe"
