@@ -171,14 +171,14 @@ components:
           libvis-layer:
             target: "aos-libvis-layer"
 
-  fota:
+  fota-full:
     builder:
       type: custom_script
-      work_dir: "fota"
-      script: "yocto/meta-aos/scripts/fota_builder.py"
+      work_dir: "workdir"
+      script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-full-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
@@ -201,17 +201,18 @@ components:
             type: vfat
             size: 128 MiB
             items:
-              "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
-              "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/bzImage"
-              "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
-              "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub.cfg"
-              "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
+              "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.cpio.gz"
+              "bzImage": "../%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/bzImage"
+              "EFI/BOOT/bootx64.efi": "../%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+              "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/grub.cfg"
+              "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
         rootfs-full:
           componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
           enabled: true
           method: "overlay"
-          yocto_dir: "%{YOCTOS_WORK_DIR}"
+          ostree_repo: "../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
+          yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_ID}"
           type: "full"
           description: "%{NODE_ID} rootfs image"
@@ -219,13 +220,28 @@ components:
           exclude:
             - "home/*"
             - "var/*"
+
           fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
+  fota-incremental:
+    builder:
+      type: custom_script
+      work_dir: "workdir"
+      script: "../yocto/meta-aos/scripts/fota_builder.py"
+      args: "-v"
+      target_images:
+        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
+
+      additional_deps:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_ID}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.ext4"
+
+      components:
         rootfs-incremental:
           componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
-          enabled: false
+          enabled: true
           method: "overlay"
-          yocto_dir: "%{YOCTOS_WORK_DIR}"
+          ostree_repo: "../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_ID}-rootfs"
+          yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_ID}"
           type: "incremental"
           description: "%{NODE_ID} rootfs image"
