@@ -22,7 +22,7 @@ variables:
   MACHINE: "genericx86-64"
   DISTRO: "aos-vm-dev"
 
-  AOS_BASE_IMAGE: "aos-vm-%{NODE_ID}"
+  AOS_BASE_IMAGE: "aos-image-vm"
 
 common_data:
   # Sources used by all nodes
@@ -122,7 +122,7 @@ components:
       work_dir: "build-%{NODE_ID}"
       conf:
         - *COMMON_CONF
-        - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
+        - [IMAGE_BASENAME, "aos-image-vm"]
 
         - [AOS_BASE_IMAGE, "aos-image-vm"]
         - [AOS_NODE_ID, "%{NODE_ID}"]
