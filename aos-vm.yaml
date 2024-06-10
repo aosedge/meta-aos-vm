@@ -10,8 +10,8 @@ variables:
   ROOTFS_REF_VERSION: "4.3.0"
 
   # Aos node configuration
-  NODE_ID: "node0"
-  MAIN_NODE_ID: "node0"
+  NODE_ID: "main"
+  MAIN_NODE_ID: "main"
 
   # Network configuration
   NODE_IP: "10.0.0.100"
@@ -335,8 +335,7 @@ parameters:
       overrides:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
-          NODE_ID: "node1"
-          NODE_IP: "10.0.0.101"
+          NODE_ID: "secondary"
 
         components:
           aos-vm:
