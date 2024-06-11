@@ -82,25 +82,78 @@ ninja node1.img
 
 You should have `node0.img` and `node1.img` files in the build folder.
 
-## Generate VM image
+## Create VM Image Archive
 
-The following script should be executed in order to pack node raw images into VM archive:
-
-```sh
-yocto/meta-aos-vm/scripts/create_aos_vm.sh output/image
-```
-
-It will generate `aos-vm.tar` file containing VM image in `output/image` folder.
-
-## Launch VM image
-
-To launch VM image, use the following script:
+To create an archive of the VM images, use the following command:
 
 ```sh
-sudo yocto/meta-aos-vm/scripts/run_aos_vm.sh output/image
+yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s <number_of_secondary_nodes> -o <output_path>/aos-vm.tar.gz
+
 ```
 
-Follow the script output instruction to attach to nodes consoles.
+#### options:
+   `-m` or `--main`: Indicates that a main node should be included in the archive.
+   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to
+   `-o <path>` or `--output <path>`: Specifies the output path where the tar.gz archive will be created.
+
+
+### Example
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 2 -o output/image/aos-vm-v5.0.1.tar.gz
+```
+
+This command will create a tar.gz archive containing one main node and two secondary nodes in the specified output path.
+
+## Generate VM Image
+
+To generate VMDK disks for the VM images, use the following command:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s <number_of_secondary_nodes> -o <output_path>
+
+```
+
+#### options:
+   `-m` or `--main`: Indicates that a main node should be created.
+   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to create.
+   `-o <path>` or `--output <path>`: Specifies the output path where the VMDK files will be created.
+
+### Example
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s 2 -o output/image
+```
+
+This command will create VMDK files for one main node and two secondary nodes in the specified output path.
+
+## Run VM Image
+
+To run the VM images, use the following command:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f <file_or_folder>
+
+```
+
+##### options:
+   `-f <file_or_folder>` or `--file <file_or_folder>`: Specifies the file folder containing the VMDK files to run. If a folder is specified, all VMDK files in that folder will be started.  If a specific file is specified, only that VMDK file will be started.
+
+### Example
+
+Run all images in a specific folder:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image
+```
+
+Run a specific image:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image/node0.vmdk
+```
+
+Follow the script output instructions to attach to the nodes' consoles.
 
 ## Use Docker Environment
 
