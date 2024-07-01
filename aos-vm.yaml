@@ -48,11 +48,11 @@ common_data:
       rev: "kirkstone"
 
     - type: git
-      url: "https://github.com/aoscloud/meta-aos"
+      url: "https://github.com/aosedge/meta-aos"
       rev: "develop"
 
     - type: git
-      url: "https://github.com/aoscloud/meta-aos-vm"
+      url: "https://github.com/aosedge/meta-aos-vm"
       rev: "develop"
 
   # Common configuration options for all nodes
