@@ -29,31 +29,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "kirkstone"
+      rev: "b6f6c729453cb88961488e3332046517e2fe99bb"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "kirkstone"
+      rev: "8bb16533532b6abc2eded7d9961ab2a108fd7a5b"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "kirkstone"
+      rev: "cb2bc17e96552cdfc141d27bd9f4dbd95a872846"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "kirkstone"
+      rev: "1a3e42cedbd94ca73be45800d0e902fec35d0f0f"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "kirkstone"
+      rev: "a401f4b2816a0b41ce8d9351542658c721935bcd"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "develop"
+      rev: "v7.3.3"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      rev: "v7.3.3"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
