@@ -22,7 +22,7 @@ During the build `moulin` will fetch this repository again into `yocto/` directo
 we recommend to download only `aos-vm.yaml`:
 
 ```sh
-curl -O https://raw.githubusercontent.com/aoscloud/meta-aos-vm/main/aos-vm.yaml
+curl -O https://raw.githubusercontent.com/aosedge/meta-aos-vm/main/aos-vm.yaml
 ```
 
 ## Build
