@@ -26,6 +26,7 @@ IMAGE_INSTALL:append = " \
 # AOS packages
 IMAGE_INSTALL:append = " \
     aos-deprov \
+    aos-clearhsm \
 "
 
 # Set fixed rootfs size
