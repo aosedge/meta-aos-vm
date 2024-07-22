@@ -302,18 +302,9 @@ images:
 parameters:
   NODE_TYPE:
     desc: "Node type to build"
-    "single":
-      default: true
-      overrides:
-        components:
-          aos-vm:
-            builder:
-              conf:
-                - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
-
-              layers: *MAIN_LAYERS
 
     "main":
+      default: true
       overrides:
         variables:
           UNIT_MODEL: "vm-dev-multinode"
@@ -323,10 +314,6 @@ parameters:
             builder:
               conf:
                 - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
-                - [AOS_SM_NODES, "%{NODE_ID} node1"]
-                - [AOS_UM_NODES, "%{NODE_ID} node1"]
-                - [AOS_IAM_NODES, "%{NODE_ID} node1"]
-                - [AOS_IAM_HOSTNAMES, "%{NODE_ID} node1"]
 
               layers: *MAIN_LAYERS
 
