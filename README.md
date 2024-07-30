@@ -33,36 +33,27 @@ parameters. You can check them with`--help-config` command line option:
 ```sh
 moulin aos-vm.yaml --help-config        
 usage: moulin aos-vm.yaml
-[--NODE_TYPE {single,main,secondary}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
+[--NODE_TYPE {main,secondary}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
 
 Config file description: Aos virtual development machine
 
 options:
-  --NODE_TYPE {single,main,secondary}
+  --NODE_TYPE {main,secondary}
                         Node type to build
   --VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}
                         specifies plugin for VIS automotive data
 
 ```
 
-* `NODE_TYPE` specifies the node to build: `single`- single Aos node, `main` - main node in multi-node VM, `secondary` -
-secondary node in multi-node VM. By default, single node is built.
+* `NODE_TYPE` specifies the node to build: `main` - main node in multi-node VM, `secondary` -
+secondary node in multi-node VM. By default, main node is built.
 
 * `VIS_DATA_PROVIDER` - specifies VIS data provider: `renesassimulator` - Renesas Car simulator, `telemetryemulator` -
 telemetry emulator that reads data from the local file. By default, Renesas Car simulator is used.
 
 After performing moulin command with desired configuration, it will generate `build.ninja` with all necessary build
-targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `node0` for main or single
+targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `node0` for main
 node and `node1` for secondary node). This will take some time and disk space.
-
-### Buil single node VM
-
-```sh
-moulin aos-vm.yaml --NODE_TYPE=single
-ninja node0.img
-```
-
-You should have `node0.img` file in the build folder.
 
 ### Build multi-node VM
 
