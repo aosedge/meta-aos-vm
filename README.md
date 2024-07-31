@@ -52,8 +52,8 @@ secondary node in multi-node VM. By default, main node is built.
 telemetry emulator that reads data from the local file. By default, Renesas Car simulator is used.
 
 After performing moulin command with desired configuration, it will generate `build.ninja` with all necessary build
-targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `node0` for main
-node and `node1` for secondary node). This will take some time and disk space.
+targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `main` for main
+node and `secondary` for secondary node). This will take some time and disk space.
 
 ### Build multi-node VM
 
@@ -61,17 +61,17 @@ Build main node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=main
-ninja node0.img
+ninja main.img
 ```
 
 Build secondary node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=secondary
-ninja node1.img
+ninja secondary.img
 ```
 
-You should have `node0.img` and `node1.img` files in the build folder.
+You should have `main.img` and `secondary.img` files in the build folder.
 
 ## Create VM Image Archive
 
@@ -141,7 +141,7 @@ yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image
 Run a specific image:
 
 ```sh
-yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image/node0.vmdk
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image/main.vmdk
 ```
 
 Follow the script output instructions to attach to the nodes' consoles.
