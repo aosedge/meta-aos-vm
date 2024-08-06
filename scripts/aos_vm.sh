@@ -69,16 +69,38 @@ start_node() {
 	local cpu="$3"
 	local mem="$4"
 	local mac="$5"
+	local name_host_to_vm="host_to_vm"
+	local path_host_to_vm="/tmp/$name_host_to_vm"
+	local name_vm_to_host="vm_to_host"
+	local path_vm_to_host="/tmp/$name_vm_to_host"
 
 	mkdir -p /tmp/aos-vm/
 
-	qemu-system-x86_64 \
-		-name "$node" -drive file="$node_image",if=none,id=root-image \
-		-device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
-		-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
-		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
-		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
-		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+	if [ "$node" == "main" ]; then
+		[ ! -p "$path_host_to_vm" ] && mkfifo "$path_host_to_vm"
+		[ ! -p "$path_vm_to_host" ] && mkfifo "$path_vm_to_host"
+
+		qemu-system-x86_64 \
+			-name "$node" -drive file="$node_image",if=none,id=root-image \
+			-device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
+			-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
+			-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
+			-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
+			-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait \
+			-device virtio-serial-pci \
+			-chardev pipe,id=char0,path="$path_host_to_vm" \
+			-device virtserialport,chardev=char0,name="$name_host_to_vm" \
+			-chardev pipe,id=char1,path="$path_vm_to_host" \
+			-device virtserialport,chardev=char1,name="$name_vm_to_host"
+	else
+		qemu-system-x86_64 \
+			-name "$node" -drive file="$node_image",if=none,id=root-image \
+			-device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
+			-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
+			-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
+			-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
+			-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+	fi
 
 	ret="$?"
 
