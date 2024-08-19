@@ -205,7 +205,7 @@ components:
           componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "full"
@@ -234,7 +234,7 @@ components:
           componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "incremental"
