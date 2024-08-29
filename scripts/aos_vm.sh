@@ -161,37 +161,37 @@ create_archive() {
 	local secondary_count="$3"
 	local image_path=$(dirname "$output_path")
 
-	node_list=()
-
-	if [ "$create_main" -eq 1 ]; then
-		node_list+=("main")
-	fi
-
-	if [ "$secondary_count" -gt 0 ]; then
-		node_list+=("secondary")
-	fi
-
 	mkdir -p "$image_path"
 
-	for node in "${node_list[@]}"; do
+	if [ "$create_main" -eq 1 ]; then
+		node="main"
 		node_image="$node.img"
 
-		if [ "$node" == "main" ]; then
-			vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+
+		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
+			vm_disks="${vm_disks} ${vmdk_name}"
+		fi
+	fi
+
+	node="secondary"
+	node_image="$node.img"
+
+	if [ "$secondary_count" -eq 1 ]; then
+		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+
+		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
+			vm_disks="${vm_disks} ${vmdk_name}"
+		fi
+	else
+		for ((i = 1; i <= secondary_count; i++)); do
+			vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
 
 			if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
 				vm_disks="${vm_disks} ${vmdk_name}"
 			fi
-		else
-			for ((i = 1; i <= secondary_count; i++)); do
-				vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
-
-				if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-					vm_disks="${vm_disks} ${vmdk_name}"
-				fi
-			done
-		fi
-	done
+		done
+	fi
 
 	echo "Creating archive..."
 
