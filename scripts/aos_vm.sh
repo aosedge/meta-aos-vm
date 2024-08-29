@@ -56,6 +56,7 @@ convert_to_vmdk() {
 	echo "Found image $node_image"
 	echo "Converting $node_image to vmdk..."
 	qemu-img convert -p -f raw -O vmdk "${node_image}" "$image_path/${vmdk_name}"
+
 	return 0
 }
 
@@ -125,6 +126,7 @@ cleanup_bridge_and_dns() {
 		if [ -z "$(ps aux | grep qemu-system-x86_64 | grep -v grep | grep $bridge_name)" ]; then
 			break
 		fi
+
 		retries=$((retries - 1))
 		sleep $wait_time
 	done
@@ -160,10 +162,12 @@ create_archive() {
 	local image_path=$(dirname "$output_path")
 
 	node_list=()
+
 	if [ "$create_main" -eq 1 ]; then
 		node_list+=("main")
 	fi
-	if [ "$secondary_count" ] >0; then
+
+	if [ "$secondary_count" -gt 0 ]; then
 		node_list+=("secondary")
 	fi
 
@@ -171,14 +175,17 @@ create_archive() {
 
 	for node in "${node_list[@]}"; do
 		node_image="$node.img"
+
 		if [ "$node" == "main" ]; then
 			vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+
 			if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
 				vm_disks="${vm_disks} ${vmdk_name}"
 			fi
 		else
 			for ((i = 1; i <= secondary_count; i++)); do
 				vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
+
 				if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
 					vm_disks="${vm_disks} ${vmdk_name}"
 				fi
@@ -187,6 +194,7 @@ create_archive() {
 	done
 
 	echo "Creating archive..."
+
 	tar -C "$image_path" -cvf "${output_path%.gz}" ${vm_disks} --remove-files
 	gzip "${output_path%.gz}"
 }
@@ -198,9 +206,11 @@ create_vmdks() {
 	local image_path="$output_path"
 
 	node_list=()
+
 	if [ "$create_main" -eq 1 ]; then
 		node_list+=("main")
 	fi
+
 	if [ "$secondary_count" -gt 0 ]; then
 		node_list+=("secondary")
 	fi
@@ -210,20 +220,23 @@ create_vmdks() {
 	if [ "$create_main" -eq 1 ] && [ "$secondary_count" -gt 0 ]; then
 		echo "Cleaning up the directory..."
 
-		rm -rf "$image_path"/*
+		rm -rf "${image_path:?}/*"
 	fi
 
 	for node in "${node_list[@]}"; do
 		node_image="$node.img"
+
 		if [ "$node" == "main" ]; then
 			vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
 			convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
 		else
 			# Find the highest index of existing secondary images
 			max_index=0
+
 			for file in "$image_path"/aos-vm-secondary-*.vmdk; do
-				if [[ $file =~ aos-vm-secondary-([0-9]+)-genericx86-64\.wic\.vmdk ]]; then
+				if [[ $file =~ aos-vm-secondary(-[0-9]+)-genericx86-64\.wic\.vmdk ]]; then
 					index=${BASH_REMATCH[1]}
+
 					if ((index > max_index)); then
 						max_index=$index
 					fi
@@ -232,6 +245,7 @@ create_vmdks() {
 
 			# Create secondary VMDK files
 			start_index=$((max_index + 1))
+
 			for ((i = start_index; i < start_index + secondary_count; i++)); do
 				vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
 				convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
@@ -254,6 +268,7 @@ run_vmdks() {
 			if [ ! -f "$node_image" ]; then
 				continue
 			fi
+
 			filename=$(basename -- "$node_image")
 			node=$(echo "$filename" | sed 's/aos-vm-\(.*\)-genericx86-64.wic.vmdk/\1/')
 			mac=$(generate_mac)
