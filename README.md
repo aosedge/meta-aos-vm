@@ -33,36 +33,27 @@ parameters. You can check them with`--help-config` command line option:
 ```sh
 moulin aos-vm.yaml --help-config        
 usage: moulin aos-vm.yaml
-[--NODE_TYPE {single,main,secondary}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
+[--NODE_TYPE {main,secondary}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
 
 Config file description: Aos virtual development machine
 
 options:
-  --NODE_TYPE {single,main,secondary}
+  --NODE_TYPE {main,secondary}
                         Node type to build
   --VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}
                         specifies plugin for VIS automotive data
 
 ```
 
-* `NODE_TYPE` specifies the node to build: `single`- single Aos node, `main` - main node in multi-node VM, `secondary` -
-secondary node in multi-node VM. By default, single node is built.
+* `NODE_TYPE` specifies the node to build: `main` - main node in multi-node VM, `secondary` -
+secondary node in multi-node VM. By default, main node is built.
 
 * `VIS_DATA_PROVIDER` - specifies VIS data provider: `renesassimulator` - Renesas Car simulator, `telemetryemulator` -
 telemetry emulator that reads data from the local file. By default, Renesas Car simulator is used.
 
 After performing moulin command with desired configuration, it will generate `build.ninja` with all necessary build
-targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `node0` for main or single
-node and `node1` for secondary node). This will take some time and disk space.
-
-### Buil single node VM
-
-```sh
-moulin aos-vm.yaml --NODE_TYPE=single
-ninja node0.img
-```
-
-You should have `node0.img` file in the build folder.
+targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `main` for main
+node and `secondary` for secondary node). This will take some time and disk space.
 
 ### Build multi-node VM
 
@@ -70,37 +61,90 @@ Build main node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=main
-ninja node0.img
+ninja main.img
 ```
 
 Build secondary node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=secondary
-ninja node1.img
+ninja secondary.img
 ```
 
-You should have `node0.img` and `node1.img` files in the build folder.
+You should have `main.img` and `secondary.img` files in the build folder.
 
-## Generate VM image
+## Create VM Image Archive
 
-The following script should be executed in order to pack node raw images into VM archive:
+To create an archive of the VM images, use the following command:
 
 ```sh
-yocto/meta-aos-vm/scripts/create_aos_vm.sh output/image
+yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s <number_of_secondary_nodes> -o <output_path>/aos-vm.tar.gz
+
 ```
 
-It will generate `aos-vm.tar` file containing VM image in `output/image` folder.
+#### options:
+   `-m` or `--main`: Indicates that a main node should be included in the archive.
+   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to
+   `-o <path>` or `--output <path>`: Specifies the output path where the tar.gz archive will be created.
 
-## Launch VM image
 
-To launch VM image, use the following script:
+### Example
 
 ```sh
-sudo yocto/meta-aos-vm/scripts/run_aos_vm.sh output/image
+yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 2 -o output/image/aos-vm-v5.0.1.tar.gz
 ```
 
-Follow the script output instruction to attach to nodes consoles.
+This command will create a tar.gz archive containing one main node and two secondary nodes in the specified output path.
+
+## Generate VM Image
+
+To generate VMDK disks for the VM images, use the following command:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s <number_of_secondary_nodes> -o <output_path>
+
+```
+
+#### options:
+   `-m` or `--main`: Indicates that a main node should be created.
+   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to create.
+   `-o <path>` or `--output <path>`: Specifies the output path where the VMDK files will be created.
+
+### Example
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s 2 -o output/image
+```
+
+This command will create VMDK files for one main node and two secondary nodes in the specified output path.
+
+## Run VM Image
+
+To run the VM images, use the following command:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f <file_or_folder>
+
+```
+
+##### options:
+   `-f <file_or_folder>` or `--file <file_or_folder>`: Specifies the file folder containing the VMDK files to run. If a folder is specified, all VMDK files in that folder will be started.  If a specific file is specified, only that VMDK file will be started.
+
+### Example
+
+Run all images in a specific folder:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image
+```
+
+Run a specific image:
+
+```sh
+yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image/main.vmdk
+```
+
+Follow the script output instructions to attach to the nodes' consoles.
 
 ## Use Docker Environment
 
