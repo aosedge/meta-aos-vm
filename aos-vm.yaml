@@ -83,6 +83,9 @@ common_data:
     # Generate home RW partition
     - [AOS_HOME_PART_SIZE, "524288"]
 
+    # Omit uutils-coreutils recipe from the build
+    - [BBMASK, "uutils-coreutils"]
+
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-networking"
