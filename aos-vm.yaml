@@ -65,7 +65,7 @@ common_data:
     - [SKIP_META_VIRT_SANITY_CHECK, "1"]
 
     # Deploy grub configuration
-    - [EXTRA_IMAGEDEPENDS:append, "grub-config"]
+    - [EXTRA_IMAGEDEPENDS:append, " grub-config"]
 
       # Unit model
     - [AOS_UNIT_MODEL, "%{UNIT_MODEL}"]
