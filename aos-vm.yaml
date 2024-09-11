@@ -27,23 +27,23 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "kirkstone"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "kirkstone"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "kirkstone"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "kirkstone"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "kirkstone"
+      rev: "scarthgap"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
