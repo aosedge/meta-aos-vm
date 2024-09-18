@@ -188,7 +188,7 @@ components:
           enabled: true
           method: "raw"
           description: "%{NODE_TYPE} boot image"
-          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          version: "%{BUNDLE_IMAGE_VERSION}"
           fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
           partition:
             gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
@@ -210,7 +210,7 @@ components:
           build_dir: "build-%{NODE_TYPE}"
           type: "full"
           description: "%{NODE_TYPE} rootfs image"
-          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          version: "%{BUNDLE_IMAGE_VERSION}"
           exclude:
             - "home/*"
             - "var/*"
@@ -239,7 +239,7 @@ components:
           build_dir: "build-%{NODE_TYPE}"
           type: "incremental"
           description: "%{NODE_TYPE} rootfs image"
-          vendorVersion: "%{BUNDLE_IMAGE_VERSION}"
+          version: "%{BUNDLE_IMAGE_VERSION}"
           requiredVersion: "%{ROOTFS_REF_VERSION}"
           exclude:
             - "home/*"
