@@ -27,5 +27,19 @@
                 }
             ]
         }
+    ],
+    "components": [
+        {
+            "id": "vm-dev-dynamic-1.0-main-boot"
+        },
+        {
+            "id": "vm-dev-dynamic-1.0-main-rootfs"
+        },
+        {
+            "id": "vm-dev-dynamic-1.0-secondary-boot"
+        },
+        {
+            "id": "vm-dev-dynamic-1.0-secondary-rootfs"
+        }
     ]
 }
