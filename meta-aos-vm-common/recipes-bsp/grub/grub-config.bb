@@ -22,13 +22,12 @@ do_deploy() {
     install -d ${DEPLOYDIR}
 
     > ${DEPLOYDIR}/grub.cfg
-
     echo "serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1" >> ${DEPLOYDIR}/grub.cfg
     echo "default=boot" >> ${DEPLOYDIR}/grub.cfg
     echo "timeout=5" >> ${DEPLOYDIR}/grub.cfg
     echo "menuentry 'boot' {" >> ${DEPLOYDIR}/grub.cfg
     echo -n "linux /${KERNEL_IMAGETYPE} " >> ${DEPLOYDIR}/grub.cfg
-    echo -n "root=/dev/${AOS_IMAGE_DISK}3 rootwait ro rootfstype=ext4 console=ttyS0 console=tty0 " >> ${DEPLOYDIR}/grub.cfg
+    echo -n "root=/dev/${AOS_IMAGE_DISK}3 rootwait ro rootfstype=ext4 console=ttyS0 " >> ${DEPLOYDIR}/grub.cfg
     echo "${AOS_INITRAMFS_BOOT_PARAMS}" >> ${DEPLOYDIR}/grub.cfg
     echo "initrd /aos-image-initramfs-${MACHINE}.cpio.gz" >> ${DEPLOYDIR}/grub.cfg
     echo "}" >> ${DEPLOYDIR}/grub.cfg
