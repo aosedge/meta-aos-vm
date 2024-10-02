@@ -8,5 +8,5 @@ AOS_INITRAMFS_SCRIPTS += " \
 
 python () {
     if 'selinux' in d.getVar('DISTRO_FEATURES').split():
-        d.setVar('INITRAMFS_MAXSIZE', '196608')
+        d.setVar('INITRAMFS_MAXSIZE', '225082')
 }
