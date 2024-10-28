@@ -331,6 +331,22 @@ parameters:
 
               layers: *NODE_LAYERS
 
+  WITH_MESSAGE_PROXY:
+    desc: "Enable Aos message proxy"
+    "yes":
+      overrides:
+        components:
+          aos-vm:
+            builder:
+              conf:
+                - [
+                    IMAGE_INSTALL:append,
+                    " ${@'aos-messageproxy' if bb.utils.to_boolean(d.getVar('AOS_MAIN_NODE')) else ''}",
+                  ]
+
+    "no":
+      default: true
+
   # Aos VIS data provider
   VIS_DATA_PROVIDER:
     desc: "specifies plugin for VIS automotive data"
