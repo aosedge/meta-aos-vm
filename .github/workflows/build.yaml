@@ -63,7 +63,7 @@ jobs:
     - name: Clone Aos VM
       uses: actions/checkout@v4
       with:
-        repository: VasylSamoilov/meta-aos-vm
+        repository: aosedge/meta-aos-vm
 
     - name: Set platform
       id: platform
