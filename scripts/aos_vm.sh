@@ -42,15 +42,27 @@ print_usage() {
 	echo "    ./${script} run -f output/image/node5.vmdk"
 }
 
+error() {
+	echo >&2 "ERROR: $1"
+
+	exit 1
+}
+
+error_with_usage() {
+	echo >&2 "ERROR: $1"
+
+	print_usage
+
+	exit 1
+}
+
 convert_to_vmdk() {
 	local node_image="$1"
 	local vmdk_name="$2"
 	local image_path="$3"
 
 	if [ ! -f "$node_image" ]; then
-		echo "Image file $node_image not found."
-
-		return 1
+		error "image file '$node_image' not found"
 	fi
 
 	echo "Found image $node_image"
@@ -330,45 +342,42 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 
 	*)
-		print_usage
-		exit 1
+		error_with_usage "invalid argument '$1'"
 		;;
 	esac
 	shift
 done
 
 if [ -z "$command" ]; then
-	print_usage
-	exit 1
+	error_with_usage "command is required"
 fi
 
 case $command in
 archive)
 	if [ -z "$output_path" ]; then
-		echo "Output path is required for archive command"
-		exit 1
+		error_with_usage "output path is required for archive command"
 	fi
+
 	create_archive "$output_path" "$create_main" "$secondary_count"
 	;;
 
 create)
 	if [ -z "$output_path" ]; then
-		echo "Output path is required for create command"
-		exit 1
+		error_with_usage "output path is required for create command"
 	fi
-	create_vmdks "$output_path" "$create_main" "$secondary_count"
+
+	create_images "$output_path" "$create_main" "$secondary_count"
 	;;
 
 run)
 	if [ -z "$file_or_folder" ]; then
-		echo "File or folder is required for run command"
-		exit 1
+		error_with_usage "file or folder is required for run command"
 	fi
-	run_vmdks "$file_or_folder"
+
+	run_images "$file_or_folder"
 	;;
 
 *)
-	print_usage
-	exit 1
+	error_with_usage "invalid command '$command'"
 	;;
 esac
