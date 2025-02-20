@@ -15,6 +15,8 @@ gateway="${ip_base}.1"
 cpu=1
 mem="2G"
 
+machine="genericx86-64"
+
 # Functions
 
 print_usage() {
@@ -23,12 +25,15 @@ print_usage() {
 	echo "  archive - creates tar.gz archive of desired nodes"
 	echo "  create  - converts desired image to vmdk disk"
 	echo "  run     - run desired vmdk disks"
+	echo
 	echo "Options for 'archive' and 'create':"
-	echo "  -o path/to/output    Output path"
-	echo "  -m                   Create main node"
-	echo "  -s num_nodes         Create specified number of secondary nodes"
+	echo "  --machine machine             - machine to run (default genericx86-64)"
+	echo "  -o, --output path/to/output   - output path"
+	echo "  -m, --main                    - create main node"
+	echo "  -s, --secondary num_nodes     - create specified number of secondary nodes"
 	echo "Options for 'run':"
 	echo "  -f file_or_folder    File or folder to run"
+	echo
 	echo "Use cases:"
 	echo "  Generate archive release:"
 	echo "    ./${script} archive -m -s 1 -o aos-vm-v5.0.1.tar.gz"
@@ -177,30 +182,36 @@ create_archive() {
 
 	if [ "$create_main" -eq 1 ]; then
 		node="main"
-		node_image="$node.img"
+		node_image="$node-$machine.img"
 
-		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+		image_name="aos-vm-$node-$machine.wic.vmdk"
 
-		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-			vm_disks="${vm_disks} ${vmdk_name}"
+		echo "Creating $image_name..."
+
+		if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
+			vm_disks="${vm_disks} ${image_name}"
 		fi
 	fi
 
 	node="secondary"
-	node_image="$node.img"
+	node_image="$node-$machine.img"
 
 	if [ "$secondary_count" -eq 1 ]; then
-		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+		image_name="aos-vm-$node-$machine.wic.vmdk"
 
-		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-			vm_disks="${vm_disks} ${vmdk_name}"
+		echo "Creating $image_name..."
+
+		if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
+			vm_disks="${vm_disks} ${image_name}"
 		fi
 	else
 		for ((i = 1; i <= secondary_count; i++)); do
-			vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
+			image_name="aos-vm-$node-${i}-$machine.wic.vmdk"
 
-			if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-				vm_disks="${vm_disks} ${vmdk_name}"
+			echo "Creating $image_name..."
+
+			if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
+				vm_disks="${vm_disks} ${image_name}"
 			fi
 		done
 	fi
@@ -211,7 +222,7 @@ create_archive() {
 	gzip "${output_path%.gz}"
 }
 
-create_vmdks() {
+create_images() {
 	local output_path="$1"
 	local create_main="$2"
 	local secondary_count="$3"
@@ -236,17 +247,22 @@ create_vmdks() {
 	fi
 
 	for node in "${node_list[@]}"; do
-		node_image="$node.img"
+		node_image="$node-$machine.img"
 
 		if [ "$node" == "main" ]; then
-			vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
-			convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
+			image_name="aos-vm-$node-$machine.wic.vmdk"
+
+			echo "Creating $image_name..."
+
+			convert_to_vmdk "$node_image" "$image_name" "$image_path"
 		else
 			# Find the highest index of existing secondary images
 			max_index=0
 
 			for file in "$image_path"/aos-vm-secondary-*.vmdk; do
-				if [[ $file =~ aos-vm-secondary(-[0-9]+)-genericx86-64\.wic\.vmdk ]]; then
+				regexp="aos-vm-secondary-([0-9]+)-$machine\.wic\.vmdk"
+
+				if [[ $file =~ $regexp ]]; then
 					index=${BASH_REMATCH[1]}
 
 					if ((index > max_index)); then
@@ -259,14 +275,17 @@ create_vmdks() {
 			start_index=$((max_index + 1))
 
 			for ((i = start_index; i < start_index + secondary_count; i++)); do
-				vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
-				convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
+				image_name="aos-vm-$node-${i}-$machine.wic.vmdk"
+
+				echo "Creating $image_name..."
+
+				convert_to_vmdk "$node_image" "$image_name" "$image_path"
 			done
 		fi
 	done
 }
 
-run_vmdks() {
+run_images() {
 	local file_or_folder="$1"
 	local started_nodes=""
 
@@ -282,7 +301,7 @@ run_vmdks() {
 			fi
 
 			filename=$(basename -- "$node_image")
-			node=$(echo "$filename" | sed 's/aos-vm-\(.*\)-genericx86-64.wic.vmdk/\1/')
+			node=$(echo "$filename" | sed "s/aos-vm-\(.*\)-$machine.wic.vmdk/\1/")
 			mac=$(generate_mac)
 			start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
 			started_nodes="$started_nodes $node"
@@ -290,7 +309,7 @@ run_vmdks() {
 	else
 		node_image="$file_or_folder"
 		filename=$(basename -- "$node_image")
-		node=$(echo "$filename" | sed 's/aos-vm-\(.*\)-genericx86-64.wic.vmdk/\1/')
+		node=$(echo "$filename" | sed "s/aos-vm-\(.*\)-$machine.wic.vmdk/\1/")
 		mac=$(generate_mac)
 		start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
 		started_nodes="$started_nodes $node"
@@ -322,6 +341,11 @@ file_or_folder=""
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
+	--machine)
+		machine="$2"
+		shift
+		;;
+
 	-o | --output)
 		output_path="$2"
 		shift
