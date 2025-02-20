@@ -243,7 +243,7 @@ create_images() {
 	if [ "$create_main" -eq 1 ] && [ "$secondary_count" -gt 0 ]; then
 		echo "Cleaning up the directory..."
 
-		rm -rf "${image_path:?}/*"
+		rm -rf "${image_path:?}"/*
 	fi
 
 	for node in "${node_list[@]}"; do
