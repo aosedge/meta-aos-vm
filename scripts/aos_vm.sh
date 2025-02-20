@@ -176,9 +176,15 @@ create_archive() {
 	local output_path="$1"
 	local create_main="$2"
 	local secondary_count="$3"
-	local image_path=$(dirname "$output_path")
+	local image_path
+
+	image_path=$(dirname "$output_path")
 
 	mkdir -p "$image_path"
+
+	echo "Cleaning up directory..."
+
+	rm -rf "${image_path:?}"/*
 
 	if [ "$create_main" -eq 1 ]; then
 		node="main"
@@ -241,7 +247,7 @@ create_images() {
 	mkdir -p "$image_path"
 
 	if [ "$create_main" -eq 1 ] && [ "$secondary_count" -gt 0 ]; then
-		echo "Cleaning up the directory..."
+		echo "Cleaning up directory..."
 
 		rm -rf "${image_path:?}"/*
 	fi
