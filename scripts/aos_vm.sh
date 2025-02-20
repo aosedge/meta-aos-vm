@@ -91,8 +91,8 @@ start_node() {
 	mkdir -p /tmp/aos-vm/
 
 	qemu-system-x86_64 \
-		-name "$node" -drive file="$node_image",if=none,id=root-image \
-		-device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
+		-name "$node" -drive file="$node_image",if=none,id=aos-image \
+		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
 		-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
 		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
 		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
