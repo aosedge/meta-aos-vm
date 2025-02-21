@@ -184,7 +184,7 @@ create_bridge_and_dns() {
 	if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
 		echo "Starting DNS server..."
 
-		dnsmasq --interface=$bridge_name --dhcp-range=${dhcp_start},${dhcp_end},12h --dhcp-option=3,$gateway --dhcp-option=6,$gateway --bind-interfaces
+		dnsmasq --interface=$bridge_name --dhcp-range="${dhcp_start},${dhcp_end},12h" --dhcp-option="3,$gateway" --dhcp-option="6,$gateway" --bind-interfaces
 	fi
 }
 
