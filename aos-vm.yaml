@@ -20,6 +20,7 @@ variables:
   DISTRO: "aos-vm-dev"
 
   AOS_BASE_IMAGE: "aos-image-vm"
+  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{MACHINE}-%{NODE_TYPE}"
 
 common_data:
   # Sources used by all nodes
@@ -77,7 +78,7 @@ common_data:
     # Node configuration
     - [AOS_MAIN_NODE_HOSTNAME, "%{MAIN_NODE_HOSTNAME}"]
     - [AOS_HOSTS, "%{MAIN_NODE_IP}=wwwivi"]
-    - [AOS_NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}"]
+    - [AOS_NODE_TYPE, "%{AOS_NODE_TYPE}"]
 
     # Generate home RW partition
     - [AOS_HOME_PART_SIZE, "524288"]
@@ -123,10 +124,7 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
         - [AOS_BASE_IMAGE, "%{AOS_BASE_IMAGE}"]
-        - [
-            AOS_UM_COMPONENT_PREFIX,
-            "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-",
-          ]
+        - [AOS_UM_COMPONENT_PREFIX, "%{AOS_NODE_TYPE}-"]
 
       build_target: "%{AOS_BASE_IMAGE}"
       target_images:
@@ -174,7 +172,7 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-full-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-full-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -186,12 +184,12 @@ components:
 
       components:
         boot:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-boot"
+          componentType: "%{AOS_NODE_TYPE}-boot"
           enabled: true
           method: "raw"
           description: "%{NODE_TYPE} boot image"
           version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+          fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
           partition:
             gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
             type: vfat
@@ -204,10 +202,10 @@ components:
               "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
         rootfs-full:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          componentType: "%{AOS_NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "full"
@@ -217,7 +215,7 @@ components:
             - "home/*"
             - "var/*"
 
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
   fota-incremental:
     builder:
@@ -226,17 +224,17 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
 
       components:
         rootfs-incremental:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          componentType: "%{AOS_NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "incremental"
