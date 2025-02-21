@@ -84,14 +84,12 @@ generate_mac() {
 	echo "52:54:00$(hexdump -n3 -e '":"1/1 "%02X"' /dev/urandom)"
 }
 
-start_node() {
+start_x86_64() {
 	local node="$1"
 	local node_image="$2"
 	local cpu="$3"
 	local mem="$4"
 	local mac="$5"
-
-	mkdir -p /tmp/aos-vm/
 
 	qemu-system-x86_64 \
 		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
@@ -100,6 +98,47 @@ start_node() {
 		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
 		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
 		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+}
+
+start_aarch64() {
+	local node="$1"
+	local node_image="$2"
+	local cpu="$3"
+	local mem="$4"
+	local mac="$5"
+
+	qemu-system-aarch64 \
+		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
+		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
+		-machine virt -cpu cortex-a57 -smp cpus="$cpu" -m "$mem" \
+		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \ 
+		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+}
+
+start_node() {
+	local image_dir
+	local image_file
+	local node_machine
+	local format
+
+	image_dir=$(dirname -- "$2")
+	image_file=$(basename -- "$2")
+	node_machine=$(echo "$image_file" | sed "s/aos-vm-[^-]*\(-[0-9]\+\)\?-\(.*\)\..*/\2/")
+	format=${image_file##*.}
+
+	echo "Starting node '$1' machine '$node_machine' disk format '$format'..."
+
+	mkdir -p /tmp/aos-vm/
+
+	case $node_machine in
+	genericx86-64 | qemux86-64)
+		start_x86_64 "$1" "$2" "$3" "$4" "$5" &
+		;;
+
+	genericarm64 | qemuarm64)
+		start_aarch64 "$1" "$2" "$3" "$4" "$5" &
+		;;
+	esac
 }
 
 create_bridge_and_dns() {
@@ -304,7 +343,9 @@ run_images() {
 			filename=$(basename -- "$node_image")
 			node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 			mac=$(generate_mac)
-			start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
+
+			start_node "$node" "$node_image" "$cpu" "$mem" "$mac"
+
 			started_nodes="$started_nodes $node"
 		done
 	else
@@ -312,7 +353,9 @@ run_images() {
 		filename=$(basename -- "$node_image")
 		node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 		mac=$(generate_mac)
-		start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
+
+		start_node "$node" "$node_image" "$cpu" "$mem" "$mac"
+
 		started_nodes="$started_nodes $node"
 	fi
 
