@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 script=$(basename -- "$0")
 
 # Config
