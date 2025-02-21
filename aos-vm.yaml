@@ -17,7 +17,6 @@ variables:
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
-  MACHINE: "genericx86-64"
   DISTRO: "aos-vm-dev"
 
   AOS_BASE_IMAGE: "aos-image-vm"
@@ -134,8 +133,8 @@ components:
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-home.ext4"
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-var.ext4"
-        - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
-        - "tmp/deploy/images/%{MACHINE}/bzImage"
+        - "tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
+        - "tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
         - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
@@ -180,8 +179,8 @@ components:
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -199,8 +198,8 @@ components:
             size: 128 MiB
             items:
               "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-              "bzImage": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-              "EFI/BOOT/bootx64.efi": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+              "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+              "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
               "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
               "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -247,10 +246,10 @@ components:
           exclude:
             - "home/*"
             - "var/*"
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
 images:
-  "%{NODE_TYPE}":
+  "%{NODE_TYPE}-%{MACHINE}":
     type: gpt
     desc: "Aos VM node image"
     partitions:
@@ -260,8 +259,8 @@ images:
         size: 256 MiB
         items:
           "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-          "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "%{KERNEL_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+          "EFI/BOOT/%{BOOT_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
           "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -271,8 +270,8 @@ images:
         size: 256 MiB
         items:
           "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-          "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "%{KERNEL_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+          "EFI/BOOT/%{BOOT_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
           "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -297,6 +296,83 @@ images:
         size: 4096 MiB
 
 parameters:
+  MACHINE:
+    desc: "Aos VM machine type"
+
+    "genericx86-64":
+      default: true
+      overrides:
+        variables:
+          MACHINE: "genericx86-64"
+          KERNEL_TYPE: "bzImage"
+          BOOT_TYPE: "bootx64.efi"
+
+    "qemux86-64":
+      overrides:
+        variables:
+          MACHINE: "qemux86-64"
+          KERNEL_TYPE: "bzImage"
+          BOOT_TYPE: "bootx64.efi"
+
+        common_data:
+          common_conf:
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+    "genericarm64":
+      overrides:
+        variables:
+          MACHINE: "qemuarm64"
+          KERNEL_TYPE: "Image"
+          BOOT_TYPE: "bootaa64.efi"
+
+        common_data:
+          common_sources:
+            - type: git
+              url: "https://git.yoctoproject.org/meta-arm"
+              rev: "scarthgap"
+
+          common_conf:
+            - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EXTRA_IMAGEDEPENDS:append, " edk2-firmware"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+          main_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+          node_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+    "qemuarm64":
+      overrides:
+        variables:
+          MACHINE: "qemuarm64"
+          KERNEL_TYPE: "Image"
+          BOOT_TYPE: "bootaa64.efi"
+
+        common_data:
+          common_sources:
+            - type: git
+              url: "https://git.yoctoproject.org/meta-arm"
+              rev: "scarthgap"
+
+          common_conf:
+            - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EXTRA_IMAGEDEPENDS:append, " edk2-firmware"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+          main_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+          node_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
   NODE_TYPE:
     desc: "Node type to build"
 
