@@ -18,6 +18,7 @@ cpu=1
 mem="2G"
 
 machine="genericx86-64"
+disk_format="qcow2"
 
 # Functions
 
@@ -25,11 +26,12 @@ print_usage() {
 	echo "Usage: ./${script} <command> [options...]"
 	echo "Commands:"
 	echo "  archive - creates tar.gz archive of desired nodes"
-	echo "  create  - converts desired image to vmdk disk"
-	echo "  run     - run desired vmdk disks"
+	echo "  create  - creates desired nodes disks"
+	echo "  run     - run desired nodes"
 	echo
 	echo "Options for 'archive' and 'create':"
 	echo "  --machine machine             - machine to run (default genericx86-64)"
+	echo "  -d, --disk format             - image disk format supported by qemu-img convert (default qcow2)"
 	echo "  -o, --output path/to/output   - output path"
 	echo "  -m, --main                    - create main node"
 	echo "  -s, --secondary num_nodes     - create specified number of secondary nodes"
@@ -63,20 +65,19 @@ error_with_usage() {
 	exit 1
 }
 
-convert_to_vmdk() {
-	local node_image="$1"
-	local vmdk_name="$2"
+convert_disk() {
+	local input_image="$1"
+	local output_name="$2"
 	local image_path="$3"
 
-	if [ ! -f "$node_image" ]; then
+	if [ ! -f "$input_image" ]; then
 		error "image file '$node_image' not found"
 	fi
 
-	echo "Found image $node_image"
-	echo "Converting $node_image to vmdk..."
-	qemu-img convert -p -f raw -O vmdk "${node_image}" "$image_path/${vmdk_name}"
+	echo "Found image $input_image"
+	echo "Converting $input_image to $disk_format..."
 
-	return 0
+	qemu-img convert -p -f raw -O "$disk_format" "$input_image" "$image_path/$output_name"
 }
 
 generate_mac() {
@@ -93,20 +94,12 @@ start_node() {
 	mkdir -p /tmp/aos-vm/
 
 	qemu-system-x86_64 \
-		-name "$node" -drive file="$node_image",if=none,id=aos-image \
+		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
 		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
 		-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
 		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
 		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
 		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
-
-	ret="$?"
-
-	if [ "$ret" -ne 0 ]; then
-		echo "Error: $node return code $ret"
-
-		exit
-	fi
 }
 
 create_bridge_and_dns() {
@@ -192,35 +185,35 @@ create_archive() {
 		node="main"
 		node_image="$node-$machine.img"
 
-		image_name="aos-vm-$node-$machine.wic.vmdk"
+		image_name="aos-vm-$node-$machine.$disk_format"
 
 		echo "Creating $image_name..."
 
-		if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
-			vm_disks="${vm_disks} ${image_name}"
-		fi
+		convert_disk "$node_image" "$image_name" "$image_path"
+
+		vm_disks="${vm_disks} ${image_name}"
 	fi
 
 	node="secondary"
 	node_image="$node-$machine.img"
 
 	if [ "$secondary_count" -eq 1 ]; then
-		image_name="aos-vm-$node-$machine.wic.vmdk"
+		image_name="aos-vm-$node-$machine.$disk_format"
 
 		echo "Creating $image_name..."
 
-		if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
-			vm_disks="${vm_disks} ${image_name}"
-		fi
+		convert_disk "$node_image" "$image_name" "$image_path"
+
+		vm_disks="${vm_disks} ${image_name}"
 	else
 		for ((i = 1; i <= secondary_count; i++)); do
-			image_name="aos-vm-$node-${i}-$machine.wic.vmdk"
+			image_name="aos-vm-$node-${i}-$machine.$disk_format"
 
 			echo "Creating $image_name..."
 
-			if convert_to_vmdk "$node_image" "$image_name" "$image_path"; then
-				vm_disks="${vm_disks} ${image_name}"
-			fi
+			convert_disk "$node_image" "$image_name" "$image_path"
+
+			vm_disks="${vm_disks} ${image_name}"
 		done
 	fi
 
@@ -258,17 +251,17 @@ create_images() {
 		node_image="$node-$machine.img"
 
 		if [ "$node" == "main" ]; then
-			image_name="aos-vm-$node-$machine.wic.vmdk"
+			image_name="aos-vm-$node-$machine.$disk_format"
 
 			echo "Creating $image_name..."
 
-			convert_to_vmdk "$node_image" "$image_name" "$image_path"
+			convert_disk "$node_image" "$image_name" "$image_path"
 		else
 			# Find highest index of existing secondary images
 			max_index=0
 
-			for file in "$image_path"/aos-vm-secondary-*.vmdk; do
-				regexp="aos-vm-secondary-([0-9]+)-$machine\.wic\.vmdk"
+			for file in "$image_path"/aos-vm-secondary-*; do
+				regexp="aos-vm-secondary-([0-9]+)"
 
 				if [[ $file =~ $regexp ]]; then
 					index=${BASH_REMATCH[1]}
@@ -279,15 +272,15 @@ create_images() {
 				fi
 			done
 
-			# Create secondary VMDK files
+			# Create secondary node disk files
 			start_index=$((max_index + 1))
 
 			for ((i = start_index; i < start_index + secondary_count; i++)); do
-				image_name="aos-vm-$node-${i}-$machine.wic.vmdk"
+				image_name="aos-vm-$node-${i}-$machine.$disk_format"
 
 				echo "Creating $image_name..."
 
-				convert_to_vmdk "$node_image" "$image_name" "$image_path"
+				convert_disk "$node_image" "$image_name" "$image_path"
 			done
 		fi
 	done
@@ -303,13 +296,13 @@ run_images() {
 	trap cleanup_bridge_and_dns EXIT
 
 	if [ -d "$file_or_folder" ]; then
-		for node_image in "$file_or_folder"/*.vmdk; do
+		for node_image in "$file_or_folder"/*.{raw,qcow,qcow2,qed,vdi,vmdk,vhd}; do
 			if [ ! -f "$node_image" ]; then
 				continue
 			fi
 
 			filename=$(basename -- "$node_image")
-			node=$(echo "$filename" | sed "s/aos-vm-\(.*\)-$machine.wic.vmdk/\1/")
+			node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 			mac=$(generate_mac)
 			start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
 			started_nodes="$started_nodes $node"
@@ -317,7 +310,7 @@ run_images() {
 	else
 		node_image="$file_or_folder"
 		filename=$(basename -- "$node_image")
-		node=$(echo "$filename" | sed "s/aos-vm-\(.*\)-$machine.wic.vmdk/\1/")
+		node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 		mac=$(generate_mac)
 		start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
 		started_nodes="$started_nodes $node"
@@ -351,6 +344,11 @@ while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	--machine)
 		machine="$2"
+		shift
+		;;
+
+	-d | --disk)
+		disk_format="$2"
 		shift
 		;;
 
