@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+shopt -s nullglob
 
 script=$(basename -- "$0")
 
@@ -19,6 +20,7 @@ mem="2G"
 
 machine="genericx86-64"
 disk_format="qcow2"
+bios_file=""
 
 # Functions
 
@@ -32,6 +34,8 @@ print_usage() {
 	echo "Options for 'archive' and 'create':"
 	echo "  --machine machine             - machine to run (default genericx86-64)"
 	echo "  -d, --disk format             - image disk format supported by qemu-img convert (default qcow2)"
+	echo "  -b, --bios path/to/bios       - path to bios file required for arm machines \
+(default yocto/build-\$node/tmp/deploy/images/\$machine/QEMU_EFI.fd)"
 	echo "  -o, --output path/to/output   - output path"
 	echo "  -m, --main                    - create main node"
 	echo "  -s, --secondary num_nodes     - create specified number of secondary nodes"
@@ -84,6 +88,12 @@ generate_mac() {
 	echo "52:54:00$(hexdump -n3 -e '":"1/1 "%02X"' /dev/urandom)"
 }
 
+get_bios_file() {
+	local bios_files=("$1"/*.fd)
+
+	echo "${bios_files[0]}"
+}
+
 start_x86_64() {
 	local node="$1"
 	local node_image="$2"
@@ -106,12 +116,14 @@ start_aarch64() {
 	local cpu="$3"
 	local mem="$4"
 	local mac="$5"
+	local bios="$6"
 
 	qemu-system-aarch64 \
 		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
 		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
 		-machine virt -cpu cortex-a57 -smp cpus="$cpu" -m "$mem" \
-		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \ 
+		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
+		-bios "$bios" \
 		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
 }
 
@@ -136,7 +148,15 @@ start_node() {
 		;;
 
 	genericarm64 | qemuarm64)
-		start_aarch64 "$1" "$2" "$3" "$4" "$5" &
+		local bios
+
+		bios=$(get_bios_file "$image_dir")
+
+		if [ -z "$bios" ]; then
+			error "bios file not found"
+		fi
+
+		start_aarch64 "$1" "$2" "$3" "$4" "$5" "$bios" &
 		;;
 	esac
 }
@@ -206,6 +226,35 @@ cleanup_bridge_and_dns() {
 	fi
 }
 
+deploy_bios() {
+	local image_path="$1"
+	local bios
+
+	bios=$(get_bios_file "$image_path")
+
+	if [ -n "$bios" ]; then
+		return 0
+	fi
+
+	if [ -z "$bios_file" ]; then
+		if [ "$create_main" -eq 1 ]; then
+			bios_file="yocto/build-main/tmp/deploy/images/$machine/QEMU_EFI.fd"
+		fi
+
+		if [ "$secondary_count" -gt 0 ]; then
+			bios_file="yocto/build-secondary/tmp/deploy/images/$machine/QEMU_EFI.fd"
+		fi
+	fi
+
+	echo "Deploying bios file '$bios_file' to '$image_path'..."
+
+	if [ ! -f "$bios_file" ]; then
+		error "bios file '$bios_file' not found"
+	fi
+
+	cp "$bios_file" "$image_path"
+}
+
 create_archive() {
 	local output_path="$1"
 	local create_main="$2"
@@ -230,7 +279,7 @@ create_archive() {
 
 		convert_disk "$node_image" "$image_name" "$image_path"
 
-		vm_disks="${vm_disks} ${image_name}"
+		image_content="${image_content} ${image_name}"
 	fi
 
 	node="secondary"
@@ -243,7 +292,7 @@ create_archive() {
 
 		convert_disk "$node_image" "$image_name" "$image_path"
 
-		vm_disks="${vm_disks} ${image_name}"
+		image_content="${image_content} ${image_name}"
 	else
 		for ((i = 1; i <= secondary_count; i++)); do
 			image_name="aos-vm-$node-${i}-$machine.$disk_format"
@@ -252,14 +301,25 @@ create_archive() {
 
 			convert_disk "$node_image" "$image_name" "$image_path"
 
-			vm_disks="${vm_disks} ${image_name}"
+			image_content="${image_content} ${image_name}"
 		done
 	fi
 
-	echo "Creating archive..."
+	if [[ $machine = @(genericarm64|qemuarm64) ]]; then
+		deploy_bios "$image_path"
 
-	tar -C "$image_path" -cvf "${output_path%.gz}" ${vm_disks} --remove-files
+		image_content="${image_content} $(basename -- "$(get_bios_file "$image_path")")"
+	fi
+
+	echo "Creating tar archive..."
+
+	tar -C "$image_path" -cvf "${output_path%.gz}" ${image_content} --remove-files
+
+	echo "Creating gzip archive..."
+
 	gzip "${output_path%.gz}"
+
+	echo "Successfully created archive '$output_path'"
 }
 
 create_images() {
@@ -323,6 +383,12 @@ create_images() {
 			done
 		fi
 	done
+
+	if [[ $machine = @(genericarm64|qemuarm64) ]]; then
+		deploy_bios "$image_path"
+	fi
+
+	echo "Successfully created images in '$image_path'"
 }
 
 run_images() {
@@ -392,6 +458,11 @@ while [[ "$#" -gt 0 ]]; do
 
 	-d | --disk)
 		disk_format="$2"
+		shift
+		;;
+
+	-b | --bios)
+		bios_file="$2"
 		shift
 		;;
 
