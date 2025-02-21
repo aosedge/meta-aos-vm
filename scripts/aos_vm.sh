@@ -34,7 +34,7 @@ print_usage() {
 	echo "  -m, --main                    - create main node"
 	echo "  -s, --secondary num_nodes     - create specified number of secondary nodes"
 	echo "Options for 'run':"
-	echo "  -f file_or_folder    File or folder to run"
+	echo "  -f file_or_folder - file or folder to run"
 	echo
 	echo "Use cases:"
 	echo "  Generate archive release:"
@@ -264,7 +264,7 @@ create_images() {
 
 			convert_to_vmdk "$node_image" "$image_name" "$image_path"
 		else
-			# Find the highest index of existing secondary images
+			# Find highest index of existing secondary images
 			max_index=0
 
 			for file in "$image_path"/aos-vm-secondary-*.vmdk; do
@@ -324,11 +324,11 @@ run_images() {
 	fi
 
 	echo "Started nodes:$started_nodes"
-	echo "To provide internet connection for nodes, enable masquerading on the internet providing interface:"
+	echo "To provide internet connection for nodes, enable masquerading on internet providing interface:"
 	echo "    iptables -t nat -A POSTROUTING -o <interface> -j MASQUERADE"
 
 	for node in $started_nodes; do
-		echo "Use the following command to access $node console:"
+		echo "Use following command to access $node console:"
 		echo "    socat \$(tty),raw,echo=0,icanon=0 unix-connect:/tmp/aos-vm/$node.sock"
 	done
 
