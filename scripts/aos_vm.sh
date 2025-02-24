@@ -63,6 +63,7 @@ error() {
 
 error_with_usage() {
 	echo >&2 "ERROR: $1"
+	echo
 
 	print_usage
 
@@ -255,6 +256,25 @@ deploy_bios() {
 	cp "$bios_file" "$image_path"
 }
 
+clear_dir() {
+	local dir="$1"
+
+	if [ -n "$(ls -A "$dir")" ]; then
+		read -p "Content of '$dir' folder will be deleted. Continue? " -n 1 -r
+		echo
+
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			echo "Cleaning up '$dir' directory..."
+
+			rm -rf "${dir:?}"/*
+		else
+			echo "Aborted."
+
+			exit 1
+		fi
+	fi
+}
+
 create_archive() {
 	local output_path="$1"
 	local create_main="$2"
@@ -264,10 +284,7 @@ create_archive() {
 	image_path=$(dirname "$output_path")
 
 	mkdir -p "$image_path"
-
-	echo "Cleaning up directory..."
-
-	rm -rf "${image_path:?}"/*
+	clear_dir "$image_path"
 
 	if [ "$create_main" -eq 1 ]; then
 		node="main"
@@ -341,9 +358,7 @@ create_images() {
 	mkdir -p "$image_path"
 
 	if [ "$create_main" -eq 1 ] && [ "$secondary_count" -gt 0 ]; then
-		echo "Cleaning up directory..."
-
-		rm -rf "${image_path:?}"/*
+		clear_dir "$image_path"
 	fi
 
 	for node in "${node_list[@]}"; do
