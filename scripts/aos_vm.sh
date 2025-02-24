@@ -32,13 +32,14 @@ print_usage() {
 	echo "  run     - run desired nodes"
 	echo
 	echo "Options for 'archive' and 'create':"
-	echo "  --machine machine             - machine to run (default genericx86-64)"
-	echo "  -d, --disk format             - image disk format supported by qemu-img convert (default qcow2)"
-	echo "  -b, --bios path/to/bios       - path to bios file required for arm machines \
+	echo "  --machine machine               - machine to run (default genericx86-64)"
+	echo "  -d, --disk format               - image disk format supported by qemu-img convert (default qcow2)"
+	echo "  -b, --bios <path/to/bios>       - path to bios file required for arm machines \
 (default yocto/build-\$node/tmp/deploy/images/\$machine/QEMU_EFI.fd)"
-	echo "  -o, --output path/to/output   - output path"
-	echo "  -m, --main                    - create main node"
-	echo "  -s, --secondary num_nodes     - create specified number of secondary nodes"
+	echo "  -o, --output <path/to/output>   - output path"
+	echo "  -m, --main                      - create main node"
+	echo "  -s, --secondary <number>        - create specified number of secondary nodes"
+	echo
 	echo "Options for 'run':"
 	echo "  -f file_or_folder - file or folder to run"
 	echo
