@@ -314,6 +314,8 @@ parameters:
                 - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
                 - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
+                - [AOS_IDENTIFIER_PLUGIN_NAME, "%{IDENTIFIER_PLUGIN_NAME}"]
+                - [AOS_IDENTIFIER_PLUGIN_PARAMS, "%{IDENTIFIER_PLUGIN_PARAMS}"]
 
               layers: *MAIN_LAYERS
 
@@ -360,3 +362,19 @@ parameters:
       overrides:
         variables:
           VIS_DATA_PROVIDER: "telemetryemulatoradapter"
+
+  # Aos Identifier plugin
+  IDENTIFIER_PLUGIN:
+    desc: "specifies plugin for Aos Identifier"
+    fileidentifier:
+      default: true
+      overrides:
+        variables:
+          IDENTIFIER_PLUGIN_NAME: "fileidentifier"
+          IDENTIFIER_PLUGIN_PARAMS: "systemIDPath=/var/aos/vis/vin;unitModelPath=/etc/aos/unit_model;subjectsPath=/var/aos/vis/subjects"
+
+    visidentifier:
+      overrides:
+        variables:
+          IDENTIFIER_PLUGIN_NAME: "visidentifier"
+          IDENTIFIER_PLUGIN_PARAMS: "VISServer=wss://wwwivi:443"
