@@ -405,6 +405,25 @@ parameters:
 
               layers: *NODE_LAYERS
 
+  USE_DHCP:
+    desc: "Use DHCP for network configuration"
+    "yes":
+      overrides:
+        components:
+          aos-vm:
+            builder:
+              conf:
+                - [AOS_USE_DHCP, "1"]
+
+    "no":
+      default: true
+      overrides:
+        components:
+          aos-vm:
+            builder:
+              conf:
+                - [AOS_USE_DHCP, "0"]
+
   WITH_MESSAGE_PROXY:
     desc: "Enable Aos message proxy"
     "yes":
