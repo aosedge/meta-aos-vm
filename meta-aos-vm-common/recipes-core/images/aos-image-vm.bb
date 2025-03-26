@@ -17,6 +17,8 @@ EXTRA_USERS_PARAMS = "usermod -p '\$6\$1A1UsrSPWS8nQFZP\$dI8sN.4/y00EWaLEN22tWcL
 IMAGE_INSTALL:append = " \
     bash \
     iperf3 \
+    iproute2 \
+    iproute2-tc \
     mc \
     netconfig \
     openssh \
