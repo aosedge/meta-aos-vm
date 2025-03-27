@@ -149,7 +149,6 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/nodejs-layer.tar"
         - "../output/layers/pylibs-layer.tar"
         - "../output/layers/libvis-layer.tar"
 
@@ -162,9 +161,6 @@ components:
         output_dir: "../output/layers"
         base_image: "aos-image-vm"
         items:
-          nodejs-layer:
-            target: "aos-nodejs-layer"
-
           pylibs-layer:
             target: "aos-pylibs-layer"
 
