@@ -32,7 +32,7 @@ parameters. You can check them with`--help-config` command line option:
 
 ```sh
 moulin aos-vm.yaml --help-config
-usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}] [--NODE_TYPE {main,secondary}] [--WITH_MESSAGE_PROXY {yes,no}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
+usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}] [--NODE_TYPE {main,secondary}] [--WITH_MESSAGE_PROXY {yes,no}]
 
 Config file description: Aos virtual development machine
 
@@ -43,8 +43,6 @@ options:
                         Node type to build (default: main)
   --WITH_MESSAGE_PROXY {yes,no}
                         Enable Aos message proxy (default: no)
-  --VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}
-                        specifies plugin for VIS automotive data (default: renesassimulator)
 
 ```
 
@@ -53,9 +51,6 @@ supported.
 
 * `NODE_TYPE` specifies the node to build: `main` - main node in multi-node VM, `secondary` -
 secondary node in multi-node VM. By default, main node is built.
-
-* `VIS_DATA_PROVIDER` - specifies VIS data provider: `renesassimulator` - Renesas Car simulator, `telemetryemulator` -
-telemetry emulator that reads data from the local file. By default, Renesas Car simulator is used.
 
 * `WITH_MESSAGE_PROXY` - specifies to include message proxy into the build.
 
