@@ -387,7 +387,6 @@ parameters:
                 - [AOS_MAIN_NODE, "1"]
                 - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
-                - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
 
               layers: *MAIN_LAYERS
 
@@ -439,17 +438,3 @@ parameters:
 
     "no":
       default: true
-
-  # Aos VIS data provider
-  VIS_DATA_PROVIDER:
-    desc: "specifies plugin for VIS automotive data"
-    renesassimulator:
-      default: true
-      overrides:
-        variables:
-          VIS_DATA_PROVIDER: "renesassimulatoradapter"
-
-    telemetryemulator:
-      overrides:
-        variables:
-          VIS_DATA_PROVIDER: "telemetryemulatoradapter"
