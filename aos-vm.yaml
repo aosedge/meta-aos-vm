@@ -143,8 +143,8 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/pylibs-layer.tar"
-        - "../output/layers/libvis-layer.tar"
+        - "../output/layers/pylibs-layer.tar.gz"
+        - "../output/layers/libvis-layer.tar.gz"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
