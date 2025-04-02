@@ -6,7 +6,7 @@ variables:
   UNIT_MODEL: "vm-dev-dynamic"
   UNIT_VERSION: "1.0"
 
-  BUNDLE_IMAGE_VERSION: "5.1.0"
+  BUNDLE_IMAGE_VERSION: "5.1.1"
   ROOTFS_REF_VERSION: "5.0.3"
 
   # Aos node configuration
@@ -47,11 +47,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v8.1.0"
+      rev: "v8.1.1"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v5.1.0"
+      rev: "v5.1.1"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
