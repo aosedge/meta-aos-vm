@@ -444,3 +444,15 @@ parameters:
 
     "no":
       default: true
+
+  CACHE_LOCATION:
+    desc: "Indicated where cache and downloads are stored: inside build dir or outside."
+    outside:
+      default: true
+
+    inside:
+      overrides:
+        common_data:
+          common_conf:
+            - [SSTATE_DIR, "${TOPDIR}/../../common_data/sstate"]
+            - [DL_DIR, "${TOPDIR}/../../common_data/downloads"]
