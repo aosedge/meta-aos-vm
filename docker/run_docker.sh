@@ -2,61 +2,75 @@
 
 set -e
 
-function usage() {
-    echo "Run Docker Container for building Yocto"
-    echo ""
-    echo "Command line arguments:"
-    echo -e "\t--workspace, -w\n\t\tWorkspace"
-    echo -e "\t--docker_image, -d\n\t\tDocker image that should be used for building Yocto"
-    echo ""
+DOCKER_IMAGE_NAME="aos_vm_yocto:latest"
+WORKSPACE="$(pwd)"
+INTERACTIVE="1"
 
-    exit 1
+function usage() {
+    cat <<EOF
+
+Run Aos Yocto docker container
+
+Usage: $(basename "$0") [OPTIONS]
+
+Options:
+    -d, --docker_image      Docker image that should be used for building Yocto (default: ${DOCKER_IMAGE_NAME})
+    -w, --workspace         Path to the workspace directory (default: current directory)
+    -n, --non-interactive   Run in non-interactive mode
+    -h, --help              Display this help message and exit
+EOF
 }
 
-options=$(getopt -o hw:s:d: \
-    --long workspace:,docker_image: \
+options=$(getopt -o hd:w:n \
+    --long docker_image:,workspace:,non-interactive \
     --long help \
     -- "$@")
 
-# Map option variable to positional arguments (i.e. $1, $2 ...)
 eval set -- "$options"
 
-while :; do
+while true; do
     case "$1" in
-    -h | --help) usage ;;
-    -w | --workspace)
-        WORKSPACE=$(readlink -f "$2")
-        shift 2
+    -h | --help)
+        usage
+        exit 0
         ;;
+
     -d | --docker_image)
         DOCKER_IMAGE_NAME="$2"
         shift 2
         ;;
-    # -- means the end of the arguments; drop this, and break out of the while loop
+
+    -w | --workspace)
+        WORKSPACE="$(readlink -f "$2")"
+        shift 2
+        ;;
+
+    -n | --non-interactive)
+        INTERACTIVE=
+        shift
+        ;;
+
     --)
         shift
         break
         ;;
-    # If invalid options were passed, then getopt should have reported an error,
-    # which we checked as VALID_ARGUMENTS when getopt was called...
+
     *)
         echo "Unexpected option: $1"
         usage
+        exit 1
         ;;
     esac
 done
 
-# Check we have Docker image and workspace or we can't work.
-if [ -z "${DOCKER_IMAGE_NAME}" ] || [ -z "${WORKSPACE}" ]; then
-    usage
-fi
+echo "Docker image name: $DOCKER_IMAGE_NAME"
+echo "Workspace:         $WORKSPACE"
 
-echo "WORKSPACE         : $WORKSPACE"
-echo "DOCKER_IMAGE_NAME : $DOCKER_IMAGE_NAME"
+mkdir -p "$WORKSPACE"
 
+# Run docker image
 docker run \
-	--network=host \
-	-v "$HOME"/.ssh:/home/yocto/.ssh \
-	-v "$HOME"/.gitconfig:/home/yocto/.gitconfig \
-	-v "${WORKSPACE}":/home/yocto/workspace \
-	-ti --rm "$DOCKER_IMAGE_NAME"
+    -v "${WORKSPACE}":/home/yocto/workspace \
+    -u "$(id -u):$(id -g)" \
+    ${INTERACTIVE:+-it} \
+    --rm "$DOCKER_IMAGE_NAME" "$@"
