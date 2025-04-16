@@ -458,6 +458,11 @@ run_images() {
 # Parse command and options
 
 command="$1"
+
+if [ -z "$command" ]; then
+	error_with_usage "command is required"
+fi
+
 shift
 
 output_path=""
@@ -507,10 +512,6 @@ while [[ "$#" -gt 0 ]]; do
 	esac
 	shift
 done
-
-if [ -z "$command" ]; then
-	error_with_usage "command is required"
-fi
 
 case $command in
 archive)
