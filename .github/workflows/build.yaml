@@ -49,7 +49,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [qemux86-64, qemuarm64]
+        # Keep only genericx86-64 for now. The list of supported machines:
+        # genericx86-64, qemux86-64, genericarm64, qemuarm64
+        machine: [genericx86-64]
 
     steps:
       - name: Checkout
@@ -63,8 +65,82 @@ jobs:
 
       - name: Build
         run: |
-          echo "Build version: ${{ needs.prepare.outputs.version }}"
-          echo "Build machine: ${{ matrix.machine }}"
+          tag="${{needs.prepare.outputs.tag }}"
+          version="${{ needs.prepare.outputs.version }}"
+          prev_tag=$(git describe --tags --abbrev=0 "${tag}"^ || true)
+          prev_version=${prev_tag#"v"}
+          machine="${{ matrix.machine }}"
+
+          echo "Current version:  $version"
+          echo "Previous version: $prev_version"
+          echo "Machine:          $machine"
+
+          mkdir build
+          cp aos-vm.yaml build/
+
+          sed -i "s/BUNDLE_IMAGE_VERSION: \"[^\"]*\"/BUNDLE_IMAGE_VERSION: \"$version\"/" build/aos-vm.yaml
+          sed -i "s/ROOTFS_REF_VERSION: \"[^\"]*\"/ROOTFS_REF_VERSION: \"$prev_version\"/" build/aos-vm.yaml
+
+          docker/build_docker.sh -f docker/Dockerfile
+
+          echo "Build main node artifacts"
+
+          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
+            --CACHE_LOCATION=inside
+
+          docker/run_docker.sh -n -w build -- ninja "main-${machine}.img"
+          docker/run_docker.sh -n -w build -- ninja layers
+          docker/run_docker.sh -n -w build -- ninja fota-full
+          docker/run_docker.sh -n -w build -- ninja aos-sdk
+
+          echo "Build secondary node artifacts"
+
+          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=secondary --MACHINE="$machine" \
+            --CACHE_LOCATION=inside
+          docker/run_docker.sh -n -w build -- ninja "secondary-${machine}.img"
+          docker/run_docker.sh -n -w build -- ninja fota-full
+
+          echo "Archive image"
+
+          sudo apt-get install -y xz-utils qemu-utils
+
+          cd build
+
+          yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "${machine}" -d vmdk -c xz \
+            -o output/image -f "aos-vm-image-${machine}-${version}"
+
+      - name: Deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+        run: |
+          tag="${{needs.prepare.outputs.tag }}"
+          version="${{ needs.prepare.outputs.version }}"
+          machine="${{ matrix.machine }}"
+
+          echo "Deploy artifacts"
+
+          for file in build/output/image/*; do
+            gh release upload "$tag" "$file"
+          done
+
+
+          for file in build/output/layers/*; do
+            gh release upload "$tag" "$file"
+          done
+
+          for file in build/output/fota/*; do
+            gh release upload "$tag" "$file"
+          done
+
+          for file in build/output/sdk/*.sh; do
+            gh release upload "$tag" "$file"
+          done
+
+          if [ "$machine" = "genericx86-64" ]; then
+            gh release upload "$tag" scripts/aos_vm.sh
+          fi
 
   release:
     name: Release
