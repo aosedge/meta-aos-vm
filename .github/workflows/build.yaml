@@ -1,117 +1,71 @@
 name: Aos virtual machine build
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-*'
-jobs:
-  release:
-    name: Create GitHub Release
-    runs-on: github-arc-x64-bigstorage
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-      if: github.event_name != 'push'
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
 
-    - name: Set tag name
-      id: tag
-      run: |
-        echo "basename=${test1}"
-        if [[ "${{ github.event_name }}" != "push" ]]; then
-          tag=${tag#"v"}
-        else
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+      release_date: ${{ steps.version.outputs.release_date }}
+
+    steps:
+      - name: Set release version
+        id: version
+        run: |
           tag=$(basename "${{ github.ref }}")
-        fi
-        tag=${tag#"v"}
-        echo "tag=${tag}"
-        echo "tag=${tag}" >> $GITHUB_OUTPUT
-    - name: Create Release
-      env:
-        GH_TOKEN: ${{ github.token }}
-        GH_REPO: ${{ github.repository }}
-      run: |
-        tag="${{ steps.tag.outputs.tag }}"
-        (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
-        && sudo mkdir -p -m 755 /etc/apt/keyrings \
-        && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-        && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install gh -y
-        gh  --version
-        gh release create --draft "$tag" --title "Version $tag"
+          version=${tag#"v"}
+          release_date="$(date -I)"
+
+          echo "Release tag:     $tag"
+          echo "Release version: $version"
+          echo "Release date:    $release_date"
+
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "release_date=$release_date" >> $GITHUB_OUTPUT
 
   build:
-    runs-on: github-arc-x64-bigstorage
-    needs: [release]
+    name: Build
+    runs-on: github-arc-x64-dind
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04 ]
-        name: [ head ]
-    env:
-        LANG: 'en_US.UTF-8'
-        LANGUAGE: 'en_US:en'
-        LC_ALL: 'en_US.UTF-8'
-        BUILD_DIR: './workspace'
+        machine: [qemux86-64, qemuarm64]
+
     steps:
-    - name: Clone Aos VM
-      uses: actions/checkout@v4
-      with:
-        repository: aosedge/meta-aos-vm
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: aosedge/meta-aos-vm
+          fetch-depth: 0
 
-    - name: Set platform
-      id: platform
-      run: |
-        platform=${{ matrix.os }}
-        echo "platform=$platform" >> $GITHUB_OUTPUT
+      - name: Build
+        run: |
+          echo "Build version: ${{ needs.prepare.outputs.version }}"
+          echo "Build machine: ${{ matrix.machine }}"
 
-    # Build
-    - name: apt-get update on Ubuntu
-      if: startsWith(matrix.os, 'ubuntu')
-      run: |
-        (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
-        && sudo mkdir -p -m 755 /etc/apt/keyrings \
-        && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-        && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install gh -y
-    - run: sudo apt-get install -y apt-utils gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio python2 python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev xterm vim locales rsync devscripts debhelper dkms curl imx-code-signing-tool jq ninja-build zstd liblz4-tool dosfstools mtools qemu-utils ca-certificates repo locales
-      if: startsWith(matrix.os, 'ubuntu')
-      name: apt-get install on Ubuntu
-    # Build
-    - name: Prepare environment
-      run: |
-        sudo locale-gen en_US.UTF-8 \
-        && mkdir -p $BUILD_DIR \
-        && echo "$HOME/.local/bin" >> "$GITHUB_PATH" \
-        && echo "PATH=${PATH}" \
-    - run: pip3 install --user git+https://github.com/xen-troops/moulin
-      name: Install moulin
-    - run: moulin aos-vm.yaml --NODE_TYPE=main
-      name: Run moulin for main node type
-    - run: ninja main.img || ninja main.img
-      name: Build main image
-    - run: moulin aos-vm.yaml --NODE_TYPE=secondary
-      name: Run moulin for secondary node type
-    - run: ninja secondary.img || ninja secondary.img
-      name: Build secondary image
-    - run: ./yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 -o aos-vm-${{ needs.release.outputs.tag }}.tar.gz
-      name: Create VM archive
-    - name: Upload Release
-      env:
-        GH_TOKEN: ${{ github.token }}
-        GH_REPO: ${{ github.repository }}
-      run: gh release upload "${{ needs.release.outputs.tag }}" "aos-vm-${{ needs.release.outputs.tag }}.tar.gz"
-    - name: Publish Release
-      env:
-        GH_TOKEN: ${{ github.token }}
-        GH_REPO: ${{ github.repository }}
-      run: ( [[ ! "${{ needs.release.outputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && gh release edit "${{ needs.release.outputs.tag }}" --prerelease || echo "Release" ); gh release edit "${{ needs.release.outputs.tag }}" --draft=false
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    steps:
+      - name: Release
+        run: |
+          echo "Release version: ${{ needs.prepare.outputs.version }}"
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+    steps:
+      - name: Cleanup
+        run: |
+          echo "Cleanup version: ${{ needs.prepare.outputs.version }}"
