@@ -17,9 +17,6 @@ RUN apt-get install --reinstall -y ca-certificates
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 
-# Install repo
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo && chmod a+x /usr/bin/repo
-
 # Set the locale for fix this:
 # "Please use a locale setting which supports UTF-8 (such as LANG=en_US.UTF-8)."
 RUN locale-gen en_US.UTF-8
@@ -35,21 +32,22 @@ ARG USER_GID=1000
 # Creating the user
 RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
     useradd \
-      --uid ${USER_ID} \
-      --gid ${USER_GID} \
-      --create-home \
-      --shell /bin/bash \
-      ${USER_NAME}
+    --uid ${USER_ID} \
+    --gid ${USER_GID} \
+    --create-home \
+    --shell /bin/bash \
+    ${USER_NAME}
 
 # Switch the user from root to $USER_NAME (yocto)
 USER $USER_NAME
+
+# Install moulin
+RUN pip3 install --user git+https://github.com/xen-troops/moulin
 
 # Create workdir for docker and define it as WORKDIR
 RUN mkdir -p /home/$USER_NAME/workspace
 RUN chown $USER_NAME:$USER_NAME /home/$USER_NAME/workspace
 ENV BUILD_DIR /home/$USER_NAME/workspace
-
-RUN pip3 install --user git+https://github.com/xen-troops/moulin
 ENV PATH="${PATH}:/home/${USER_NAME}/.local/bin"
 
 WORKDIR $BUILD_DIR

@@ -159,16 +159,14 @@ Follow the script output instructions to attach to the nodes' consoles.
 ## Use Docker Environment
 
 ```sh
-cd docker
-
 # build docker image
-docker build . -f Dockerfile --build-arg "USER_ID=$(id -u)" --build-arg "USER_GID=$(id -g)" -t aos_yocto_image:latest
+docker/build_docker.sh -f docker/Dockerfile
 
 # create directory for building VM
 cd ..
 
 # launch container
-./run_docker.sh -w  . -d aos_yocto_image:latest
+docker/run_docker.sh
 ```
 
 ## FOTA & Layers
