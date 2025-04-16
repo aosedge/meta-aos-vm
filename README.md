@@ -43,7 +43,8 @@ options:
                         Node type to build (default: main)
   --WITH_MESSAGE_PROXY {yes,no}
                         Enable Aos message proxy (default: no)
-
+  --CACHE_LOCATION {outside,inside}
+                        Indicated where cache and downloads are stored: inside build dir or outside. (default: outside)
 ```
 
 * `MACHINE` specifies target machine. Currently, `genericx86-64`, `qemux86-64`, `genericarm64`, `qemuarm64` are
@@ -53,6 +54,10 @@ supported.
 secondary node in multi-node VM. By default, main node is built.
 
 * `WITH_MESSAGE_PROXY` - specifies to include message proxy into the build.
+
+* `CACHE_LOCATION` - by default Yocto build cache are located outside build directory. It is convenient to have common
+cache for different yocto build but can't be used when building with docker. If docker is used to build Aos VM image,
+this parameter should be set to `inside` value.
 
 After performing moulin command with desired configuration, it will generate `build.ninja` with all necessary build
 targets. Issue command `ninja ${NODE_TYPE}-${MACHINE}.img` to build the default target (`${NODE_TYPE}` is `main` for main
