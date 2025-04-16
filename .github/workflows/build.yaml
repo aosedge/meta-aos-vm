@@ -1,5 +1,6 @@
 name: Aos virtual machine build
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
@@ -45,6 +46,9 @@ jobs:
         with:
           repository: aosedge/meta-aos-vm
           fetch-depth: 0
+
+      - name: Install gh
+        uses: ./.github/workflows/common
 
       - name: Build
         run: |
