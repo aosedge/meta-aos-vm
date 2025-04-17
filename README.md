@@ -174,6 +174,17 @@ cd ..
 docker/run_docker.sh
 ```
 
+## Build SDK
+
+To build SDK, switch to desired node and issue `ninja aos-sdk` command:
+
+```sh
+moulin aos-vm.yaml --NODE_TYPE=main
+ninja aos-sdk
+```
+
+After successful build, SDK will be located in `output/sdk` folder.
+
 ## FOTA & Layers
 
 * [Generate FOTA bundles](doc/fota.md)
