@@ -417,6 +417,8 @@ parameters:
             builder:
               conf:
                 - [AOS_USE_DHCP, "1"]
+                - [AOS_DNS_IP, "%{MAIN_NODE_IP}"]
+                - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
 
     "no":
       default: true
