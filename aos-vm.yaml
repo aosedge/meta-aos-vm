@@ -20,7 +20,7 @@ variables:
   DISTRO: "aos-vm-dev"
 
   AOS_BASE_IMAGE: "aos-image-vm"
-  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{MACHINE}-%{NODE_TYPE}"
+  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}"
 
 common_data:
   # Sources used by all nodes
