@@ -30,16 +30,16 @@
     ],
     "components": [
         {
-            "id": "vm-dev-dynamic-1.0-main-boot"
+            "id": "vm-dev-dynamic-1.0-main-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-main-rootfs"
+            "id": "vm-dev-dynamic-1.0-main-genericx86-64-rootfs"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-boot"
+            "id": "vm-dev-dynamic-1.0-secondary-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-rootfs"
+            "id": "vm-dev-dynamic-1.0-secondary-genericx86-64-rootfs"
         }
     ]
 }
