@@ -167,7 +167,7 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/pylibs-layer.tar.gz"
+        - "../output/layers"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -188,7 +188,7 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-full-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-fota-full-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -227,11 +227,10 @@ components:
           type: "full"
           description: "%{NODE_TYPE} rootfs image"
           version: "%{BUNDLE_IMAGE_VERSION}"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
           exclude:
             - "home/*"
             - "var/*"
-
-          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
   fota-incremental:
     builder:
@@ -240,7 +239,7 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-fota-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -257,10 +256,10 @@ components:
           description: "%{NODE_TYPE} rootfs image"
           version: "%{BUNDLE_IMAGE_VERSION}"
           requiredVersion: "%{ROOTFS_REF_VERSION}"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
           exclude:
             - "home/*"
             - "var/*"
-          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
 images:
   "%{NODE_TYPE}-%{MACHINE}":
