@@ -1,7 +1,7 @@
 {
     "nodes": [
         {
-            "nodeType": "vm-dev-dynamic-1.0-main",
+            "nodeType": "aos-vm-1.0-main-genericx86-64",
             "priority": 100,
             "resources": [
                 {
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "nodeType": "vm-dev-dynamic-1.0-secondary",
+            "nodeType": "aos-vm-1.0-secondary-genericx86-64",
             "labels": [
                 "secondaryNode"
             ],
@@ -30,16 +30,16 @@
     ],
     "components": [
         {
-            "id": "vm-dev-dynamic-1.0-main-genericx86-64-boot"
+            "id": "aos-vm-1.0-main-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-main-genericx86-64-rootfs"
+            "id": "aos-vm-1.0-main-genericx86-64-rootfs"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-genericx86-64-boot"
+            "id": "aos-vm-1.0-secondary-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-genericx86-64-rootfs"
+            "id": "aos-vm-1.0-secondary-genericx86-64-rootfs"
         }
     ]
 }
