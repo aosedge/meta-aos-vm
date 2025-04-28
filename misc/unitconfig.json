@@ -5,11 +5,11 @@
             "priority": 100,
             "resources": [
                 {
-                    "name": "vis",
+                    "name": "kuksa",
                     "hosts": [
                         {
                             "ip": "10.0.0.100",
-                            "hostname": "wwwivi"
+                            "hostname": "Server"
                         }
                     ]
                 }
