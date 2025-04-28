@@ -17,7 +17,7 @@ variables:
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
-  DISTRO: "aos-vm-dev"
+  DISTRO: "aos-vm"
 
   AOS_BASE_IMAGE: "aos-image-vm"
   AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}"
