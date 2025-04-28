@@ -81,7 +81,6 @@ common_data:
 
     # Node configuration
     - [AOS_MAIN_NODE_HOSTNAME, "%{MAIN_NODE_HOSTNAME}"]
-    - [AOS_HOSTS, "%{MAIN_NODE_IP}=wwwivi"]
     - [AOS_NODE_TYPE, "%{AOS_NODE_TYPE}"]
     - [AOS_DNS_IP, "%{MAIN_NODE_IP}"]
 
