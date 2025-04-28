@@ -3,7 +3,7 @@ min_ver: "0.21"
 
 variables:
   # Aos unit configuration
-  UNIT_MODEL: "vm-dev-dynamic"
+  UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0"
 
   BUNDLE_IMAGE_VERSION: "5.1.1"
