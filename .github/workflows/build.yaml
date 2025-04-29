@@ -140,6 +140,7 @@ jobs:
 
           if [ "$machine" = "genericx86-64" ]; then
             gh release upload "$tag" scripts/aos_vm.sh
+            gh release upload "$tag" misc/unitconfig.json
           fi
 
   release:
