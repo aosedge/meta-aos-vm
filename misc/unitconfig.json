@@ -2,6 +2,9 @@
     "nodes": [
         {
             "nodeType": "aos-vm-1.0-main-genericx86-64",
+            "labels": [
+                "main"
+            ],
             "priority": 100,
             "resources": [
                 {
@@ -18,14 +21,9 @@
         {
             "nodeType": "aos-vm-1.0-secondary-genericx86-64",
             "labels": [
-                "secondaryNode"
+                "secondary"
             ],
-            "priority": 50,
-            "resources": [
-                {
-                    "name": "secondaryResource"
-                }
-            ]
+            "priority": 50
         }
     ],
     "components": [
