@@ -91,6 +91,10 @@ jobs:
           docker/run_docker.sh -n -w build -- ninja "main-${machine}.img"
           docker/run_docker.sh -n -w build -- ninja layers
           docker/run_docker.sh -n -w build -- ninja fota-full
+
+          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
+            --WITH_MESSAGE_PROXY=yes --CACHE_LOCATION=inside
+
           docker/run_docker.sh -n -w build -- ninja aos-sdk
 
           echo "Build secondary node artifacts"
