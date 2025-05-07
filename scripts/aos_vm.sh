@@ -40,12 +40,17 @@ print_usage() {
 	echo "  -m, --main                      - create main node"
 	echo "  -s, --secondary <number>        - create specified number of secondary nodes"
 	echo
+	echo "Options for 'archive':"
+	echo
+	echo "  -c, --compress <compress_alg>   - compress algorithm: gzip, bzip2, xz, lzma (default gzip)"
+	echo "  -f <file_name>                  - archive file name"
+	echo
 	echo "Options for 'run':"
-	echo "  -f file_or_folder - file or folder to run"
+	echo "  -f <path/to/run>                - file or folder to run"
 	echo
 	echo "Use cases:"
 	echo "  Generate archive release:"
-	echo "    ./${script} archive -m -s 1 -o aos-vm-v5.0.1.tar.gz"
+	echo "    ./${script} archive -m -s 1 -o output/image -f aos-vm-v5.0.1"
 	echo "  Create vmdk disks to run VM locally:"
 	echo "    ./${script} create -m -s 1 -o output/image"
 	echo "  To create additional secondary image:"
@@ -278,14 +283,12 @@ clear_dir() {
 
 create_archive() {
 	local output_path="$1"
-	local create_main="$2"
-	local secondary_count="$3"
-	local image_path
+	local file_name="$2"
+	local create_main="$3"
+	local secondary_count="$4"
 
-	image_path=$(dirname "$output_path")
-
-	mkdir -p "$image_path"
-	clear_dir "$image_path"
+	mkdir -p "$output_path"
+	clear_dir "$output_path"
 
 	if [ "$create_main" -eq 1 ]; then
 		node="main"
@@ -295,7 +298,7 @@ create_archive() {
 
 		echo "Creating $image_name..."
 
-		convert_disk "$node_image" "$image_name" "$image_path"
+		convert_disk "$node_image" "$image_name" "$output_path"
 
 		image_content="${image_content} ${image_name}"
 	fi
@@ -308,7 +311,7 @@ create_archive() {
 
 		echo "Creating $image_name..."
 
-		convert_disk "$node_image" "$image_name" "$image_path"
+		convert_disk "$node_image" "$image_name" "$output_path"
 
 		image_content="${image_content} ${image_name}"
 	else
@@ -317,27 +320,27 @@ create_archive() {
 
 			echo "Creating $image_name..."
 
-			convert_disk "$node_image" "$image_name" "$image_path"
+			convert_disk "$node_image" "$image_name" "$output_path"
 
 			image_content="${image_content} ${image_name}"
 		done
 	fi
 
 	if [[ $machine = @(genericarm64|qemuarm64) ]]; then
-		deploy_bios "$image_path"
+		deploy_bios "$output_path"
 
-		image_content="${image_content} $(basename -- "$(get_bios_file "$image_path")")"
+		image_content="${image_content} $(basename -- "$(get_bios_file "$output_path")")"
 	fi
 
 	echo "Creating tar archive..."
 
-	tar -C "$image_path" -cvf "${output_path%.gz}" ${image_content} --remove-files
+	tar -C "$output_path" -cvf "$output_path/${file_name}.tar" ${image_content} --remove-files
 
-	echo "Creating gzip archive..."
+	echo "Compress ${compress_bin}..."
 
-	gzip "${output_path%.gz}"
+	${compress_bin} -9 "$output_path/${file_name}.tar"
 
-	echo "Successfully created archive '$output_path'"
+	echo "Successfully created archive in '$output_path'"
 }
 
 create_images() {
@@ -469,6 +472,7 @@ output_path=""
 create_main=0
 secondary_count=0
 file_or_folder=""
+compress_bin="gzip"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -506,6 +510,11 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 
+	-c | --compress)
+		compress_bin="$2"
+		shift
+		;;
+
 	*)
 		error_with_usage "invalid argument '$1'"
 		;;
@@ -519,7 +528,11 @@ archive)
 		error_with_usage "output path is required for archive command"
 	fi
 
-	create_archive "$output_path" "$create_main" "$secondary_count"
+	if [ -z "$file_or_folder" ]; then
+		error_with_usage "file name is required for archive command"
+	fi
+
+	create_archive "$output_path" "$file_or_folder" "$create_main" "$secondary_count"
 	;;
 
 create)
