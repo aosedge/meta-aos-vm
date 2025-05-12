@@ -8,6 +8,9 @@ do_install:append() {
     echo "/dev/${AOS_IMAGE_DISK}4            /home                ext4 \
         defaults,noatime       0  0" >> ${D}${sysconfdir}/fstab
 
+    # add sync mount option to aos partitions
+    sed -i '/\/var\/aos\//s/\(defaults,auto,\)/\1sync,/' ${D}${sysconfdir}/fstab
+
     # add aos DNS
     if [ -n "${AOS_DNS_IP}" ]; then
         install -d ${D}${sysconfdir}/systemd/resolved.conf.d
