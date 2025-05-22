@@ -23,6 +23,7 @@ IMAGE_INSTALL:append = " \
     netconfig \
     openssh \
     tzdata \
+    wget \
 "
 
 IMAGE_INSTALL:append:aos-main-node = " \
