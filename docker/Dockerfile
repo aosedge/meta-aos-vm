@@ -20,9 +20,10 @@ RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 # Set the locale for fix this:
 # "Please use a locale setting which supports UTF-8 (such as LANG=en_US.UTF-8)."
 RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Define name for user and uid/gid
 ENV USER_NAME=yocto
@@ -47,7 +48,7 @@ RUN pip3 install --user git+https://github.com/xen-troops/moulin
 # Create workdir for docker and define it as WORKDIR
 RUN mkdir -p /home/$USER_NAME/workspace
 RUN chown $USER_NAME:$USER_NAME /home/$USER_NAME/workspace
-ENV BUILD_DIR /home/$USER_NAME/workspace
+ENV BUILD_DIR="/home/$USER_NAME/workspace"
 ENV PATH="${PATH}:/home/${USER_NAME}/.local/bin"
 
 WORKDIR $BUILD_DIR
