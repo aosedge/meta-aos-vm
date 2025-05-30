@@ -12,9 +12,8 @@ RUN cat /etc/apt/sources.list
 
 # Install necessary for build packages
 RUN apt-get update && apt-get --fix-missing install -y \
-    gawk wget git-core diffstat unzip texinfo gcc-multilib \
-    build-essential chrpath socat libsdl1.2-dev xterm python3-pip locales \
-    ninja-build
+    gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm \
+    zstd liblz4-tool cpio file python3-pip locales ninja-build
 
 RUN apt-get install --reinstall -y ca-certificates
 
