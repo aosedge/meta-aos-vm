@@ -4,8 +4,10 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install necessery for build packages
-RUN apt-get update && apt-get install -y \
+RUN sed -i 's;http://archive.ubuntu.com/;http://eu.archive.ubuntu.com/;' /etc/apt/sources.list
+
+# Install necessary for build packages
+RUN apt-get update && apt-get --fix-missing install -y \
     apt-utils gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat \
     cpio python2 python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
     python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev xterm \
