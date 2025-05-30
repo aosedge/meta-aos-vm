@@ -6,7 +6,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN cat /etc/apt/sources.list
 
-RUN sed -i 's;http://archive.ubuntu.com/;http://eu.archive.ubuntu.com/;' /etc/apt/sources.list
+RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/apt/sources.list
 
 RUN cat /etc/apt/sources.list
 
