@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/apt/sources.list
+# RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/apt/sources.list
 
 # Install necessary for build packages
 RUN apt-get update && apt-get --fix-missing install -y \
