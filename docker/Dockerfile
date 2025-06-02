@@ -10,7 +10,7 @@ RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/ap
 # Install necessary for build packages
 RUN apt-get update && apt-get --fix-missing install -y \
     gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm \
-    zstd liblz4-tool cpio file dosfstools python3-pip locales ninja-build
+    zstd liblz4-tool cpio file dosfstools mtools python3-pip locales ninja-build
 
 RUN apt-get install --reinstall -y ca-certificates
 
