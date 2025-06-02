@@ -4,13 +4,10 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install necessery for build packages
-RUN apt-get update && apt-get install -y \
-    apt-utils gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat \
-    cpio python2 python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
-    python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev xterm \
-    vim locales rsync devscripts debhelper dkms curl imx-code-signing-tool jq \
-    ninja-build zstd liblz4-tool dosfstools mtools
+# Install necessary for build packages
+RUN apt-get update && apt-get --fix-missing install -y \
+    gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm \
+    zstd liblz4-tool cpio file dosfstools python3-pip locales ninja-build
 
 RUN apt-get install --reinstall -y ca-certificates
 
