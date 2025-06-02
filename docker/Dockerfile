@@ -4,6 +4,9 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Temporarily switch to US mirror
+RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/apt/sources.list
+
 # Install necessary for build packages
 RUN apt-get update && apt-get --fix-missing install -y \
     gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm \
