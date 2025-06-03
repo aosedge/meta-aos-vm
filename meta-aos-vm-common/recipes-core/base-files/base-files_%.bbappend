@@ -10,12 +10,4 @@ do_install:append() {
 
     # add sync mount option to aos partitions
     sed -i '/\/var\/aos\//s/\(defaults,auto,\)/\1sync,/' ${D}${sysconfdir}/fstab
-
-    # add aos DNS
-    if [ -n "${AOS_DNS_IP}" ]; then
-        install -d ${D}${sysconfdir}/systemd/resolved.conf.d
-        install -m 0644 ${WORKDIR}/aos-dns.conf ${D}${sysconfdir}/systemd/resolved.conf.d/
-
-        sed -i "s|@AOS_DNS_IP@|${AOS_DNS_IP}|g" ${D}${sysconfdir}/systemd/resolved.conf.d/aos-dns.conf
-    fi
 }

@@ -12,4 +12,8 @@ SRC_URI += " \
 do_install:append() {
     install -d ${D}${sysconfdir}/systemd/network/
     install -m 0644 ${WORKDIR}/wired.network ${D}${sysconfdir}/systemd/network/20-wired.network
+
+    if [ -n "${AOS_DNS_IP}" ]; then
+        echo "DNS=${AOS_DNS_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+    fi
 }
