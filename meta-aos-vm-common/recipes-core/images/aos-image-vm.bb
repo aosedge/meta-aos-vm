@@ -26,11 +26,6 @@ IMAGE_INSTALL:append = " \
     wget \
 "
 
-IMAGE_INSTALL:append:aos-main-node = " \
-    kuksa-databroker-agl \
-    kuksa-client \
-"
-
 # Set fixed rootfs size
 IMAGE_ROOTFS_SIZE ?= "1048576"
 IMAGE_OVERHEAD_FACTOR ?= "1.0"
