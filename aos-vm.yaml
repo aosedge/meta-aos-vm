@@ -53,10 +53,6 @@ common_data:
       url: "https://github.com/aosedge/meta-aos-vm"
       rev: "develop"
 
-    - type: git
-      url: "https://gerrit.automotivelinux.org/gerrit/AGL/meta-agl"
-      rev: "master"
-
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
     - [SSTATE_DIR, "${TOPDIR}/../../../common_data/sstate"]
@@ -124,8 +120,6 @@ common_data:
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
-    - "../meta-agl/meta-agl-core"
-    - "../meta-agl/meta-agl-kuksa-val"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
     - "../meta-aos-vm/meta-aos-vm-main"
@@ -426,7 +420,6 @@ parameters:
                 - [AOS_MAIN_NODE, "1"]
                 - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
-                - [AGL_FEATURES:append, "agl-kuksa-val"]
 
               layers: *MAIN_LAYERS
 
