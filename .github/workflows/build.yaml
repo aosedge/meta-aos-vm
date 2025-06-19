@@ -51,7 +51,7 @@ jobs:
       matrix:
         # Keep only genericx86-64 for now. The list of supported machines:
         # genericx86-64, qemux86-64, genericarm64, qemuarm64
-        machine: [genericx86-64]
+        machine: [genericx86-64, qemuarm64]
 
     steps:
       - name: Checkout
@@ -110,7 +110,15 @@ jobs:
 
           cd build
 
-          yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "${machine}" -d vmdk -c xz \
+          # For now we create vmdk disk for generic machines and qcow2 for qemu machines.
+          # If we drop old VM, we should switch to genericarm64, qemuarm64 only machines and qcow2 disk format.
+          if [[ $machine == *"qemu"* ]]; then
+              disk_format="qcow2"
+          else
+              disk_format="vmdk"
+          fi
+
+          yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "${machine}" -d ${disk_format} -c xz \
             -o output/image -f "aos-vm-image-${machine}-${version}"
 
       - name: Deploy
