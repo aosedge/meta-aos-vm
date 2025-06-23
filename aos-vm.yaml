@@ -47,11 +47,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "develop"
+      rev: "v8.2.0"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      rev: "v5.2.0"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
