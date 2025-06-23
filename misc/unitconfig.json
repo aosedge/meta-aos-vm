@@ -1,45 +1,43 @@
 {
     "nodes": [
         {
-            "nodeType": "vm-dev-dynamic-1.0-main",
+            "nodeType": "aos-vm-1.0-main-genericx86-64",
+            "labels": [
+                "main"
+            ],
             "priority": 100,
             "resources": [
                 {
-                    "name": "vis",
+                    "name": "kuksa",
                     "hosts": [
                         {
                             "ip": "10.0.0.100",
-                            "hostname": "wwwivi"
+                            "hostname": "Server"
                         }
                     ]
                 }
             ]
         },
         {
-            "nodeType": "vm-dev-dynamic-1.0-secondary",
+            "nodeType": "aos-vm-1.0-secondary-genericx86-64",
             "labels": [
-                "secondaryNode"
+                "secondary"
             ],
-            "priority": 50,
-            "resources": [
-                {
-                    "name": "secondaryResource"
-                }
-            ]
+            "priority": 50
         }
     ],
     "components": [
         {
-            "id": "vm-dev-dynamic-1.0-main-boot"
+            "id": "aos-vm-1.0-main-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-main-rootfs"
+            "id": "aos-vm-1.0-main-genericx86-64-rootfs"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-boot"
+            "id": "aos-vm-1.0-secondary-genericx86-64-boot"
         },
         {
-            "id": "vm-dev-dynamic-1.0-secondary-rootfs"
+            "id": "aos-vm-1.0-secondary-genericx86-64-rootfs"
         }
     ]
 }

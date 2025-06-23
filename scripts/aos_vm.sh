@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+shopt -s nullglob
+
 script=$(basename -- "$0")
 
 # Config
@@ -15,23 +18,39 @@ gateway="${ip_base}.1"
 cpu=1
 mem="2G"
 
+machine="genericx86-64"
+disk_format="qcow2"
+bios_file=""
+
 # Functions
 
 print_usage() {
 	echo "Usage: ./${script} <command> [options...]"
 	echo "Commands:"
 	echo "  archive - creates tar.gz archive of desired nodes"
-	echo "  create  - converts desired image to vmdk disk"
-	echo "  run     - run desired vmdk disks"
+	echo "  create  - creates desired nodes disks"
+	echo "  run     - run desired nodes"
+	echo
 	echo "Options for 'archive' and 'create':"
-	echo "  -o path/to/output    Output path"
-	echo "  -m                   Create main node"
-	echo "  -s num_nodes         Create specified number of secondary nodes"
+	echo "  --machine machine               - machine to run (default genericx86-64)"
+	echo "  -d, --disk format               - image disk format supported by qemu-img convert (default qcow2)"
+	echo "  -b, --bios <path/to/bios>       - path to bios file required for arm machines \
+(default yocto/build-\$node/tmp/deploy/images/\$machine/QEMU_EFI.fd)"
+	echo "  -o, --output <path/to/output>   - output path"
+	echo "  -m, --main                      - create main node"
+	echo "  -s, --secondary <number>        - create specified number of secondary nodes"
+	echo
+	echo "Options for 'archive':"
+	echo
+	echo "  -c, --compress <compress_alg>   - compress algorithm: gzip, bzip2, xz, lzma (default gzip)"
+	echo "  -f <file_name>                  - archive file name"
+	echo
 	echo "Options for 'run':"
-	echo "  -f file_or_folder    File or folder to run"
+	echo "  -f <path/to/run>                - file or folder to run"
+	echo
 	echo "Use cases:"
 	echo "  Generate archive release:"
-	echo "    ./${script} archive -m -s 1 -o aos-vm-v5.0.1.tar.gz"
+	echo "    ./${script} archive -m -s 1 -o output/image -f aos-vm-v5.0.1"
 	echo "  Create vmdk disks to run VM locally:"
 	echo "    ./${script} create -m -s 1 -o output/image"
 	echo "  To create additional secondary image:"
@@ -42,52 +61,111 @@ print_usage() {
 	echo "    ./${script} run -f output/image/node5.vmdk"
 }
 
-convert_to_vmdk() {
-	local node_image="$1"
-	local vmdk_name="$2"
+error() {
+	echo >&2 "ERROR: $1"
+
+	exit 1
+}
+
+error_with_usage() {
+	echo >&2 "ERROR: $1"
+	echo
+
+	print_usage
+
+	exit 1
+}
+
+convert_disk() {
+	local input_image="$1"
+	local output_name="$2"
 	local image_path="$3"
 
-	if [ ! -f "$node_image" ]; then
-		echo "Image file $node_image not found."
-
-		return 1
+	if [ ! -f "$input_image" ]; then
+		error "image file '$node_image' not found"
 	fi
 
-	echo "Found image $node_image"
-	echo "Converting $node_image to vmdk..."
-	qemu-img convert -p -f raw -O vmdk "${node_image}" "$image_path/${vmdk_name}"
+	echo "Found image $input_image"
+	echo "Converting $input_image to $disk_format..."
 
-	return 0
+	qemu-img convert -p -f raw -O "$disk_format" "$input_image" "$image_path/$output_name"
 }
 
 generate_mac() {
 	echo "52:54:00$(hexdump -n3 -e '":"1/1 "%02X"' /dev/urandom)"
 }
 
-start_node() {
+get_bios_file() {
+	local bios_files=("$1"/*.fd)
+
+	echo "${bios_files[0]}"
+}
+
+start_x86_64() {
 	local node="$1"
 	local node_image="$2"
 	local cpu="$3"
 	local mem="$4"
 	local mac="$5"
 
-	mkdir -p /tmp/aos-vm/
-
 	qemu-system-x86_64 \
-		-name "$node" -drive file="$node_image",if=none,id=root-image \
-		-device ahci,id=ahci -device ide-hd,drive=root-image,bus=ahci.0 \
+		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
+		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
 		-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
 		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
 		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
 		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+}
 
-	ret="$?"
+start_aarch64() {
+	local node="$1"
+	local node_image="$2"
+	local cpu="$3"
+	local mem="$4"
+	local mac="$5"
+	local bios="$6"
 
-	if [ "$ret" -ne 0 ]; then
-		echo "Error: $node return code $ret"
+	qemu-system-aarch64 \
+		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
+		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
+		-machine virt -cpu cortex-a57 -smp cpus="$cpu" -m "$mem" \
+		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
+		-bios "$bios" \
+		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
+}
 
-		exit
-	fi
+start_node() {
+	local image_dir
+	local image_file
+	local node_machine
+	local format
+
+	image_dir=$(dirname -- "$2")
+	image_file=$(basename -- "$2")
+	node_machine=$(echo "$image_file" | sed "s/aos-vm-[^-]*\(-[0-9]\+\)\?-\(.*\)\..*/\2/")
+	format=${image_file##*.}
+
+	echo "Starting node '$1' machine '$node_machine' disk format '$format'..."
+
+	mkdir -p /tmp/aos-vm/
+
+	case $node_machine in
+	genericx86-64 | qemux86-64)
+		start_x86_64 "$1" "$2" "$3" "$4" "$5" &
+		;;
+
+	genericarm64 | qemuarm64)
+		local bios
+
+		bios=$(get_bios_file "$image_dir")
+
+		if [ -z "$bios" ]; then
+			error "bios file not found"
+		fi
+
+		start_aarch64 "$1" "$2" "$3" "$4" "$5" "$bios" &
+		;;
+	esac
 }
 
 create_bridge_and_dns() {
@@ -113,7 +191,7 @@ create_bridge_and_dns() {
 	if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
 		echo "Starting DNS server..."
 
-		dnsmasq --interface=$bridge_name --dhcp-range=${dhcp_start},${dhcp_end},12h --dhcp-option=3,$gateway --dhcp-option=6,$gateway --bind-interfaces
+		dnsmasq --interface=$bridge_name --dhcp-range="${dhcp_start},${dhcp_end},12h" --dhcp-option="3,$gateway" --dhcp-option="6,$gateway" --bind-interfaces
 	fi
 }
 
@@ -155,51 +233,117 @@ cleanup_bridge_and_dns() {
 	fi
 }
 
+deploy_bios() {
+	local image_path="$1"
+	local bios
+
+	bios=$(get_bios_file "$image_path")
+
+	if [ -n "$bios" ]; then
+		return 0
+	fi
+
+	if [ -z "$bios_file" ]; then
+		if [ "$create_main" -eq 1 ]; then
+			bios_file="yocto/build-main/tmp/deploy/images/$machine/QEMU_EFI.fd"
+		fi
+
+		if [ "$secondary_count" -gt 0 ]; then
+			bios_file="yocto/build-secondary/tmp/deploy/images/$machine/QEMU_EFI.fd"
+		fi
+	fi
+
+	echo "Deploying bios file '$bios_file' to '$image_path'..."
+
+	if [ ! -f "$bios_file" ]; then
+		error "bios file '$bios_file' not found"
+	fi
+
+	cp "$bios_file" "$image_path"
+}
+
+clear_dir() {
+	local dir="$1"
+
+	if [ -n "$(ls -A "$dir")" ]; then
+		read -p "Content of '$dir' folder will be deleted. Continue? " -n 1 -r
+		echo
+
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			echo "Cleaning up '$dir' directory..."
+
+			rm -rf "${dir:?}"/*
+		else
+			echo "Aborted."
+
+			exit 1
+		fi
+	fi
+}
+
 create_archive() {
 	local output_path="$1"
-	local create_main="$2"
-	local secondary_count="$3"
-	local image_path=$(dirname "$output_path")
+	local file_name="$2"
+	local create_main="$3"
+	local secondary_count="$4"
 
-	mkdir -p "$image_path"
+	mkdir -p "$output_path"
+	clear_dir "$output_path"
 
 	if [ "$create_main" -eq 1 ]; then
 		node="main"
-		node_image="$node.img"
+		node_image="$node-$machine.img"
 
-		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+		image_name="aos-vm-$node-$machine.$disk_format"
 
-		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-			vm_disks="${vm_disks} ${vmdk_name}"
-		fi
+		echo "Creating $image_name..."
+
+		convert_disk "$node_image" "$image_name" "$output_path"
+
+		image_content="${image_content} ${image_name}"
 	fi
 
 	node="secondary"
-	node_image="$node.img"
+	node_image="$node-$machine.img"
 
 	if [ "$secondary_count" -eq 1 ]; then
-		vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
+		image_name="aos-vm-$node-$machine.$disk_format"
 
-		if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-			vm_disks="${vm_disks} ${vmdk_name}"
-		fi
+		echo "Creating $image_name..."
+
+		convert_disk "$node_image" "$image_name" "$output_path"
+
+		image_content="${image_content} ${image_name}"
 	else
 		for ((i = 1; i <= secondary_count; i++)); do
-			vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
+			image_name="aos-vm-$node-${i}-$machine.$disk_format"
 
-			if convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"; then
-				vm_disks="${vm_disks} ${vmdk_name}"
-			fi
+			echo "Creating $image_name..."
+
+			convert_disk "$node_image" "$image_name" "$output_path"
+
+			image_content="${image_content} ${image_name}"
 		done
 	fi
 
-	echo "Creating archive..."
+	if [[ $machine = @(genericarm64|qemuarm64) ]]; then
+		deploy_bios "$output_path"
 
-	tar -C "$image_path" -cvf "${output_path%.gz}" ${vm_disks} --remove-files
-	gzip "${output_path%.gz}"
+		image_content="${image_content} $(basename -- "$(get_bios_file "$output_path")")"
+	fi
+
+	echo "Creating tar archive..."
+
+	tar -C "$output_path" -cvf "$output_path/${file_name}.tar" ${image_content} --remove-files
+
+	echo "Compress ${compress_bin}..."
+
+	${compress_bin} -9 "$output_path/${file_name}.tar"
+
+	echo "Successfully created archive in '$output_path'"
 }
 
-create_vmdks() {
+create_images() {
 	local output_path="$1"
 	local create_main="$2"
 	local secondary_count="$3"
@@ -218,23 +362,26 @@ create_vmdks() {
 	mkdir -p "$image_path"
 
 	if [ "$create_main" -eq 1 ] && [ "$secondary_count" -gt 0 ]; then
-		echo "Cleaning up the directory..."
-
-		rm -rf "${image_path:?}/*"
+		clear_dir "$image_path"
 	fi
 
 	for node in "${node_list[@]}"; do
-		node_image="$node.img"
+		node_image="$node-$machine.img"
 
 		if [ "$node" == "main" ]; then
-			vmdk_name="aos-vm-$node-genericx86-64.wic.vmdk"
-			convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
+			image_name="aos-vm-$node-$machine.$disk_format"
+
+			echo "Creating $image_name..."
+
+			convert_disk "$node_image" "$image_name" "$image_path"
 		else
-			# Find the highest index of existing secondary images
+			# Find highest index of existing secondary images
 			max_index=0
 
-			for file in "$image_path"/aos-vm-secondary-*.vmdk; do
-				if [[ $file =~ aos-vm-secondary(-[0-9]+)-genericx86-64\.wic\.vmdk ]]; then
+			for file in "$image_path"/aos-vm-secondary-*; do
+				regexp="aos-vm-secondary-([0-9]+)"
+
+				if [[ $file =~ $regexp ]]; then
 					index=${BASH_REMATCH[1]}
 
 					if ((index > max_index)); then
@@ -243,18 +390,27 @@ create_vmdks() {
 				fi
 			done
 
-			# Create secondary VMDK files
+			# Create secondary node disk files
 			start_index=$((max_index + 1))
 
 			for ((i = start_index; i < start_index + secondary_count; i++)); do
-				vmdk_name="aos-vm-$node-${i}-genericx86-64.wic.vmdk"
-				convert_to_vmdk "$node_image" "$vmdk_name" "$image_path"
+				image_name="aos-vm-$node-${i}-$machine.$disk_format"
+
+				echo "Creating $image_name..."
+
+				convert_disk "$node_image" "$image_name" "$image_path"
 			done
 		fi
 	done
+
+	if [[ $machine = @(genericarm64|qemuarm64) ]]; then
+		deploy_bios "$image_path"
+	fi
+
+	echo "Successfully created images in '$image_path'"
 }
 
-run_vmdks() {
+run_images() {
 	local file_or_folder="$1"
 	local started_nodes=""
 
@@ -264,32 +420,36 @@ run_vmdks() {
 	trap cleanup_bridge_and_dns EXIT
 
 	if [ -d "$file_or_folder" ]; then
-		for node_image in "$file_or_folder"/*.vmdk; do
+		for node_image in "$file_or_folder"/*.{raw,qcow,qcow2,qed,vdi,vmdk,vhd}; do
 			if [ ! -f "$node_image" ]; then
 				continue
 			fi
 
 			filename=$(basename -- "$node_image")
-			node=$(echo "$filename" | sed 's/aos-vm-\(.*\)-genericx86-64.wic.vmdk/\1/')
+			node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 			mac=$(generate_mac)
-			start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
+
+			start_node "$node" "$node_image" "$cpu" "$mem" "$mac"
+
 			started_nodes="$started_nodes $node"
 		done
 	else
 		node_image="$file_or_folder"
 		filename=$(basename -- "$node_image")
-		node=$(echo "$filename" | sed 's/aos-vm-\(.*\)-genericx86-64.wic.vmdk/\1/')
+		node=$(echo "$filename" | sed "s/aos-vm-\([^-]*\(-[0-9]\+\)\?\).*/\1/")
 		mac=$(generate_mac)
-		start_node "$node" "$node_image" "$cpu" "$mem" "$mac" &
+
+		start_node "$node" "$node_image" "$cpu" "$mem" "$mac"
+
 		started_nodes="$started_nodes $node"
 	fi
 
 	echo "Started nodes:$started_nodes"
-	echo "To provide internet connection for nodes, enable masquerading on the internet providing interface:"
+	echo "To provide internet connection for nodes, enable masquerading on internet providing interface:"
 	echo "    iptables -t nat -A POSTROUTING -o <interface> -j MASQUERADE"
 
 	for node in $started_nodes; do
-		echo "Use the following command to access $node console:"
+		echo "Use following command to access $node console:"
 		echo "    socat \$(tty),raw,echo=0,icanon=0 unix-connect:/tmp/aos-vm/$node.sock"
 	done
 
@@ -301,15 +461,36 @@ run_vmdks() {
 # Parse command and options
 
 command="$1"
+
+if [ -z "$command" ]; then
+	error_with_usage "command is required"
+fi
+
 shift
 
 output_path=""
 create_main=0
 secondary_count=0
 file_or_folder=""
+compress_bin="gzip"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
+	--machine)
+		machine="$2"
+		shift
+		;;
+
+	-d | --disk)
+		disk_format="$2"
+		shift
+		;;
+
+	-b | --bios)
+		bios_file="$2"
+		shift
+		;;
+
 	-o | --output)
 		output_path="$2"
 		shift
@@ -329,46 +510,48 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 
+	-c | --compress)
+		compress_bin="$2"
+		shift
+		;;
+
 	*)
-		print_usage
-		exit 1
+		error_with_usage "invalid argument '$1'"
 		;;
 	esac
 	shift
 done
 
-if [ -z "$command" ]; then
-	print_usage
-	exit 1
-fi
-
 case $command in
 archive)
 	if [ -z "$output_path" ]; then
-		echo "Output path is required for archive command"
-		exit 1
+		error_with_usage "output path is required for archive command"
 	fi
-	create_archive "$output_path" "$create_main" "$secondary_count"
+
+	if [ -z "$file_or_folder" ]; then
+		error_with_usage "file name is required for archive command"
+	fi
+
+	create_archive "$output_path" "$file_or_folder" "$create_main" "$secondary_count"
 	;;
 
 create)
 	if [ -z "$output_path" ]; then
-		echo "Output path is required for create command"
-		exit 1
+		error_with_usage "output path is required for create command"
 	fi
-	create_vmdks "$output_path" "$create_main" "$secondary_count"
+
+	create_images "$output_path" "$create_main" "$secondary_count"
 	;;
 
 run)
 	if [ -z "$file_or_folder" ]; then
-		echo "File or folder is required for run command"
-		exit 1
+		error_with_usage "file or folder is required for run command"
 	fi
-	run_vmdks "$file_or_folder"
+
+	run_images "$file_or_folder"
 	;;
 
 *)
-	print_usage
-	exit 1
+	error_with_usage "invalid command '$command'"
 	;;
 esac

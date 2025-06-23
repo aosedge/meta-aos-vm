@@ -32,48 +32,54 @@ parameters. You can check them with`--help-config` command line option:
 
 ```sh
 moulin aos-vm.yaml --help-config
-usage: moulin aos-vm.yaml [--NODE_TYPE {main,secondary}] [--WITH_MESSAGE_PROXY {yes,no}] [--VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}]
+usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}] [--NODE_TYPE {main,secondary}] [--WITH_MESSAGE_PROXY {yes,no}]
 
 Config file description: Aos virtual development machine
 
 options:
+  --MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}
+                        Aos VM machine type (default: genericx86-64)
   --NODE_TYPE {main,secondary}
                         Node type to build (default: main)
   --WITH_MESSAGE_PROXY {yes,no}
                         Enable Aos message proxy (default: no)
-  --VIS_DATA_PROVIDER {renesassimulator,telemetryemulator}
-                        specifies plugin for VIS automotive data (default: renesassimulator)
+  --CACHE_LOCATION {outside,inside}
+                        Indicated where cache and downloads are stored: inside build dir or outside. (default: outside)
 ```
+
+* `MACHINE` specifies target machine. Currently, `genericx86-64`, `qemux86-64`, `genericarm64`, `qemuarm64` are
+supported.
 
 * `NODE_TYPE` specifies the node to build: `main` - main node in multi-node VM, `secondary` -
 secondary node in multi-node VM. By default, main node is built.
 
-* `VIS_DATA_PROVIDER` - specifies VIS data provider: `renesassimulator` - Renesas Car simulator, `telemetryemulator` -
-telemetry emulator that reads data from the local file. By default, Renesas Car simulator is used.
-
 * `WITH_MESSAGE_PROXY` - specifies to include message proxy into the build.
 
+* `CACHE_LOCATION` - by default Yocto build cache are located outside build directory. It is convenient to have common
+cache for different yocto build but can't be used when building with docker. If docker is used to build Aos VM image,
+this parameter should be set to `inside` value.
+
 After performing moulin command with desired configuration, it will generate `build.ninja` with all necessary build
-targets. Issue command `ninja ${NODE_ID}.img` to build the default target (`${NODE_ID}` is `main` for main
+targets. Issue command `ninja ${NODE_TYPE}-${MACHINE}.img` to build the default target (`${NODE_TYPE}` is `main` for main
 node and `secondary` for secondary node). This will take some time and disk space.
 
 ### Build multi-node VM
 
-Build main node:
+Build main node for default `genericx86-64` machine:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=main
-ninja main.img
+ninja main-genericx86-64.img
 ```
 
 Build secondary node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=secondary
-ninja secondary.img
+ninja secondary-genericx86-64.img
 ```
 
-You should have `main.img` and `secondary.img` files in the build folder.
+You should have `main-genericx86-64.img` and `secondary-genericx86-64.img` files in the build folder.
 
 ## Create VM Image Archive
 
@@ -81,16 +87,18 @@ To create an archive of the VM images, use the following command:
 
 ```sh
 yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s <number_of_secondary_nodes> -o <output_path>/aos-vm.tar.gz
-
 ```
 
-#### options:
-   `-m` or `--main`: Indicates that a main node should be included in the archive.
-   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to
-   `-o <path>` or `--output <path>`: Specifies the output path where the tar.gz archive will be created.
+Options:
 
+* `--machine machine` - machine to run (default genericx86-64);
+* `-d, --disk format` - image disk format supported by qemu-img convert (default qcow2);
+* `-b, --bios <path/to/bios>` - path to bios file required for arm machines (default yocto/build-$node/tmp/deploy/images/$machine/QEMU_EFI.fd);
+* `-o, --output <path/to/output>` - output path;
+* `-m, --main` - create main node;
+* `-s, --secondary <number>` - create specified number of secondary nodes.
 
-### Example
+Example:
 
 ```sh
 yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 2 -o output/image/aos-vm-v5.0.1.tar.gz
@@ -107,18 +115,22 @@ yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s <number_of_secondary_nodes> -o 
 
 ```
 
-#### options:
-   `-m` or `--main`: Indicates that a main node should be created.
-   `-s <number>` or `--secondary <number>`: Specifies the number of secondary nodes to create.
-   `-o <path>` or `--output <path>`: Specifies the output path where the VMDK files will be created.
+Options:
 
-### Example
+* `--machine machine` - machine to run (default genericx86-64);
+* `-d, --disk format` - image disk format supported by qemu-img convert (default qcow2);
+* `-b, --bios <path/to/bios>` - path to bios file required for arm machines (default yocto/build-$node/tmp/deploy/images/$machine/QEMU_EFI.fd);
+* `-o, --output <path/to/output>` - output path;
+* `-m, --main` - create main node;
+* `-s, --secondary <number>` - create specified number of secondary nodes.
+
+Example:
 
 ```sh
 yocto/meta-aos-vm/scripts/aos_vm.sh create -m -s 2 -o output/image
 ```
 
-This command will create VMDK files for one main node and two secondary nodes in the specified output path.
+This command will create `qcow2` files for one main node and two secondary nodes in the specified output path.
 
 ## Run VM Image
 
@@ -129,10 +141,11 @@ yocto/meta-aos-vm/scripts/aos_vm.sh run -f <file_or_folder>
 
 ```
 
-##### options:
-   `-f <file_or_folder>` or `--file <file_or_folder>`: Specifies the file folder containing the VMDK files to run. If a folder is specified, all VMDK files in that folder will be started.  If a specific file is specified, only that VMDK file will be started.
+Options:
 
-### Example
+* `-f file_or_folder` - file or folder to run.
+
+Example:
 
 Run all images in a specific folder:
 
@@ -151,17 +164,26 @@ Follow the script output instructions to attach to the nodes' consoles.
 ## Use Docker Environment
 
 ```sh
-cd docker
-
 # build docker image
-docker build . -f Dockerfile --build-arg "USER_ID=$(id -u)" --build-arg "USER_GID=$(id -g)" -t aos_yocto_image:latest
+docker/build_docker.sh -f docker/Dockerfile
 
 # create directory for building VM
 cd ..
 
 # launch container
-./run_docker.sh -w  . -d aos_yocto_image:latest
+docker/run_docker.sh
 ```
+
+## Build SDK
+
+To build SDK, switch to desired node and issue `ninja aos-sdk` command:
+
+```sh
+moulin aos-vm.yaml --NODE_TYPE=main
+ninja aos-sdk
+```
+
+After successful build, SDK will be located in `output/sdk` folder.
 
 ## FOTA & Layers
 

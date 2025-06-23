@@ -3,7 +3,7 @@ min_ver: "0.21"
 
 variables:
   # Aos unit configuration
-  UNIT_MODEL: "vm-dev-dynamic"
+  UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0"
 
   BUNDLE_IMAGE_VERSION: "5.1.1"
@@ -17,41 +17,41 @@ variables:
 
   # Build configuration
   YOCTOS_WORK_DIR: "yocto"
-  MACHINE: "genericx86-64"
-  DISTRO: "aos-vm-dev"
+  DISTRO: "aos-core"
 
   AOS_BASE_IMAGE: "aos-image-vm"
+  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}"
 
 common_data:
   # Sources used by all nodes
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "7dad83c7e5e9637c0ff5d5712409611fd4a14946"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "dda0d53326017d6758ec6bdfdaf2f484c089d13f"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "2ec66285d050ef3cd29a5ea57c71341e6b17b36f"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "bc865c5276c2ab4031229916e8d7c20148dfbac3"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "3aff015697fa056b4af83b1c9ba44eca346a8a37"
+      rev: "scarthgap"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v8.1.1"
+      rev: "develop"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v5.1.1"
+      rev: "develop"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -67,6 +67,28 @@ common_data:
     # Deploy grub configuration
     - [EXTRA_IMAGEDEPENDS:append, " grub-config"]
 
+    # Configure log dir to be stored in persistent storage
+    - [VOLATILE_LOG_DIR, "no"]
+
+    # SELinux config
+    - [DISTRO_FEATURES:append, " acl xattr pam selinux"]
+    - [DISTRO_FEATURES:append, " security"]
+    - [PREFERRED_PROVIDER_virtual/refpolicy, "refpolicy-aos"]
+
+    # Init manager
+    - [INIT_MANAGER, "systemd"]
+
+    # Initramfs configuration
+    - [INITRAMFS_IMAGE, "aos-image-initramfs"]
+    - [INITRAMFS_IMAGE_BUNDLE, "0"]
+    - [INITRAMFS_FSTYPES, "cpio.gz"]
+
+    # Set root home
+    - [ROOT_HOME, "/home/root"]
+
+    # Enable debug tools
+    - [EXTRA_IMAGE_FEATURES:append, " tools-debug"]
+
       # Unit model
     - [AOS_UNIT_MODEL, "%{UNIT_MODEL}"]
     - [AOS_UNIT_VERSION, "%{UNIT_VERSION}"]
@@ -77,8 +99,11 @@ common_data:
 
     # Node configuration
     - [AOS_MAIN_NODE_HOSTNAME, "%{MAIN_NODE_HOSTNAME}"]
-    - [AOS_HOSTS, "%{MAIN_NODE_IP}=wwwivi"]
-    - [AOS_NODE_TYPE, "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}"]
+    - [AOS_NODE_TYPE, "%{AOS_NODE_TYPE}"]
+    - [AOS_DNS_IP, "%{MAIN_NODE_IP}"]
+
+      # Disk configuration
+    - [AOS_IMAGE_DISK, "sda"]
 
     # Generate home RW partition
     - [AOS_HOME_PART_SIZE, "524288"]
@@ -124,21 +149,35 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
         - [AOS_BASE_IMAGE, "%{AOS_BASE_IMAGE}"]
-        - [
-            AOS_UM_COMPONENT_PREFIX,
-            "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-",
-          ]
+        - [AOS_UM_COMPONENT_PREFIX, "%{AOS_NODE_TYPE}-"]
 
       build_target: "%{AOS_BASE_IMAGE}"
       target_images:
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-home.ext4"
         - "tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}-var.ext4"
-        - "tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
-        - "tmp/deploy/images/%{MACHINE}/bzImage"
+        - "tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
+        - "tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
         - "tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
         - "tmp/deploy/images/%{MACHINE}/grub.cfg"
         - "tmp/deploy/images/%{MACHINE}/aos/boot/version"
+
+  aos-sdk:
+    builder:
+      type: custom_script
+      work_dir: "workdir"
+      script: "../yocto/meta-aos/scripts/sdk_builder.py"
+      target_images:
+        - "../output/sdk"
+
+      additional_deps:
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
+
+      sdk:
+        yocto_dir: "../%{YOCTOS_WORK_DIR}"
+        build_dir: "build-%{NODE_TYPE}"
+        output_dir: "../output/sdk"
+        base_image: "%{AOS_BASE_IMAGE}"
 
   layers:
     builder:
@@ -146,9 +185,7 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/nodejs-layer.tar"
-        - "../output/layers/pylibs-layer.tar"
-        - "../output/layers/libvis-layer.tar"
+        - "../output/layers"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -157,16 +194,10 @@ components:
         yocto_dir: "../%{YOCTOS_WORK_DIR}"
         build_dir: "build-%{NODE_TYPE}"
         output_dir: "../output/layers"
-        base_image: "aos-image-vm"
+        base_image: "%{AOS_BASE_IMAGE}"
         items:
-          nodejs-layer:
-            target: "aos-nodejs-layer"
-
           pylibs-layer:
             target: "aos-pylibs-layer"
-
-          libvis-layer:
-            target: "aos-libvis-layer"
 
   fota-full:
     builder:
@@ -175,50 +206,49 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-full-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-fota-full-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
       components:
         boot:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-boot"
+          componentType: "%{AOS_NODE_TYPE}-boot"
           enabled: true
           method: "raw"
           description: "%{NODE_TYPE} boot image"
           version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+          fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
           partition:
             gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
             type: vfat
             size: 128 MiB
             items:
               "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-              "bzImage": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-              "EFI/BOOT/bootx64.efi": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+              "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+              "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
               "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
               "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
         rootfs-full:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          componentType: "%{AOS_NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "full"
           description: "%{NODE_TYPE} rootfs image"
           version: "%{BUNDLE_IMAGE_VERSION}"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
           exclude:
             - "home/*"
             - "var/*"
-
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
   fota-incremental:
     builder:
@@ -227,30 +257,30 @@ components:
       script: "../yocto/meta-aos/scripts/fota_builder.py"
       args: "-v"
       target_images:
-        - "../output/fota/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/%{AOS_NODE_TYPE}-fota-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
 
       components:
         rootfs-incremental:
-          componentType: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          componentType: "%{AOS_NODE_TYPE}-rootfs"
           enabled: true
           method: "overlay"
-          ostree_repo: "../../ostree_repo/%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs"
+          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
           yocto_dir: "../%{YOCTOS_WORK_DIR}"
           build_dir: "build-%{NODE_TYPE}"
           type: "incremental"
           description: "%{NODE_TYPE} rootfs image"
           version: "%{BUNDLE_IMAGE_VERSION}"
           requiredVersion: "%{ROOTFS_REF_VERSION}"
+          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
           exclude:
             - "home/*"
             - "var/*"
-          fileName: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
 
 images:
-  "%{NODE_TYPE}":
+  "%{NODE_TYPE}-%{MACHINE}":
     type: gpt
     desc: "Aos VM node image"
     partitions:
@@ -260,8 +290,8 @@ images:
         size: 256 MiB
         items:
           "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-          "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "%{KERNEL_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+          "EFI/BOOT/%{BOOT_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
           "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -271,8 +301,8 @@ images:
         size: 256 MiB
         items:
           "aos-image-initramfs-%{MACHINE}.cpio.gz": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-          "bzImage": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/bzImage"
-          "EFI/BOOT/bootx64.efi": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-bootx64.efi"
+          "%{KERNEL_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+          "EFI/BOOT/%{BOOT_TYPE}": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
           "EFI/BOOT/grub.cfg": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
           "aos/version": "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
@@ -297,6 +327,83 @@ images:
         size: 4096 MiB
 
 parameters:
+  MACHINE:
+    desc: "Aos VM machine type"
+
+    "genericx86-64":
+      default: true
+      overrides:
+        variables:
+          MACHINE: "genericx86-64"
+          KERNEL_TYPE: "bzImage"
+          BOOT_TYPE: "bootx64.efi"
+
+    "qemux86-64":
+      overrides:
+        variables:
+          MACHINE: "qemux86-64"
+          KERNEL_TYPE: "bzImage"
+          BOOT_TYPE: "bootx64.efi"
+
+        common_data:
+          common_conf:
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+    "genericarm64":
+      overrides:
+        variables:
+          MACHINE: "qemuarm64"
+          KERNEL_TYPE: "Image"
+          BOOT_TYPE: "bootaa64.efi"
+
+        common_data:
+          common_sources:
+            - type: git
+              url: "https://git.yoctoproject.org/meta-arm"
+              rev: "scarthgap"
+
+          common_conf:
+            - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EXTRA_IMAGEDEPENDS:append, " edk2-firmware"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+          main_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+          node_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+    "qemuarm64":
+      overrides:
+        variables:
+          MACHINE: "qemuarm64"
+          KERNEL_TYPE: "Image"
+          BOOT_TYPE: "bootaa64.efi"
+
+        common_data:
+          common_sources:
+            - type: git
+              url: "https://git.yoctoproject.org/meta-arm"
+              rev: "scarthgap"
+
+          common_conf:
+            - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
+            - [MACHINE_FEATURES:append, " efi"]
+            - [EXTRA_IMAGEDEPENDS:append, " edk2-firmware"]
+            - [EFI_PROVIDER, "grub-efi"]
+
+          main_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
+          node_layers:
+            - "../meta-arm/meta-arm-toolchain"
+            - "../meta-arm/meta-arm"
+
   NODE_TYPE:
     desc: "Node type to build"
 
@@ -313,7 +420,6 @@ parameters:
                 - [AOS_MAIN_NODE, "1"]
                 - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
-                - [AOS_VIS_DATA_PROVIDER, "%{VIS_DATA_PROVIDER}"]
 
               layers: *MAIN_LAYERS
 
@@ -331,6 +437,27 @@ parameters:
 
               layers: *NODE_LAYERS
 
+  USE_DHCP:
+    desc: "Use DHCP for network configuration"
+    "yes":
+      overrides:
+        components:
+          aos-vm:
+            builder:
+              conf:
+                - [AOS_USE_DHCP, "1"]
+                - [AOS_DNS_IP, "%{MAIN_NODE_IP}"]
+                - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
+
+    "no":
+      default: true
+      overrides:
+        components:
+          aos-vm:
+            builder:
+              conf:
+                - [AOS_USE_DHCP, "0"]
+
   WITH_MESSAGE_PROXY:
     desc: "Enable Aos message proxy"
     "yes":
@@ -347,16 +474,14 @@ parameters:
     "no":
       default: true
 
-  # Aos VIS data provider
-  VIS_DATA_PROVIDER:
-    desc: "specifies plugin for VIS automotive data"
-    renesassimulator:
+  CACHE_LOCATION:
+    desc: "Indicated where cache and downloads are stored: inside build dir or outside."
+    outside:
       default: true
-      overrides:
-        variables:
-          VIS_DATA_PROVIDER: "renesassimulatoradapter"
 
-    telemetryemulator:
+    inside:
       overrides:
-        variables:
-          VIS_DATA_PROVIDER: "telemetryemulatoradapter"
+        common_data:
+          common_conf:
+            - [SSTATE_DIR, "${TOPDIR}/../../common_data/sstate"]
+            - [DL_DIR, "${TOPDIR}/../../common_data/downloads"]

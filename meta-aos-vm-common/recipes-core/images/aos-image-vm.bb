@@ -23,6 +23,7 @@ IMAGE_INSTALL:append = " \
     netconfig \
     openssh \
     tzdata \
+    wget \
 "
 
 # Set fixed rootfs size

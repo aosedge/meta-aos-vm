@@ -13,7 +13,12 @@ do_install:append() {
     install -d ${D}${sysconfdir}/systemd/network/
     install -m 0644 ${WORKDIR}/wired.network ${D}${sysconfdir}/systemd/network/20-wired.network
 
-    echo "Address=${AOS_NODE_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
-    echo "Gateway=${AOS_NODE_GW_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
-    echo "DNS=${AOS_NODE_GW_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+    if [ ${AOS_USE_DHCP} = "1" ]; then
+        echo "DHCP=yes" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+        echo "Address=${AOS_NODE_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+    else
+        echo "Address=${AOS_NODE_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+        echo "Gateway=${AOS_NODE_GW_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+        echo "DNS=${AOS_NODE_GW_IP}" >> ${D}${sysconfdir}/systemd/network/20-wired.network
+    fi
 }
