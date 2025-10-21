@@ -1,6 +1,6 @@
-# meta-aos-vm
+# AosCore VM metalayer
 
-This repository contains AodEdge Yocto layers for building Aos virtual machine.
+This repository contains AodCore Yocto layers for building virtual machines for AosEdge units.
 
 ## Requirements
 
