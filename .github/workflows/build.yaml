@@ -49,9 +49,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Keep only genericx86-64 for now. The list of supported machines:
+        # The list of supported machines:
         # genericx86-64, qemux86-64, genericarm64, qemuarm64
-        machine: [genericx86-64, qemuarm64]
+        machine: [genericx86-64, qemux86-64, qemuarm64]
 
     steps:
       - name: Checkout
