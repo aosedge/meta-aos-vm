@@ -6,8 +6,8 @@ variables:
   UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0.0"
 
-  BUNDLE_IMAGE_VERSION: "5.1.1"
-  ROOTFS_REF_VERSION: "5.0.3"
+  BUNDLE_IMAGE_VERSION: "6.0.0"
+  ROOTFS_REF_VERSION: "5.2.1"
 
   # Aos node configuration
   MAIN_NODE_HOSTNAME: "main"
