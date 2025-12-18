@@ -19,6 +19,12 @@ variables:
   YOCTOS_WORK_DIR: "yocto"
   DISTRO: "aos-core"
 
+  # Node info
+  AOS_ARCHITECTURE: "amd64"
+  AOS_ARCHITECTURE_VARIANT: ""
+  AOS_OS: "linux"
+  AOS_OS_VERSION: ""
+
   AOS_BASE_IMAGE: "aos-image-vm"
   AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}"
 
@@ -150,6 +156,10 @@ components:
         - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
         - [AOS_BASE_IMAGE, "%{AOS_BASE_IMAGE}"]
         - [AOS_UM_COMPONENT_PREFIX, "%{AOS_NODE_TYPE}-"]
+        - [AOS_ARCHITECTURE, "%{AOS_ARCHITECTURE}"]
+        - [AOS_ARCHITECTURE_VARIANT, "%{AOS_ARCHITECTURE_VARIANT}"]
+        - [AOS_OS, "%{AOS_OS}"]
+        - [AOS_OS_VERSION, "%{AOS_OS_VERSION}"]
 
       build_target: "%{AOS_BASE_IMAGE}"
       target_images:
@@ -337,6 +347,7 @@ parameters:
           MACHINE: "genericx86-64"
           KERNEL_TYPE: "bzImage"
           BOOT_TYPE: "bootx64.efi"
+          AOS_ARCHITECTURE: "amd64"
 
     "qemux86-64":
       overrides:
@@ -344,6 +355,7 @@ parameters:
           MACHINE: "qemux86-64"
           KERNEL_TYPE: "bzImage"
           BOOT_TYPE: "bootx64.efi"
+          AOS_ARCHITECTURE: "amd64"
 
         common_data:
           common_conf:
@@ -356,6 +368,7 @@ parameters:
           MACHINE: "qemuarm64"
           KERNEL_TYPE: "Image"
           BOOT_TYPE: "bootaa64.efi"
+          AOS_ARCHITECTURE: "arm64"
 
         common_data:
           common_sources:
@@ -383,6 +396,7 @@ parameters:
           MACHINE: "qemuarm64"
           KERNEL_TYPE: "Image"
           BOOT_TYPE: "bootaa64.efi"
+          AOS_ARCHITECTURE: "arm64"
 
         common_data:
           common_sources:
