@@ -14,7 +14,7 @@ do_install[noexec] = "1"
 AOS_INITRAMFS_BOOT_PARAMS = " \
     vardir.disk=/dev/${AOS_IMAGE_DISK}5 \
     opendisk.target=/dev/${AOS_IMAGE_DISK}6 opendisk.pkcs11=softhsm opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin \
-    aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=um/update_rootfs \
+    aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=sm/runtimes/rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aosupdate.selinux_module=/usr/share/selinux/aos/base.pp', '', d)} \
 "
 
