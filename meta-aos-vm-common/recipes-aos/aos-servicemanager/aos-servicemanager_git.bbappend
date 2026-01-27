@@ -20,8 +20,3 @@ do_install:append() {
     install -d ${D}${sysconfdir}/sysctl.d
     install -m 0644 ${WORKDIR}/ipforwarding.conf ${D}${sysconfdir}/sysctl.d
 }
-
-do_install:append() {
-    # Do not install headers files to prevent SDK build conflicts
-    rm -rf ${D}${includedir}
-}
