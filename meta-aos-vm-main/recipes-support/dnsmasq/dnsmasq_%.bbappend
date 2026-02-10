@@ -11,14 +11,14 @@ python do_addnhosts() {
     addnhosts_content = []
 
     if hosts_string:
-        entries = hosts_string.split(';')
+        entries = hosts_string.split()
 
         for entry in entries:
             entry = entry.strip()
             if not entry:
                 continue
 
-            parts = entry.split()
+            parts = entry.split('=')
             if len(parts) >= 2:
                 ip = parts[0]
                 hostnames = ' '.join(parts[1:])
