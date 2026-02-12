@@ -1,7 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += "file://dnsmasq.conf.in"
-FILES:${PN} += "/var/aos/dns/*"
+FILES:${PN} += "/var/aos/dns/* /etc/aos/addnhosts"
 
 python do_addnhosts() {
     import os
@@ -24,7 +24,7 @@ python do_addnhosts() {
                 hostnames = ' '.join(parts[1:])
                 addnhosts_content.append(f"{ip} {hostnames}")
 
-    addnhosts_file = os.path.join(destdir, 'var/aos/dns/addnhosts')
+    addnhosts_file = os.path.join(destdir, 'etc/aos/addnhosts')
     with open(addnhosts_file, 'w') as f:
         f.write('\n'.join(addnhosts_content))
         if addnhosts_content:
@@ -34,6 +34,7 @@ python do_addnhosts() {
 do_configure:append() {
     sed -e "s|@LISTEN_IP@|${AOS_DNS_IP}|" \
         -e "s|@ADDNHOSTS_PATH@|/var/aos/dns|" \
+        -e "s|@PERSISTENT_ADDNHOSTS_PATH@|/etc/aos|" \
         ${WORKDIR}/dnsmasq.conf.in > ${WORKDIR}/dnsmasq.conf
 }
 
@@ -46,9 +47,11 @@ do_install:append() {
     fi
 
     install -d ${D}/var/aos/dns
+    install -d ${D}/etc/aos
     install -m 0644 ${WORKDIR}/dnsmasq.conf ${D}/var/aos/dns/dnsmasq.conf
 
     touch ${D}/var/aos/dns/addnhosts
+    touch ${D}/etc/aos/addnhosts
 }
 
 addtask addnhosts after do_install before do_package
