@@ -7,3 +7,4 @@ bind-dynamic
 no-hosts
 listen-address=@LISTEN_IP@
 addn-hosts=@ADDNHOSTS_PATH@/addnhosts
+addn-hosts=@PERSISTENT_ADDNHOSTS_PATH@/addnhosts
