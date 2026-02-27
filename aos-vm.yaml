@@ -53,11 +53,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "feature_unification"
+      rev: "develop"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "feature_unification"
+      rev: "develop"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
