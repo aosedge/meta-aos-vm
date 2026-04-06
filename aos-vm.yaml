@@ -198,32 +198,41 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/aos-kuksa-client-layer-%{MACHINE}-1.0.0.tar.gz"
-        - "../output/layers/aos-pylibs-layer-%{MACHINE}-1.0.0.tar.gz"
+        - "../output/layers"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
 
       layers:
+        architecture: "%{AOS_ARCHITECTURE}"
+        os: "%{AOS_OS}"
+        output_dir: "../output/layers"
+        publisher:
+          company: "EPAM Systems"
+
+        publish:
+          tlsKey: "aos-user-oem.p12"
+          domain: "aoscloud.io"
+
         yocto_dir: "../%{YOCTOS_WORK_DIR}"
         build_dir: "build-%{NODE_TYPE}"
-        output_dir: "../output/layers"
         base_image: "%{AOS_BASE_IMAGE}"
         items:
-          kuksa-client-layer:
+          kuksa-client:
             target: "aos-kuksa-client-layer"
+            version: "1.0.0"
 
-          pylibs-layer:
+          pylibs:
             target: "aos-pylibs-layer"
+            version: "1.0.0"
 
-  fota-full:
+  fota:
     builder:
       type: custom_script
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/fota_builder.py"
-      args: "-v"
       target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-fota-full-%{MACHINE}-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -234,67 +243,66 @@ components:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
       components:
-        boot:
-          componentType: "%{AOS_NODE_TYPE}-boot"
-          enabled: true
-          method: "raw"
-          description: "%{NODE_TYPE} boot image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
-          partition:
-            gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
-            type: vfat
-            size: 128 MiB
-            items:
-              "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-              "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
-              "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
-              "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
-              "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
+        architecture: "%{AOS_ARCHITECTURE}"
+        os: "%{AOS_OS}"
+        output_dir: "../output/fota"
+        publisher:
+          company: "EPAM Systems"
 
-        rootfs-full:
-          componentType: "%{AOS_NODE_TYPE}-rootfs"
-          enabled: true
-          method: "overlay"
-          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
-          yocto_dir: "../%{YOCTOS_WORK_DIR}"
-          build_dir: "build-%{NODE_TYPE}"
-          type: "full"
-          description: "%{NODE_TYPE} rootfs image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
-          exclude:
-            - "home/*"
-            - "var/*"
+        publish:
+          tlsKey: "aos-user-oem.p12"
+          domain: "aoscloud.io"
 
-  fota-incremental:
-    builder:
-      type: custom_script
-      work_dir: "workdir"
-      script: "../yocto/meta-aos/scripts/fota_builder.py"
-      args: "-v"
-      target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-fota-incremental-%{MACHINE}-%{BUNDLE_IMAGE_VERSION}.tar"
+        work_dir: "workdir"
+        items:
+          boot:
+            componentType: "%{AOS_NODE_TYPE}-boot"
+            enabled: true
+            method: "raw"
+            description: "%{NODE_TYPE} boot image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+            partition:
+              gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+              type: vfat
+              size: 128 MiB
+              items:
+                "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
+                "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+                "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
+                "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
-      additional_deps:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
+          rootfs-full:
+            componentType: "%{AOS_NODE_TYPE}-rootfs"
+            enabled: true
+            method: "overlay"
+            ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
+            yocto_dir: "../%{YOCTOS_WORK_DIR}"
+            build_dir: "build-%{NODE_TYPE}"
+            type: "full"
+            description: "%{NODE_TYPE} rootfs image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            exclude:
+              - "home/*"
+              - "var/*"
 
-      components:
-        rootfs-incremental:
-          componentType: "%{AOS_NODE_TYPE}-rootfs"
-          enabled: true
-          method: "overlay"
-          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
-          yocto_dir: "../%{YOCTOS_WORK_DIR}"
-          build_dir: "build-%{NODE_TYPE}"
-          type: "incremental"
-          description: "%{NODE_TYPE} rootfs image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          requiredVersion: "%{ROOTFS_REF_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
-          exclude:
-            - "home/*"
-            - "var/*"
+          rootfs-incremental:
+            componentType: "%{AOS_NODE_TYPE}-rootfs"
+            enabled: true
+            method: "overlay"
+            ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
+            yocto_dir: "../%{YOCTOS_WORK_DIR}"
+            build_dir: "build-%{NODE_TYPE}"
+            type: "incremental"
+            description: "%{NODE_TYPE} rootfs image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            requiredVersion: "%{ROOTFS_REF_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            exclude:
+              - "home/*"
+              - "var/*"
 
 images:
   "%{NODE_TYPE}-%{MACHINE}":
