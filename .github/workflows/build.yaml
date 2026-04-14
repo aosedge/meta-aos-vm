@@ -119,6 +119,16 @@ jobs:
           yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "$machine" -d "$disk_format" -c xz \
             -o output/image -f "aos-vm-image-${machine}-${version}"
 
+          echo "Archive layers and fota bundles"
+
+          if [ -d output/layers ]; then
+            tar -czf "output/aos-vm-layers-${machine}-${version}.tar.gz" -C output layers
+          fi
+
+          if [ -d output/fota ]; then
+            tar -czf "output/aos-vm-fota-${machine}-${version}.tar.gz" -C output fota
+          fi
+
       - name: Deploy
         env:
           GH_TOKEN: ${{ github.token }}
@@ -136,13 +146,13 @@ jobs:
           done
 
 
-          for file in build/output/layers/*; do
-            gh release upload "$tag" "$file"
-          done
+          if [ -f "build/output/aos-vm-layers-${machine}-${version}.tar.gz" ]; then
+            gh release upload "$tag" "build/output/aos-vm-layers-${machine}-${version}.tar.gz"
+          fi
 
-          for file in build/output/fota/*; do
-            gh release upload "$tag" "$file"
-          done
+          if [ -f "build/output/aos-vm-fota-${machine}-${version}.tar.gz" ]; then
+            gh release upload "$tag" "build/output/aos-vm-fota-${machine}-${version}.tar.gz"
+          fi
 
           for file in build/output/sdk/*.sh; do
             gh release upload "$tag" "$file"
