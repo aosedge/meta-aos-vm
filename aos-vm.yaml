@@ -198,7 +198,9 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers"
+        - "../output/layers/config.yaml"
+        - "../output/layers/kuksa-client/%{AOS_OS}-%{AOS_ARCHITECTURE}-1.0.0.tar.gz"
+        - "../output/layers/pylibs/%{AOS_OS}-%{AOS_ARCHITECTURE}-1.0.0.tar.gz"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
