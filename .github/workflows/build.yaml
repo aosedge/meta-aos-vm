@@ -90,7 +90,7 @@ jobs:
 
           docker/run_docker.sh -n -w build -- ninja "main-${machine}.img"
           docker/run_docker.sh -n -w build -- ninja layers
-          docker/run_docker.sh -n -w build -- ninja fota-full
+          docker/run_docker.sh -n -w build -- ninja fota
 
           docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
             --WITH_MESSAGE_PROXY=yes --CACHE_LOCATION=inside
@@ -102,7 +102,7 @@ jobs:
           docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=secondary --MACHINE="$machine" \
             --CACHE_LOCATION=inside
           docker/run_docker.sh -n -w build -- ninja "secondary-${machine}.img"
-          docker/run_docker.sh -n -w build -- ninja fota-full
+          docker/run_docker.sh -n -w build -- ninja fota
 
           echo "Archive image"
 
@@ -119,13 +119,15 @@ jobs:
           yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "$machine" -d "$disk_format" -c xz \
             -o output/image -f "aos-vm-image-${machine}-${version}"
 
-          echo "Archive layers and fota bundles"
-
           if [ -d output/layers ]; then
+            echo "Archive layers"
+
             tar -czf "output/aos-vm-layers-${machine}-${version}.tar.gz" -C output layers
           fi
 
           if [ -d output/fota ]; then
+            echo "Archive components"
+
             tar -czf "output/aos-vm-fota-${machine}-${version}.tar.gz" -C output fota
           fi
 
