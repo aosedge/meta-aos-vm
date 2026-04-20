@@ -45,6 +45,9 @@ USER $USER_NAME
 # Install moulin
 RUN pip3 install --user git+https://github.com/xen-troops/moulin
 
+# Install python packages
+RUN pip3 install --user pydantic
+
 # Create workdir for docker and define it as WORKDIR
 RUN mkdir -p /home/$USER_NAME/workspace
 RUN chown $USER_NAME:$USER_NAME /home/$USER_NAME/workspace
