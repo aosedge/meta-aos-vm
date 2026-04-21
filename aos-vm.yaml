@@ -27,6 +27,7 @@ variables:
 
   AOS_BASE_IMAGE: "aos-image-vm"
   AOS_NODE_TYPE: "%{UNIT_MODEL}-%{NODE_TYPE}"
+  AOS_COMPONENT_RUNTIME_PREFIX: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}-"
 
 common_data:
   # Sources used by all nodes
@@ -155,10 +156,7 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
         - [AOS_BASE_IMAGE, "%{AOS_BASE_IMAGE}"]
-        - [
-            AOS_COMPONENT_RUNTIME_PREFIX,
-            "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}-",
-          ]
+        - [AOS_COMPONENT_RUNTIME_PREFIX, "%{AOS_COMPONENT_RUNTIME_PREFIX}"]
         - [AOS_ARCHITECTURE, "%{AOS_ARCHITECTURE}"]
         - [AOS_ARCHITECTURE_VARIANT, "%{AOS_ARCHITECTURE_VARIANT}"]
         - [AOS_OS, "%{AOS_OS}"]
@@ -258,7 +256,7 @@ components:
         work_dir: "workdir"
         items:
           boot:
-            componentType: "%{AOS_NODE_TYPE}-boot"
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}boot"
             enabled: true
             method: "raw"
             description: "%{NODE_TYPE} boot image"
@@ -276,7 +274,7 @@ components:
                 "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
           rootfs-full:
-            componentType: "%{AOS_NODE_TYPE}-rootfs"
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
             enabled: true
             method: "overlay"
             ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
@@ -291,7 +289,7 @@ components:
               - "var/*"
 
           rootfs-incremental:
-            componentType: "%{AOS_NODE_TYPE}-rootfs"
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
             enabled: false
             method: "overlay"
             ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
