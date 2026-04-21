@@ -292,7 +292,7 @@ components:
 
           rootfs-incremental:
             componentType: "%{AOS_NODE_TYPE}-rootfs"
-            enabled: true
+            enabled: false
             method: "overlay"
             ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
             yocto_dir: "../%{YOCTOS_WORK_DIR}"
