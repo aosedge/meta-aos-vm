@@ -1,43 +1,18 @@
 {
     "nodes": [
         {
-            "nodeType": "aos-vm-1.0-main-genericx86-64",
+            "nodeType": "aos-vm-main",
             "labels": [
                 "main"
             ],
-            "priority": 100,
-            "resources": [
-                {
-                    "name": "kuksa",
-                    "hosts": [
-                        {
-                            "ip": "10.0.0.100",
-                            "hostname": "Server"
-                        }
-                    ]
-                }
-            ]
+            "priority": 100
         },
         {
-            "nodeType": "aos-vm-1.0-secondary-genericx86-64",
+            "nodeType": "aos-vm-secondary",
             "labels": [
                 "secondary"
             ],
             "priority": 50
-        }
-    ],
-    "components": [
-        {
-            "id": "aos-vm-1.0-main-genericx86-64-boot"
-        },
-        {
-            "id": "aos-vm-1.0-main-genericx86-64-rootfs"
-        },
-        {
-            "id": "aos-vm-1.0-secondary-genericx86-64-boot"
-        },
-        {
-            "id": "aos-vm-1.0-secondary-genericx86-64-rootfs"
         }
     ]
 }
