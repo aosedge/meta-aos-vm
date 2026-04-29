@@ -255,6 +255,7 @@ components:
         items:
           boot:
             componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}boot"
+            mediaType: "application/vnd.aos.image.component.full.v1+gzip"
             enabled: true
             method: "raw"
             description: "%{NODE_TYPE} boot image"
@@ -273,6 +274,7 @@ components:
 
           rootfs-full:
             componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
+            mediaType: "application/vnd.aos.image.component.full.v1+squashfs"
             enabled: true
             method: "overlay"
             ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
@@ -288,6 +290,7 @@ components:
 
           rootfs-incremental:
             componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
+            mediaType: "application/vnd.aos.image.component.inc.v1+squashfs"
             enabled: false
             method: "overlay"
             ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
