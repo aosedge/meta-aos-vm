@@ -94,7 +94,7 @@ jobs:
 
           if [ -d build/output/fota ]; then
             echo "Archive main node components"
-            (cd build && tar -czf "aos-vm-fota-main-${machine}-${version}.tar.gz" -C output fota)
+            (cd build && tar -czf "output/aos-vm-fota-main-${machine}-${version}.tar.gz" -C output fota)
           fi
 
           docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
@@ -111,7 +111,7 @@ jobs:
 
           if [ -d build/output/fota ]; then
             echo "Archive secondary node components"
-            (cd build && tar -czf "aos-vm-fota-secondary-${machine}-${version}.tar.gz" -C output fota)
+            (cd build && tar -czf "output/aos-vm-fota-secondary-${machine}-${version}.tar.gz" -C output fota)
           fi
 
           echo "Archive image"
