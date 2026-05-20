@@ -256,7 +256,8 @@ components:
             mediaType: "application/vnd.aos.image.component.full.v1+gzip"
             enabled: true
             method: "raw"
-            description: "%{NODE_TYPE} boot image"
+            title: "Aos VM %{NODE_TYPE} boot image"
+            description: "Aos VM %{NODE_TYPE} boot image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
             partition:
@@ -279,7 +280,8 @@ components:
             yocto_dir: "../%{YOCTOS_WORK_DIR}"
             build_dir: "build-%{NODE_TYPE}"
             type: "full"
-            description: "%{NODE_TYPE} rootfs image"
+            title: "Aos VM %{NODE_TYPE} rootfs full image"
+            description: "Aos VM %{NODE_TYPE} rootfs full image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
             exclude:
@@ -295,7 +297,8 @@ components:
             yocto_dir: "../%{YOCTOS_WORK_DIR}"
             build_dir: "build-%{NODE_TYPE}"
             type: "incremental"
-            description: "%{NODE_TYPE} rootfs image"
+            title: "Aos VM %{NODE_TYPE} rootfs incremental image"
+            description: "Aos VM %{NODE_TYPE} rootfs incremental image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             requiredVersion: "%{ROOTFS_REF_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
