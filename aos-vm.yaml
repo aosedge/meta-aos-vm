@@ -4,10 +4,10 @@ min_ver: "0.21"
 variables:
   # Aos unit configuration
   UNIT_MODEL: "aos-vm"
-  UNIT_VERSION: "1.0"
+  UNIT_VERSION: "1.0.0"
 
-  BUNDLE_IMAGE_VERSION: "5.1.1"
-  ROOTFS_REF_VERSION: "5.0.3"
+  BUNDLE_IMAGE_VERSION: "6.0.0"
+  ROOTFS_REF_VERSION: "5.2.1"
 
   # Aos node configuration
   MAIN_NODE_HOSTNAME: "main"
@@ -19,8 +19,15 @@ variables:
   YOCTOS_WORK_DIR: "yocto"
   DISTRO: "aos-core"
 
+  # Node info
+  AOS_ARCHITECTURE: "amd64"
+  AOS_ARCHITECTURE_VARIANT: ""
+  AOS_OS: "linux"
+  AOS_OS_VERSION: ""
+
   AOS_BASE_IMAGE: "aos-image-vm"
-  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}"
+  AOS_NODE_TYPE: "%{UNIT_MODEL}-%{NODE_TYPE}"
+  AOS_COMPONENT_RUNTIME_PREFIX: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}-"
 
 common_data:
   # Sources used by all nodes
@@ -47,11 +54,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v8.2.3"
+      rev: "develop"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v5.2.2"
+      rev: "develop"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -149,7 +156,11 @@ components:
         - *COMMON_CONF
         - [IMAGE_BASENAME, "%{AOS_BASE_IMAGE}"]
         - [AOS_BASE_IMAGE, "%{AOS_BASE_IMAGE}"]
-        - [AOS_UM_COMPONENT_PREFIX, "%{AOS_NODE_TYPE}-"]
+        - [AOS_COMPONENT_RUNTIME_PREFIX, "%{AOS_COMPONENT_RUNTIME_PREFIX}"]
+        - [AOS_ARCHITECTURE, "%{AOS_ARCHITECTURE}"]
+        - [AOS_ARCHITECTURE_VARIANT, "%{AOS_ARCHITECTURE_VARIANT}"]
+        - [AOS_OS, "%{AOS_OS}"]
+        - [AOS_OS_VERSION, "%{AOS_OS_VERSION}"]
 
       build_target: "%{AOS_BASE_IMAGE}"
       target_images:
@@ -185,32 +196,41 @@ components:
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/layer_builder.py"
       target_images:
-        - "../output/layers/aos-kuksa-client-layer-%{MACHINE}-1.0.0.tar.gz"
-        - "../output/layers/aos-pylibs-layer-%{MACHINE}-1.0.0.tar.gz"
+        - "../output/layers/config.yaml"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
 
       layers:
+        architecture: "%{AOS_ARCHITECTURE}"
+        os: "%{AOS_OS}"
+        output_dir: "../output/layers"
+        publisher:
+          company: "EPAM Systems"
+
+        publish:
+          tlsKey: "aos-user-oem.p12"
+          domain: "aoscloud.io"
+
         yocto_dir: "../%{YOCTOS_WORK_DIR}"
         build_dir: "build-%{NODE_TYPE}"
-        output_dir: "../output/layers"
         base_image: "%{AOS_BASE_IMAGE}"
         items:
-          kuksa-client-layer:
+          kuksa-client:
             target: "aos-kuksa-client-layer"
+            version: "1.0.0"
 
-          pylibs-layer:
+          pylibs:
             target: "aos-pylibs-layer"
+            version: "1.0.0"
 
-  fota-full:
+  fota:
     builder:
       type: custom_script
       work_dir: "workdir"
       script: "../yocto/meta-aos/scripts/fota_builder.py"
-      args: "-v"
       target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-fota-full-%{BUNDLE_IMAGE_VERSION}.tar"
+        - "../output/fota/config.yaml"
 
       additional_deps:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
@@ -221,67 +241,69 @@ components:
         - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
       components:
-        boot:
-          componentType: "%{AOS_NODE_TYPE}-boot"
-          enabled: true
-          method: "raw"
-          description: "%{NODE_TYPE} boot image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
-          partition:
-            gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
-            type: vfat
-            size: 128 MiB
-            items:
-              "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
-              "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
-              "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
-              "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
-              "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
+        architecture: "%{AOS_ARCHITECTURE}"
+        os: "%{AOS_OS}"
+        output_dir: "../output/fota"
+        publisher:
+          company: "EPAM Systems"
 
-        rootfs-full:
-          componentType: "%{AOS_NODE_TYPE}-rootfs"
-          enabled: true
-          method: "overlay"
-          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
-          yocto_dir: "../%{YOCTOS_WORK_DIR}"
-          build_dir: "build-%{NODE_TYPE}"
-          type: "full"
-          description: "%{NODE_TYPE} rootfs image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
-          exclude:
-            - "home/*"
-            - "var/*"
+        publish:
+          tlsKey: "aos-user-oem.p12"
+          domain: "aoscloud.io"
 
-  fota-incremental:
-    builder:
-      type: custom_script
-      work_dir: "workdir"
-      script: "../yocto/meta-aos/scripts/fota_builder.py"
-      args: "-v"
-      target_images:
-        - "../output/fota/%{AOS_NODE_TYPE}-fota-incremental-%{BUNDLE_IMAGE_VERSION}.tar"
+        work_dir: "workdir"
+        items:
+          boot:
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}boot"
+            mediaType: "application/vnd.aos.image.component.full.v1+gzip"
+            enabled: true
+            method: "raw"
+            description: "%{NODE_TYPE} boot image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+            partition:
+              gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
+              type: vfat
+              size: 128 MiB
+              items:
+                "aos-image-initramfs-%{MACHINE}.cpio.gz": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos-image-initramfs-%{MACHINE}.rootfs.cpio.gz"
+                "%{KERNEL_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{KERNEL_TYPE}"
+                "EFI/BOOT/%{BOOT_TYPE}": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub-efi-%{BOOT_TYPE}"
+                "EFI/BOOT/grub.cfg": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/grub.cfg"
+                "aos/version": "../%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/aos/boot/version"
 
-      additional_deps:
-        - "%{YOCTOS_WORK_DIR}/build-%{NODE_TYPE}/tmp/deploy/images/%{MACHINE}/%{AOS_BASE_IMAGE}-%{MACHINE}.rootfs.ext4"
+          rootfs-full:
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
+            mediaType: "application/vnd.aos.image.component.full.v1+squashfs"
+            enabled: true
+            method: "overlay"
+            ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
+            yocto_dir: "../%{YOCTOS_WORK_DIR}"
+            build_dir: "build-%{NODE_TYPE}"
+            type: "full"
+            description: "%{NODE_TYPE} rootfs image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            exclude:
+              - "home/*"
+              - "var/*"
 
-      components:
-        rootfs-incremental:
-          componentType: "%{AOS_NODE_TYPE}-rootfs"
-          enabled: true
-          method: "overlay"
-          ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
-          yocto_dir: "../%{YOCTOS_WORK_DIR}"
-          build_dir: "build-%{NODE_TYPE}"
-          type: "incremental"
-          description: "%{NODE_TYPE} rootfs image"
-          version: "%{BUNDLE_IMAGE_VERSION}"
-          requiredVersion: "%{ROOTFS_REF_VERSION}"
-          fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
-          exclude:
-            - "home/*"
-            - "var/*"
+          rootfs-incremental:
+            componentType: "%{AOS_COMPONENT_RUNTIME_PREFIX}rootfs"
+            mediaType: "application/vnd.aos.image.component.inc.v1+squashfs"
+            enabled: false
+            method: "overlay"
+            ostree_repo: "../../ostree_repo/%{AOS_NODE_TYPE}-rootfs"
+            yocto_dir: "../%{YOCTOS_WORK_DIR}"
+            build_dir: "build-%{NODE_TYPE}"
+            type: "incremental"
+            description: "%{NODE_TYPE} rootfs image"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+            requiredVersion: "%{ROOTFS_REF_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            exclude:
+              - "home/*"
+              - "var/*"
 
 images:
   "%{NODE_TYPE}-%{MACHINE}":
@@ -341,6 +363,7 @@ parameters:
           MACHINE: "genericx86-64"
           KERNEL_TYPE: "bzImage"
           BOOT_TYPE: "bootx64.efi"
+          AOS_ARCHITECTURE: "amd64"
 
     "qemux86-64":
       overrides:
@@ -348,6 +371,7 @@ parameters:
           MACHINE: "qemux86-64"
           KERNEL_TYPE: "bzImage"
           BOOT_TYPE: "bootx64.efi"
+          AOS_ARCHITECTURE: "amd64"
 
         common_data:
           common_conf:
@@ -360,6 +384,7 @@ parameters:
           MACHINE: "qemuarm64"
           KERNEL_TYPE: "Image"
           BOOT_TYPE: "bootaa64.efi"
+          AOS_ARCHITECTURE: "arm64"
 
         common_data:
           common_sources:
@@ -387,6 +412,7 @@ parameters:
           MACHINE: "qemuarm64"
           KERNEL_TYPE: "Image"
           BOOT_TYPE: "bootaa64.efi"
+          AOS_ARCHITECTURE: "arm64"
 
         common_data:
           common_sources:
@@ -424,6 +450,7 @@ parameters:
                 - [AOS_MAIN_NODE, "1"]
                 - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
+                - [AOS_HOSTS:append, " %{MAIN_NODE_IP}=%{MAIN_NODE_HOSTNAME}"]
 
               layers: *MAIN_LAYERS
 
@@ -437,7 +464,6 @@ parameters:
             builder:
               conf:
                 - [AOS_MAIN_NODE, "0"]
-                - [AOS_HOSTS:append, " %{MAIN_NODE_IP}=%{MAIN_NODE_HOSTNAME}"]
 
               layers: *NODE_LAYERS
 

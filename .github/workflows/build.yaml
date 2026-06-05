@@ -55,7 +55,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aosedge/meta-aos-vm
           fetch-depth: 0
@@ -90,7 +90,12 @@ jobs:
 
           docker/run_docker.sh -n -w build -- ninja "main-${machine}.img"
           docker/run_docker.sh -n -w build -- ninja layers
-          docker/run_docker.sh -n -w build -- ninja fota-full
+          docker/run_docker.sh -n -w build -- ninja fota
+
+          if [ -d build/output/fota ]; then
+            echo "Archive main node components"
+            (cd build && tar -czf "output/aos-vm-fota-main-${machine}-${version}.tar.gz" -C output fota)
+          fi
 
           docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
             --WITH_MESSAGE_PROXY=yes --CACHE_LOCATION=inside
@@ -102,7 +107,12 @@ jobs:
           docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=secondary --MACHINE="$machine" \
             --CACHE_LOCATION=inside
           docker/run_docker.sh -n -w build -- ninja "secondary-${machine}.img"
-          docker/run_docker.sh -n -w build -- ninja fota-full
+          docker/run_docker.sh -n -w build -- ninja fota
+
+          if [ -d build/output/fota ]; then
+            echo "Archive secondary node components"
+            (cd build && tar -czf "output/aos-vm-fota-secondary-${machine}-${version}.tar.gz" -C output fota)
+          fi
 
           echo "Archive image"
 
@@ -118,6 +128,12 @@ jobs:
 
           yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "$machine" -d "$disk_format" -c xz \
             -o output/image -f "aos-vm-image-${machine}-${version}"
+
+          if [ -d output/layers ]; then
+            echo "Archive layers"
+
+            tar -czf "output/aos-vm-layers-${machine}-${version}.tar.gz" -C output layers
+          fi
 
       - name: Deploy
         env:
@@ -136,13 +152,17 @@ jobs:
           done
 
 
-          for file in build/output/layers/*; do
-            gh release upload "$tag" "$file"
-          done
+          if [ -f "build/output/aos-vm-layers-${machine}-${version}.tar.gz" ]; then
+            gh release upload "$tag" "build/output/aos-vm-layers-${machine}-${version}.tar.gz"
+          fi
 
-          for file in build/output/fota/*; do
-            gh release upload "$tag" "$file"
-          done
+          if [ -f "build/output/aos-vm-fota-main-${machine}-${version}.tar.gz" ]; then
+            gh release upload "$tag" "build/output/aos-vm-fota-main-${machine}-${version}.tar.gz"
+          fi
+
+          if [ -f "build/output/aos-vm-fota-secondary-${machine}-${version}.tar.gz" ]; then
+            gh release upload "$tag" "build/output/aos-vm-fota-secondary-${machine}-${version}.tar.gz"
+          fi
 
           for file in build/output/sdk/*.sh; do
             gh release upload "$tag" "$file"
