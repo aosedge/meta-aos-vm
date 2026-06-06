@@ -34,23 +34,23 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "7500a08bd1eb77421364b661afc63d4042a6aa8c"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "491671faee11ea131feab5a3a451d1a01deb2ab1"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "9e040ee8dd6025558ea60ac9db60c41bfeddf221"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "bc865c5276c2ab4031229916e8d7c20148dfbac3"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "c4b059262089b74c8fbf8dd5fdf5fd7bc1deeddc"
+      rev: "scarthgap"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
