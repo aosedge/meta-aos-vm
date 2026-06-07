@@ -6,8 +6,8 @@ variables:
   UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0.0"
 
-  BUNDLE_IMAGE_VERSION: "6.0.0"
-  ROOTFS_REF_VERSION: "5.2.1"
+  BUNDLE_IMAGE_VERSION: "6.1.0"
+  ROOTFS_REF_VERSION: "6.0.0"
 
   # Aos node configuration
   MAIN_NODE_HOSTNAME: "main"
@@ -34,31 +34,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "scarthgap"
+      rev: "7d50718f90c51fb7f650c9db59b28c6e0194e5d2"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "scarthgap"
+      rev: "ec0469748be4159fb83fb0fa0148d786484c88cf"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "scarthgap"
+      rev: "3dd635f613f7299d986a8ab6bc9f584370f8ed1d"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "scarthgap"
+      rev: "97e482b71688b62ac1109d16e89368122f039cbf"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "scarthgap"
+      rev: "536df5a4fbce3c9fd63f51580f43d248a0d1b0ef"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "develop"
+      rev: "v9.1.0"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      rev: "v6.1.0"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
