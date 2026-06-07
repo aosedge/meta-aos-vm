@@ -34,31 +34,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "7d50718f90c51fb7f650c9db59b28c6e0194e5d2"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "ec0469748be4159fb83fb0fa0148d786484c88cf"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "3dd635f613f7299d986a8ab6bc9f584370f8ed1d"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "97e482b71688b62ac1109d16e89368122f039cbf"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "536df5a4fbce3c9fd63f51580f43d248a0d1b0ef"
+      rev: "scarthgap"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v9.0.0"
+      rev: "develop"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v6.0.0"
+      rev: "develop"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -210,7 +210,6 @@ components:
 
         publish:
           tlsKey: "aos-user-oem.p12"
-          domain: "aoscloud.io"
 
         yocto_dir: "../%{YOCTOS_WORK_DIR}"
         build_dir: "build-%{NODE_TYPE}"
@@ -249,7 +248,6 @@ components:
 
         publish:
           tlsKey: "aos-user-oem.p12"
-          domain: "aoscloud.io"
 
         work_dir: "workdir"
         items:
@@ -258,7 +256,8 @@ components:
             mediaType: "application/vnd.aos.image.component.full.v1+gzip"
             enabled: true
             method: "raw"
-            description: "%{NODE_TYPE} boot image"
+            title: "Aos VM %{NODE_TYPE} boot image"
+            description: "Aos VM %{NODE_TYPE} boot image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
             partition:
@@ -281,7 +280,8 @@ components:
             yocto_dir: "../%{YOCTOS_WORK_DIR}"
             build_dir: "build-%{NODE_TYPE}"
             type: "full"
-            description: "%{NODE_TYPE} rootfs image"
+            title: "Aos VM %{NODE_TYPE} rootfs full image"
+            description: "Aos VM %{NODE_TYPE} rootfs full image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
             exclude:
@@ -297,7 +297,8 @@ components:
             yocto_dir: "../%{YOCTOS_WORK_DIR}"
             build_dir: "build-%{NODE_TYPE}"
             type: "incremental"
-            description: "%{NODE_TYPE} rootfs image"
+            title: "Aos VM %{NODE_TYPE} rootfs incremental image"
+            description: "Aos VM %{NODE_TYPE} rootfs incremental image for %{MACHINE}"
             version: "%{BUNDLE_IMAGE_VERSION}"
             requiredVersion: "%{ROOTFS_REF_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
