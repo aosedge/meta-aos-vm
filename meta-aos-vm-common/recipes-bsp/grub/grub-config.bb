@@ -15,7 +15,7 @@ AOS_INITRAMFS_BOOT_PARAMS = " \
     opendisk.target=/dev/${AOS_IMAGE_DISK}6 opendisk.pkcs11=softhsm opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin \
     aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=sm/runtimes/rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aosupdate.selinux_module=/usr/share/selinux/aos/base.pp', '', d)} \
-    aosoverlay.path=/var/aos/overlay/source \
+    aosoverlay.path=/var/aos/overlay \
 "
 
 do_deploy() {
