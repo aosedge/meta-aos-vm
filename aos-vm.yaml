@@ -53,6 +53,14 @@ common_data:
       rev: "536df5a4fbce3c9fd63f51580f43d248a0d1b0ef"
 
     - type: git
+      url: "https://github.com/kraj/meta-clang.git"
+      rev: "5945abf78de6c4b0269c4496fb63227344f79df7"
+
+    - type: git
+      url: "https://github.com/Jarsop/meta-zenoh"
+      rev: "132a83beed2ede589038fa0d5fb996ce366f316e"
+
+    - type: git
       url: "https://github.com/aosedge/meta-aos"
       rev: "v9.1.0"
 
@@ -127,6 +135,8 @@ common_data:
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
+    - "../meta-clang"
+    - "../meta-zenoh/meta-zenoh"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
     - "../meta-aos-vm/meta-aos-vm-main"
