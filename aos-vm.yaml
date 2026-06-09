@@ -150,6 +150,7 @@ common_data:
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
+    - "../meta-zenoh/meta-zenoh"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
     - "../meta-aos-vm/meta-aos-vm-node"
