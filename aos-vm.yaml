@@ -227,11 +227,15 @@ components:
         items:
           kuksa-client:
             target: "aos-kuksa-client-layer"
-            version: "1.0.0"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+
+          zenoh-python:
+            target: "aos-zenoh-python-layer"
+            version: "%{BUNDLE_IMAGE_VERSION}"
 
           pylibs:
             target: "aos-pylibs-layer"
-            version: "1.0.0"
+            version: "%{BUNDLE_IMAGE_VERSION}"
 
   fota:
     builder:
