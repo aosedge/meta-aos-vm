@@ -26,6 +26,10 @@ IMAGE_INSTALL:append = " \
     wget \
 "
 
+IMAGE_INSTALL:remove = " \
+    aos-provfirewall \
+"
+
 # Set fixed rootfs size
 IMAGE_ROOTFS_SIZE ?= "1048576"
 IMAGE_OVERHEAD_FACTOR ?= "1.0"
