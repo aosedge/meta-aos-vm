@@ -1,0 +1,30 @@
+From 43823a52a9cb25d906542d15dc207f6516579aa3 Mon Sep 17 00:00:00 2001
+From: Scott Murray <scott.murray@konsulko.com>
+Date: Thu, 5 Jun 2025 16:03:47 -0400
+Subject: [PATCH 2/2] Tweak grpcio-tools requirement
+
+Lower grpcio-tools requirement to 1.62.0 so building on YP scarthgap
+is possible.
+
+Upstream-Status: Pending
+
+Signed-off-by: Scott Murray <scott.murray@konsulko.com>
+---
+ kuksa-client/pyproject.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kuksa-client/pyproject.toml b/kuksa-client/pyproject.toml
+index 46cb1b0..7c8246b 100644
+--- a/kuksa-client/pyproject.toml
++++ b/kuksa-client/pyproject.toml
+@@ -1,7 +1,7 @@
+ [build-system]
+ requires = [
+     # Make sure to use the same exact version criteria in setup.cfg and update requirements.txt after changing
+-    "grpcio-tools==1.68.0",
++    "grpcio-tools>=1.62.0",
+     "setuptools>=42",
+     "setuptools-git-versioning",
+     "wheel",
+-- 
+2.49.0

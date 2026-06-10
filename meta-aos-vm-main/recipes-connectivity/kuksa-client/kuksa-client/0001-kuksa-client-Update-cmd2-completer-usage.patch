@@ -1,0 +1,160 @@
+From acb2bbff3de6e9f0bafb8b96a339820a9ddfadca Mon Sep 17 00:00:00 2001
+From: Scott Murray <scott.murray@konsulko.com>
+Date: Mon, 27 Nov 2023 15:31:02 -0500
+Subject: [PATCH 1/2] kuksa-client: Update cmd2 completer usage
+
+Update cmd2 usage to avoid using internal methods and fix breakage
+with newer versions of the cmd2 module.
+
+Upstream-Status: Pending
+
+Signed-off-by: Scott Murray <scott.murray@konsulko.com>
+---
+ kuksa-client/kuksa_client/__main__.py | 33 +++++++++++++--------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
+
+diff --git a/kuksa-client/kuksa_client/__main__.py b/kuksa-client/kuksa_client/__main__.py
+index 2b29623..7061ec1 100755
+--- a/kuksa-client/kuksa_client/__main__.py
++++ b/kuksa-client/kuksa_client/__main__.py
+@@ -36,7 +36,6 @@ from cmd2 import CompletionItem
+ from cmd2 import with_argparser
+ from cmd2 import with_category
+ from cmd2 import constants
+-from cmd2.utils import basic_complete
+ from urllib.parse import urlparse
+ 
+ from kuksa_client import KuksaClientThread
+@@ -151,7 +150,7 @@ class TestClient(Cmd):
+         self.pathCompletionItems = []
+         for sub_id in self.subscribeIds:
+             self.pathCompletionItems.append(CompletionItem(sub_id))
+-        return basic_complete(text, line, begidx, endidx, self.pathCompletionItems)
++        return Cmd.basic_complete(self, text, line, begidx, endidx, self.pathCompletionItems)
+ 
+     COMM_SETUP_COMMANDS = "Communication Set-up Commands"
+     VSS_COMMANDS = "Kuksa Interaction Commands (Supported by both KUKSA Databroker and KUKSA Server)"
+@@ -167,19 +166,19 @@ class TestClient(Cmd):
+ 
+     ap_disconnect = argparse.ArgumentParser()
+     ap_authorize = argparse.ArgumentParser()
+-    tokenfile_completer_method = functools.partial(
++    tokenfile_completer = functools.partial(
+         Cmd.path_complete,
+         path_filter=lambda path: (os.path.isdir(path) or path.endswith(".token")),
+     )
+     ap_authorize.add_argument(
+         "token_or_tokenfile",
+         help="JWT(or the file storing the token) for authorizing the client.",
+-        completer_method=tokenfile_completer_method,
++        completer=tokenfile_completer,
+     )
+ 
+     ap_setValue = argparse.ArgumentParser()
+     ap_setValue.add_argument(
+-        "Path", help="Path to be set", completer_method=path_completer
++        "Path", help="Path to be set", completer=path_completer
+     )
+     ap_setValue.add_argument("Value", nargs="+", help="Value to be set")
+     ap_setValue.add_argument(
+@@ -199,7 +198,7 @@ class TestClient(Cmd):
+ 
+     ap_getValue = argparse.ArgumentParser()
+     ap_getValue.add_argument(
+-        "Path", help="Path to be read", completer_method=path_completer
++        "Path", help="Path to be read", completer=path_completer
+     )
+     ap_getValue.add_argument(
+         "-a", "--attribute", help="Attribute to be get", default="value"
+@@ -210,7 +209,7 @@ class TestClient(Cmd):
+         "Path",
+         help="Path whose value is to be read",
+         nargs="+",
+-        completer_method=path_completer,
++        completer=path_completer,
+     )
+     ap_getValues.add_argument(
+         "-a", "--attribute", help="Attribute to be get", default="value"
+@@ -220,7 +219,7 @@ class TestClient(Cmd):
+     ap_setTargetValue.add_argument(
+         "Path",
+         help="Path whose target value to be set",
+-        completer_method=path_completer,
++        completer=path_completer,
+     )
+     ap_setTargetValue.add_argument("Value", help="Value to be set")
+ 
+@@ -236,7 +235,7 @@ class TestClient(Cmd):
+     ap_getTargetValue.add_argument(
+         "Path",
+         help="Path whose target value is to be read",
+-        completer_method=path_completer,
++        completer=path_completer,
+     )
+ 
+     ap_getTargetValues = argparse.ArgumentParser()
+@@ -244,12 +243,12 @@ class TestClient(Cmd):
+         "Path",
+         help="Path whose target value is to be read",
+         nargs="+",
+-        completer_method=path_completer,
++        completer=path_completer,
+     )
+ 
+     ap_subscribe = argparse.ArgumentParser()
+     ap_subscribe.add_argument(
+-        "Path", help="Path to subscribe to", completer_method=path_completer
++        "Path", help="Path to subscribe to", completer=path_completer
+     )
+     ap_subscribe.add_argument(
+         "-a", "--attribute", help="Attribute to subscribe to", default="value"
+@@ -264,7 +263,7 @@ class TestClient(Cmd):
+ 
+     ap_subscribeMultiple = argparse.ArgumentParser()
+     ap_subscribeMultiple.add_argument(
+-        "Path", help="Path to subscribe to", nargs="+", completer_method=path_completer
++        "Path", help="Path to subscribe to", nargs="+", completer=path_completer
+     )
+     ap_subscribeMultiple.add_argument(
+         "-a", "--attribute", help="Attribute to subscribe to", default="value"
+@@ -280,18 +279,18 @@ class TestClient(Cmd):
+     ap_unsubscribe.add_argument(
+         "SubscribeId",
+         help="Corresponding subscription Id",
+-        completer_method=subscriptionIdCompleter,
++        completer=subscriptionIdCompleter,
+     )
+ 
+     ap_getMetaData = argparse.ArgumentParser()
+     ap_getMetaData.add_argument(
+         "Path",
+         help="Path whose metadata is to be read",
+-        completer_method=path_completer,
++        completer=path_completer,
+     )
+     ap_updateMetaData = argparse.ArgumentParser()
+     ap_updateMetaData.add_argument(
+-        "Path", help="Path whose MetaData is to update", completer_method=path_completer
++        "Path", help="Path whose MetaData is to update", completer=path_completer
+     )
+     ap_updateMetaData.add_argument(
+         "Json",
+@@ -300,14 +299,14 @@ class TestClient(Cmd):
+     )
+ 
+     ap_updateVSSTree = argparse.ArgumentParser()
+-    jsonfile_completer_method = functools.partial(
++    jsonfile_completer = functools.partial(
+         Cmd.path_complete,
+         path_filter=lambda path: (os.path.isdir(path) or path.endswith(".json")),
+     )
+     ap_updateVSSTree.add_argument(
+         "Json",
+         help="Json tree to update VSS",
+-        completer_method=jsonfile_completer_method,
++        completer=jsonfile_completer,
+     )
+ 
+     # Constructor, request names after protocol to avoid errors
+-- 
+2.44.0
