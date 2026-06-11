@@ -1,6 +1,15 @@
-# AosCore VM metalayer
+# AosCore VM meta-layer for Bosch demo
 
-This repository contains AodCore Yocto layers for building virtual machines for AosEdge units.
+This repository contains AosCore Yocto layers for building virtual machines for Bosch demoAosEdge units.
+
+The main changes between this repository and the main `meta-aos-vm` layer are:
+
+* `kuksa-databroker` is configured to use open connection;
+* `kuksa-databroker` has VSS configuration for release 5.1;
+* `zenoh` daemon is added;
+* `zenoh-client` layer is added.
+
+See [Bosch demo](doc/bosch.md) documentation for more details how to deploy and use Bosch demo services.
 
 ## Requirements
 
@@ -22,7 +31,7 @@ During the build `moulin` will fetch this repository again into `yocto/` directo
 we recommend to download only `aos-vm.yaml`:
 
 ```sh
-curl -O https://raw.githubusercontent.com/aosedge/meta-aos-vm/main/aos-vm.yaml
+curl -O https://raw.githubusercontent.com/aosedge/meta-aos-vm/demo_bosch/aos-vm.yaml
 ```
 
 ## Build
