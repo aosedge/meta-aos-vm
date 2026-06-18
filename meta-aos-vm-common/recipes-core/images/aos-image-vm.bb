@@ -3,7 +3,11 @@ LICENSE = "Apache-2.0"
 
 IMAGE_LINGUAS = " "
 
+ROS_DISTRO = "jazzy"
+ROS_WORLD_SKIP_GROUPS:append = " moveit fortran qt5 ogre webots-python-modules opengl x11 gazebo gazebo11 hunter"
+
 require recipes-core/images/aos-image.inc
+require recipes-core/images/ros-image-core.bb
 
 inherit core-image extrausers
 
