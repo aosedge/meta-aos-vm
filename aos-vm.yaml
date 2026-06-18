@@ -53,12 +53,40 @@ common_data:
       rev: "scarthgap"
 
     - type: git
+      url: "https://github.com/kraj/meta-clang.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/meta-qt5/meta-qt5.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/ros/meta-ros.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/zboszor/meta-clang-revival"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/zboszor/meta-python-ai"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/robwoolley/meta-intel-realsense.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/Jarsop/meta-zenoh.git"
+      rev: "scarthgap"
+
+    - type: git
       url: "https://github.com/aosedge/meta-aos"
       rev: "develop"
 
     - type: git
-      url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      url: "https://github.com/mlohvynenko/meta-aos-vm"
+      rev: "feature_ros"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -118,15 +146,120 @@ common_data:
     # Omit uutils-coreutils recipe from the build
     - [BBMASK, "uutils-coreutils"]
 
+    - [
+        ROS_WORLD_SKIP_GROUPS:append,
+        " fortran qt5 ogre webots-python-modules opengl x11 gazebo gazebo11",
+      ]
+
+    - [AOS_VAR_PART_SIZE, "8388608"]
+
+    # Mask ROS recipes with unfixable missing dependencies (not needed for image):
+    # - libcamera ROS recipe (0.7.0) has gcc-runtime RDEPENDS issue; system libcamera 0.4.0
+    #   from meta-multimedia is used instead for packages that depend on it (e.g. camera-ros)
+    # - raph-robot recipes depend on depthai/depthai-bridge which have no jazzy recipe
+    # - parameter-expression depends on muparser which has no Yocto recipe
+    - [BBMASK:append, " generated-recipes/libcamera/libcamera_"]
+    - [BBMASK:append, " generated-recipes/raph-robot/"]
+    - [BBMASK:append, " generated-recipes/parameter-expression/"]
+    # packagegroup-ros-world-jazzy RDEPENDS on all ROS packages including the masked ones;
+    # packagegroup-ros-world.bb in meta-ros-common RDEPENDS on packagegroup-ros-world-jazzy
+    - [
+        BBMASK:append,
+        " recipes-core/packagegroups/packagegroup-ros-world-jazzy.bb",
+      ]
+    - [BBMASK:append, " recipes-core/packagegroups/packagegroup-ros-world\\.bb"]
+    - [BBMASK:append, " recipes-core/images/ros-image-world.bb"]
+    # navigation2 group: nav2-route DEPENDS on nanoflann-dev which is a sub-package name,
+    # not resolvable as a Yocto DEPENDS (Yocto DEPENDS uses recipe names, not sub-package names)
+    - [BBMASK:append, " generated-recipes/navigation2/"]
+    # trac-ik DEPENDS on nlopt-dev (same sub-package name issue)
+    - [BBMASK:append, " generated-recipes/trac-ik/"]
+    # ardrone-ros DEPENDS on avahi-dev (same sub-package name issue, should be 'avahi')
+    - [BBMASK:append, " generated-recipes/ardrone-ros/"]
+    # easynav-plugins: easynav-mpc-controller DEPENDS on nlopt-dev (same issue as trac-ik)
+    - [BBMASK:append, " generated-recipes/easynav-plugins/"]
+    # Cascade from navigation2 being masked: packages that RDEPEND on navigation2 or nav2-bringup
+    - [BBMASK:append, " generated-recipes/turtlebot4/turtlebot4-navigation_"]
+    - [BBMASK:append, " generated-recipes/turtlebot4-simulator/"]
+    - [BBMASK:append, " generated-recipes/turtlebot3-home-service-challenge/"]
+    - [
+        BBMASK:append,
+        " generated-recipes/turtlebot3-manipulation/turtlebot3-manipulation-navigation2_",
+      ]
+    - [BBMASK:append, " generated-recipes/neo-nav2-bringup/"]
+    - [BBMASK:append, " generated-recipes/ai-worker/ffw-navigation_"]
+
+    - [
+        IMAGE_INSTALL:append,
+        " autoware-auto-msgs \
+        autoware-control-msgs \
+        autoware-vehicle-msgs \
+        cv-bridge \
+        pcl-ros \
+        sensor-msgs \
+        sensor-msgs-py \
+        ros2cli \
+        python3-rosdep \
+        python3-colcon-ros \
+        rmw-cyclonedds-cpp \
+        python3-jsonschema \
+        rosidl-core-generators \
+        python3-ultralytics \
+        python3-boto3 \
+        ",
+      ]
+
+    - [LICENSE_FLAGS_ACCEPTED:append, " commercial synaptics-killswitch"]
+
+    - [PACKAGECONFIG:append:pn-clang, "  libomp"]
+    - [FORTRAN:forcevariable, ",fortran"]
+    - [RUNTIMETARGET:append:pn-gcc-runtime, " libquadmath"]
+    - [HOSTTOOLS:append, " gfortran"]
+    - [ZENOH_SHARED_MEMORY, "true"]
+    - [ZENOH_UNSTABLE_API, "true"]
+    - [INSANE_SKIP:pn-zenoh-c, "buildpaths"]
+    # Needed for scarthgap
+    - [DEBUG_PREFIX_MAP:remove:pn-zenoh-c, "-fcanon-prefix-map"]
+    - [DEBUG_PREFIX_MAP:remove:pn-zenoh-c-native, "-fcanon-prefix-map"]
+    - [BB_NUMBER_THREADS, "4"]
+
+    - [DISTRO_FEATURES:append, " usrmerge"]
+
+    - [ROS_IMAGE_BASENAME_APPEND, ""]
+
+    # Add ROS2 Jazzy dependencies to the SDK
+    - [
+        TOOLCHAIN_HOST_TASK:append,
+        "  nativesdk-ros-sdk-env nativesdk-python3-colcon-cmake nativesdk-nlohmann-json nativesdk-python-cmake-module",
+      ]
+
+    - [TOOLCHAIN_TARGET_TASK:append, " nlohmann-json-dev"]
+
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
+    # - "../meta-openembedded/meta-gnome"
+    - "../meta-openembedded/meta-initramfs"
+    - "../meta-openembedded/meta-multimedia"
     - "../meta-openembedded/meta-networking"
     - "../meta-openembedded/meta-oe"
     - "../meta-openembedded/meta-perl"
     - "../meta-openembedded/meta-python"
+    - "../meta-openembedded/meta-webserver"
+    # - "../meta-openembedded/meta-xfce"
+
+    - "../meta-zenoh/meta-zenoh"
+    - "../meta-ros/meta-ros-common"
+    - "../meta-ros/meta-ros2"
+    - "../meta-ros/meta-ros2-jazzy"
+
+    - "../meta-clang-revival"
+    - "../meta-python-ai"
+    - "../meta-clang"
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
+    # - "../meta-qt5"
+    - "../meta-intel-realsense"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
     - "../meta-aos-vm/meta-aos-vm-main"
