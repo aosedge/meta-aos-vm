@@ -85,8 +85,8 @@ common_data:
       rev: "develop"
 
     - type: git
-      url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      url: "https://github.com/mlohvynenko/meta-aos-vm"
+      rev: "feature_ros"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
