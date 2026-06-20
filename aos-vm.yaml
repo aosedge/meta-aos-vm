@@ -218,6 +218,8 @@ common_data:
 
     - [DISTRO_FEATURES:append, " usrmerge"]
 
+    - [ROS_IMAGE_BASENAME_APPEND, ""]
+
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
     # - "../meta-openembedded/meta-gnome"
