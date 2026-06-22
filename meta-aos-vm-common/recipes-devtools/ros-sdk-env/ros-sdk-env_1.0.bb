@@ -32,6 +32,7 @@ do_install:append:class-nativesdk () {
     echo "export PYTHON3_NUMPY_INCLUDE_DIR="'$OECORE_TARGET_SYSROOT'"/usr/lib/python${PYTHON_BASEVERSION}/site-packages/numpy/core/include" >> ${S}/ros-sdk-env.sh
     echo "export PYTHONWARNINGS=ignore" >> ${S}/ros-sdk-env.sh
     echo "export AMENT_SKIP_SHELL_PATH=1" >> ${S}/ros-sdk-env.sh
+    echo "export AMENT_PREFIX_PATH="'$OECORE_TARGET_SYSROOT'"/opt/ros/jazzy:"'$AMENT_PREFIX_PATH' >> ${S}/ros-sdk-env.sh
     echo "export AMENT_PREFIX_PATH="'$OECORE_TARGET_SYSROOT'"/opt/ros/jazzy/usr/share:"'$AMENT_PREFIX_PATH' >> ${S}/ros-sdk-env.sh
     echo "export AMENT_PREFIX_PATH="'$OECORE_TARGET_SYSROOT'"/opt/ros/jazzy/lib/cmake:"'$AMENT_PREFIX_PATH' >> ${S}/ros-sdk-env.sh
 
