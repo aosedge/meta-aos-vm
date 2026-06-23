@@ -189,8 +189,9 @@ common_data:
 
     - [
         IMAGE_INSTALL:append,
-        "autoware-auto-msgs \
+        " autoware-auto-msgs \
         autoware-control-msgs \
+        autoware-vehicle-msgs \
         cv-bridge \
         pcl-ros \
         sensor-msgs \
@@ -199,6 +200,9 @@ common_data:
         python3-rosdep \
         python3-colcon-ros \
         rmw-cyclonedds-cpp \
+        python3-jsonschema \
+        rosidl-core-generators \
+        python3-ultralytics \
         ",
       ]
 
