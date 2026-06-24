@@ -30,6 +30,14 @@ IMAGE_INSTALL:append = " \
     wget \
 "
 
+# Python packages required by the ROS2 application
+IMAGE_INSTALL:append = " \
+    python3-ultralytics \
+    python3-valkey \
+"
+
+# python3-open3d
+
 # Set fixed rootfs size
 IMAGE_ROOTFS_SIZE ?= "10485760"
 IMAGE_OVERHEAD_FACTOR ?= "1.0"
