@@ -2,22 +2,21 @@
 
 The FOTA bundle is generated based on the selected node type. Therefore, it is essential to select the appropriate node
 type before generating the FOTA bundle. If a build was previously performed for a different node type, ensure you select
-the desired node type before executing the `moulin` command to generate the FOTA bundle:
+the desired node type before executing the `moulin` command to generate the FOTA bundle for main node:
 
 ```sh
 moulin aos-vm.yaml --NODE_TYPE=main
+ninja fota
 ```
 
-Generating FOTA bundle with full rootfs update:
+The FOTA bundles should be located in `output/fota` folder.
+
+To generate the FOTA bundle for the secondary node, switch to the secondary node type and execute the `ninja fota`
+command:
 
 ```sh
-ninja fota-full
-```
-
-Generate FOTA bundler with incremental rootfs update:
-
-```sh
-ninja fota-incremental
+moulin aos-vm.yaml --NODE_TYPE=secondary
+ninja fota
 ```
 
 The FOTA bundles should be located in `output/fota` folder.
@@ -30,8 +29,8 @@ This `fota` section specifies the Aos system component types for which FOTA upda
 ```yaml
 variables:
   ...
-  BUNDLE_IMAGE_VERSION: "4.2.1"
-  ROOTFS_REF_VERSION: "4.1.0"
+  BUNDLE_IMAGE_VERSION: "6.1.0"
+  ROOTFS_REF_VERSION: "6.0.0"
   ...
 components:
   ...
@@ -40,17 +39,17 @@ components:
       ...
       components:
         boot:
-        ...
-        enabled: true
-        ...
+          ...
+          enabled: true
+          ...
         rootfs-full:
-        ...
-        enabled: true
-        ...
+          ...
+          enabled: true
+          ...
         rootfs-incremental:
-        ...
-        enabled: false
-        ...
+          ...
+          enabled: false
+          ...
 ```
 
 By default, the FOTA bundle includes update images for the following components: the bootloader
