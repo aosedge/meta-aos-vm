@@ -3,7 +3,7 @@
 The following steps should be performed to deploy Bosch demo services on Aos VM:
 
 1. Start Bosch demo VM and provision the unit:
-   https://github.com/aosedge/meta-aos-vm/releases/download/v6.1.0-bosch.1/aos-vm-image-genericx86-64-6.1.0-bosch.1.tar.xz
+   https://github.com/aosedge/meta-aos-vm/releases/download/v6.1.0-bosch.2/aos-vm-image-genericx86-64-6.1.0-bosch.2.tar.xz
 
 2. Deploy the unit config to your target:
 
@@ -16,12 +16,12 @@ The following steps should be performed to deploy Bosch demo services on Aos VM:
 3. Deploy the required Aos layers to the AosCloud:
 
    * download the require layers:
-     https://github.com/aosedge/meta-aos-vm/releases/download/v6.1.0-bosch.1/aos-vm-layers-genericx86-64-6.1.0-bosch.1.tar.gz
+     https://github.com/aosedge/meta-aos-vm/releases/download/v6.1.0-bosch.2/aos-vm-layers-genericx86-64-6.1.0-bosch.2.tar.gz
 
    * unpack the layers:
 
    ```console
-   tar -xvf aos-vm-layers-genericx86-64-6.1.0-bosch.1.tar.gz
+   tar -xvf aos-vm-layers-genericx86-64-6.1.0-bosch.2.tar.gz
    ```
 
    * deploy the layers to the AosCloud:
