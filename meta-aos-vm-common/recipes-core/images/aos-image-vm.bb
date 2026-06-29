@@ -32,6 +32,13 @@ IMAGE_INSTALL:append:aws-ec2 = " \
     cloud-init \
 "
 
+# Packages needed by ROS2 packages
+IMAGE_INSTALL:append = " \
+    autoware-auto-msgs \
+    autoware-control-msgs \
+    autoware-vehicle-msgs \
+"
+
 TOOLCHAIN_HOST_TASK:append = " \
     nativesdk-ros-sdk-env \
     nativesdk-python3-colcon-cmake \
