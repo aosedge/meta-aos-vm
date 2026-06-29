@@ -15,7 +15,7 @@ dhcp_start="${ip_base}.101"
 dhcp_end="${ip_base}.254"
 gateway="${ip_base}.1"
 
-cpu=1
+cpu=4
 mem="8G"
 
 machine="genericx86-64"
