@@ -325,6 +325,10 @@ components:
             target: "aos-mqtt-layer"
             version: "%{BUNDLE_IMAGE_VERSION}"
 
+          open3d:
+            target: "aos-open3d-layer"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+
   fota:
     builder:
       type: custom_script
