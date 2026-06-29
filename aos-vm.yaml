@@ -333,6 +333,10 @@ components:
             target: "aos-rosbag-layer"
             version: "%{BUNDLE_IMAGE_VERSION}"
 
+          valkey:
+            target: "aos-valkey-layer"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+
   fota:
     builder:
       type: custom_script
