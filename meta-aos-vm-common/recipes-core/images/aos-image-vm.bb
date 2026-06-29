@@ -7,7 +7,6 @@ ROS_DISTRO = "jazzy"
 ROS_WORLD_SKIP_GROUPS:append = " moveit fortran qt5 ogre webots-python-modules opengl x11 gazebo gazebo11 hunter"
 
 require recipes-core/images/aos-image.inc
-require recipes-core/images/ros-image-core.bb
 
 inherit core-image extrausers
 
@@ -19,6 +18,7 @@ EXTRA_USERS_PARAMS = "usermod -p '\$6\$1A1UsrSPWS8nQFZP\$dI8sN.4/y00EWaLEN22tWcL
 
 # System packages
 IMAGE_INSTALL:append = " \
+    ros-core \
     bash \
     iperf3 \
     iproute2 \
@@ -28,25 +28,25 @@ IMAGE_INSTALL:append = " \
     openssh \
     tzdata \
     wget \
+    redis \
 "
 
 # Python packages required by the ROS2 application
 IMAGE_INSTALL:append = " \
-    python3-ultralytics \
-    python3-valkey \
-    python3-open3d \
-    python3-plotly \
-    python3-dash \
-    python3-botocore \
-    python3-scikit-learn \
-    python3-addict \
-    python3-paho-mqtt \
-    redis \
-    python3-yolov5 \
-    rosbag2 \
+    autoware-auto-msgs \
+    autoware-control-msgs \
+    autoware-vehicle-msgs \
+    cv-bridge \
+    pcl-ros \
+    sensor-msgs \
+    sensor-msgs-py \
+    ros2cli \
+    python3-rosdep \
+    python3-colcon-ros \
+    rmw-cyclonedds-cpp \
+    python3-jsonschema \
+    rosidl-core-generators \
 "
-
-# python3-open3d
 
 # Set fixed rootfs size
 IMAGE_ROOTFS_SIZE ?= "15728640"

@@ -237,7 +237,6 @@ common_data:
 
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
-    # - "../meta-openembedded/meta-gnome"
     - "../meta-openembedded/meta-initramfs"
     - "../meta-openembedded/meta-multimedia"
     - "../meta-openembedded/meta-networking"
@@ -245,7 +244,6 @@ common_data:
     - "../meta-openembedded/meta-perl"
     - "../meta-openembedded/meta-python"
     - "../meta-openembedded/meta-webserver"
-    # - "../meta-openembedded/meta-xfce"
 
     - "../meta-zenoh/meta-zenoh"
     - "../meta-ros/meta-ros-common"
@@ -258,7 +256,6 @@ common_data:
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
-    # - "../meta-qt5"
     - "../meta-intel-realsense"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
@@ -348,12 +345,36 @@ components:
         build_dir: "build-%{NODE_TYPE}"
         base_image: "%{AOS_BASE_IMAGE}"
         items:
-          kuksa-client:
-            target: "aos-kuksa-client-layer"
+          # kuksa-client:
+          #   target: "aos-kuksa-client-layer"
+          #   version: "1.0.0"
+
+          # pylibs:
+          #   target: "aos-pylibs-layer"
+          #   version: "1.0.0"
+
+          boto3:
+            target: "aos-boto3-layer"
             version: "1.0.0"
 
-          pylibs:
-            target: "aos-pylibs-layer"
+          ml:
+            target: "aos-ml-layer"
+            version: "1.0.0"
+
+          mqtt:
+            target: "aos-mqtt-layer"
+            version: "1.0.0"
+
+          open3d:
+            target: "aos-open3d-layer"
+            version: "1.0.0"
+
+          rosbag:
+            target: "aos-rosbag-layer"
+            version: "1.0.0"
+
+          valkey:
+            target: "aos-valkey-layer"
             version: "1.0.0"
 
   fota:
