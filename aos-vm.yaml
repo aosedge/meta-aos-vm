@@ -329,6 +329,10 @@ components:
             target: "aos-open3d-layer"
             version: "%{BUNDLE_IMAGE_VERSION}"
 
+          rosbag:
+            target: "aos-rosbag-layer"
+            version: "%{BUNDLE_IMAGE_VERSION}"
+
   fota:
     builder:
       type: custom_script
