@@ -53,6 +53,30 @@ common_data:
       rev: "48f745109a1ecea9afe2a74d41dbd90fa7b370af"
 
     - type: git
+      url: "https://github.com/kraj/meta-clang.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/ros/meta-ros.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/zboszor/meta-clang-revival"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/zboszor/meta-python-ai"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/robwoolley/meta-intel-realsense.git"
+      rev: "scarthgap"
+
+    - type: git
+      url: "https://github.com/Jarsop/meta-zenoh.git"
+      rev: "scarthgap"
+
+    - type: git
       url: "https://github.com/aosedge/meta-aos"
       rev: "v9.1.1-rc.1"
 
@@ -123,14 +147,24 @@ common_data:
 
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
+    - "../meta-openembedded/meta-initramfs"
     - "../meta-openembedded/meta-networking"
     - "../meta-openembedded/meta-multimedia"
     - "../meta-openembedded/meta-oe"
     - "../meta-openembedded/meta-perl"
     - "../meta-openembedded/meta-python"
+    - "../meta-openembedded/meta-webserver"
+    - "../meta-zenoh/meta-zenoh"
+    - "../meta-ros/meta-ros-common"
+    - "../meta-ros/meta-ros2"
+    - "../meta-ros/meta-ros2-jazzy"
+    - "../meta-clang-revival"
+    - "../meta-python-ai"
+    - "../meta-clang"
     - "../meta-security"
     - "../meta-selinux"
     - "../meta-virtualization"
+    - "../meta-intel-realsense"
     - "../meta-aos"
     - "../meta-aos-vm/meta-aos-vm-common"
     - "../meta-aos-vm/meta-aos-vm-main"
