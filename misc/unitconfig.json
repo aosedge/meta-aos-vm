@@ -1,14 +1,14 @@
 {
     "nodes": [
         {
-            "nodeType": "aos-vm-main",
+            "nodeType": "aos-ros-vm-main",
             "labels": [
                 "main"
             ],
             "priority": 100
         },
         {
-            "nodeType": "aos-vm-secondary",
+            "nodeType": "aos-ros-vm-secondary",
             "labels": [
                 "secondary"
             ],
