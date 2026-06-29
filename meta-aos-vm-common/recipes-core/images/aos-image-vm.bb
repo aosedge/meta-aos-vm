@@ -43,6 +43,7 @@ IMAGE_INSTALL:append = " \
     pcl-ros \
     sensor-msgs \
     sensor-msgs-py \
+    redis \
 "
 
 TOOLCHAIN_HOST_TASK:append = " \
