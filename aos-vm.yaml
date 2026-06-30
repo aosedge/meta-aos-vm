@@ -196,6 +196,8 @@ common_data:
     - [PREFERRED_VERSION_python3-boto3, "1.34.131"]
     - [PREFERRED_VERSION_python3-botocore, "1.34.131"]
 
+    - [LICENSE_FLAGS_ACCEPTED:append, " commercial synaptics-killswitch"]
+
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-initramfs"
