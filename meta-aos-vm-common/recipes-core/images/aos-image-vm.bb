@@ -49,6 +49,11 @@ TOOLCHAIN_HOST_TASK:append = " \
     nativesdk-ros-sdk-env \
     nativesdk-python3-colcon-cmake \
     nativesdk-python-cmake-module \
+    ${ROS_SDK_HOST_PACKAGES} \
+"
+
+TOOLCHAIN_TARGET_TASK:append = " \
+    ${ROS_SDK_TARGET_PACKAGES} \
 "
 
 # Set fixed rootfs size
