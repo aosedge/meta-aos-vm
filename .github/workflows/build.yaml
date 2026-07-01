@@ -51,7 +51,7 @@ jobs:
       matrix:
         # The list of supported machines:
         # genericx86-64, qemux86-64, genericarm64, qemuarm64
-        machine: [genericx86-64, qemux86-64, qemuarm64]
+        machine: [aws-ec2-x86-64]
 
     steps:
       - name: Checkout
@@ -85,33 +85,37 @@ jobs:
 
           echo "Build main node artifacts"
 
-          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
-            --CACHE_LOCATION=inside
+          # Run all build steps in a single container to avoid repeated recipe parsing
+          docker run \
+            -v "$(pwd)/build":/home/yocto/workspace \
+            -u "$(id -u):$(id -g)" \
+            --rm aos_vm_yocto:latest \
+            bash -c "
+              set -e
+              cd /home/yocto/workspace
 
-          docker/run_docker.sh -n -w build -- ninja "main-${machine}.img"
-          docker/run_docker.sh -n -w build -- ninja layers
-          docker/run_docker.sh -n -w build -- ninja fota
+              echo '=== Configuring main node ==='
+              moulin aos-vm.yaml --NODE_TYPE=main --MACHINE=${machine} --CACHE_LOCATION=inside
+
+              echo '=== Building main image ==='
+              ninja main-${machine}.img
+
+              echo '=== Building layers ==='
+              ninja layers
+
+              echo '=== Building fota ==='
+              ninja fota
+
+              echo '=== Configuring main node with message proxy ==='
+              moulin aos-vm.yaml --NODE_TYPE=main --MACHINE=${machine} --WITH_MESSAGE_PROXY=yes --CACHE_LOCATION=inside
+
+              echo '=== Building SDK ==='
+              ninja aos-sdk
+            "
 
           if [ -d build/output/fota ]; then
             echo "Archive main node components"
             (cd build && tar -czf "output/aos-vm-fota-main-${machine}-${version}.tar.gz" -C output fota)
-          fi
-
-          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=main --MACHINE="$machine" \
-            --WITH_MESSAGE_PROXY=yes --CACHE_LOCATION=inside
-
-          docker/run_docker.sh -n -w build -- ninja aos-sdk
-
-          echo "Build secondary node artifacts"
-
-          docker/run_docker.sh -n -w build -- moulin aos-vm.yaml --NODE_TYPE=secondary --MACHINE="$machine" \
-            --CACHE_LOCATION=inside
-          docker/run_docker.sh -n -w build -- ninja "secondary-${machine}.img"
-          docker/run_docker.sh -n -w build -- ninja fota
-
-          if [ -d build/output/fota ]; then
-            echo "Archive secondary node components"
-            (cd build && tar -czf "output/aos-vm-fota-secondary-${machine}-${version}.tar.gz" -C output fota)
           fi
 
           echo "Archive image"
@@ -126,7 +130,7 @@ jobs:
               disk_format="vmdk"
           fi
 
-          yocto/meta-aos-vm/scripts/aos_vm.sh archive -m -s 1 --machine "$machine" -d "$disk_format" -c xz \
+          yocto/meta-aos-vm/scripts/aos_vm.sh archive -m --machine "$machine" -d "$disk_format" -c xz \
             -o output/image -f "aos-vm-image-${machine}-${version}"
 
           if [ -d output/layers ]; then
@@ -158,10 +162,6 @@ jobs:
 
           if [ -f "build/output/aos-vm-fota-main-${machine}-${version}.tar.gz" ]; then
             gh release upload "$tag" "build/output/aos-vm-fota-main-${machine}-${version}.tar.gz"
-          fi
-
-          if [ -f "build/output/aos-vm-fota-secondary-${machine}-${version}.tar.gz" ]; then
-            gh release upload "$tag" "build/output/aos-vm-fota-secondary-${machine}-${version}.tar.gz"
           fi
 
           for file in build/output/sdk/*.sh; do
