@@ -198,6 +198,8 @@ common_data:
 
     - [LICENSE_FLAGS_ACCEPTED:append, " commercial synaptics-killswitch"]
 
+    - [AOS_VAR_PART_SIZE, "16777216"]
+
   main_layers: &MAIN_LAYERS
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-initramfs"
