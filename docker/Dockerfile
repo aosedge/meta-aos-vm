@@ -14,6 +14,11 @@ RUN apt-get update && apt-get --fix-missing install -y \
 
 RUN apt-get install --reinstall -y ca-certificates
 
+RUN apt-get install  -y git diffstat \
+    python3-pexpect xz-utils debianutils iputils-ping \
+    python3-git python3-jinja2 libegl1-mesa \
+    g++-multilib lsb-release python3-distutils time gfortran
+
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 
