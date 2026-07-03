@@ -44,6 +44,7 @@ IMAGE_INSTALL:append = " \
     sensor-msgs \
     sensor-msgs-py \
     redis \
+    python3-jsonschema \
 "
 
 TOOLCHAIN_HOST_TASK:append = " \
