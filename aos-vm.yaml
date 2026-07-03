@@ -82,6 +82,9 @@ common_data:
     - [DISTRO_FEATURES:append, " security"]
     - [PREFERRED_PROVIDER_virtual/refpolicy, "refpolicy-aos"]
 
+    # Enable virtualization
+    - [DISTRO_FEATURES:append, " virtualization"]
+
     # Init manager
     - [INIT_MANAGER, "systemd"]
 
@@ -122,6 +125,7 @@ common_data:
     - "../meta-openembedded/meta-filesystems"
     - "../meta-openembedded/meta-multimedia"
     - "../meta-openembedded/meta-networking"
+    - "../meta-openembedded/meta-multimedia"
     - "../meta-openembedded/meta-oe"
     - "../meta-openembedded/meta-perl"
     - "../meta-openembedded/meta-python"
