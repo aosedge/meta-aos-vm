@@ -26,6 +26,11 @@ IMAGE_INSTALL:append = " \
     wget \
 "
 
+# AWS packages
+IMAGE_INSTALL:append:aws-ec2 = " \
+    cloud-init \
+"
+
 # Set fixed rootfs size
 IMAGE_ROOTFS_SIZE ?= "1048576"
 IMAGE_OVERHEAD_FACTOR ?= "1.0"

@@ -32,23 +32,25 @@ parameters. You can check them with`--help-config` command line option:
 
 ```sh
 moulin aos-vm.yaml --help-config
-usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}] [--NODE_TYPE {main,secondary}] [--WITH_MESSAGE_PROXY {yes,no}]
+usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64,aws-ec2-x86-64}] [--NODE_TYPE {main,secondary}] [--USE_DHCP {yes,no}] [--WITH_MESSAGE_PROXY {yes,no}]
+                          [--CACHE_LOCATION {outside,inside}]
 
 Config file description: Aos virtual development machine
 
 options:
-  --MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64}
+  --MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64,aws-ec2-x86-64}
                         Aos VM machine type (default: genericx86-64)
   --NODE_TYPE {main,secondary}
                         Node type to build (default: main)
+  --USE_DHCP {yes,no}   Use DHCP for network configuration (default: no)
   --WITH_MESSAGE_PROXY {yes,no}
                         Enable Aos message proxy (default: no)
   --CACHE_LOCATION {outside,inside}
                         Indicated where cache and downloads are stored: inside build dir or outside. (default: outside)
 ```
 
-* `MACHINE` specifies target machine. Currently, `genericx86-64`, `qemux86-64`, `genericarm64`, `qemuarm64` are
-supported.
+* `MACHINE` specifies target machine. Currently, `genericx86-64`, `qemux86-64`, `genericarm64`, `qemuarm64`,
+  `aws-ec2-x86-64` are supported.
 
 * `NODE_TYPE` specifies the node to build: `main` - main node in multi-node VM, `secondary` -
 secondary node in multi-node VM. By default, main node is built.
