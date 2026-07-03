@@ -24,6 +24,7 @@ IMAGE_INSTALL:append = " \
     openssh \
     tzdata \
     wget \
+    smem \
 "
 
 # AWS packages
