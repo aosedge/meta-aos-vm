@@ -26,6 +26,7 @@ IMAGE_INSTALL:append = " \
     sockperf \
     tzdata \
     wget \
+    smem \
 "
 
 # AWS packages
