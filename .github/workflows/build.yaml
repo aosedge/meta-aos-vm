@@ -98,7 +98,7 @@ jobs:
               cd /home/yocto/workspace
 
               echo '=== Configuring main node ==='
-              moulin aos-vm.yaml --NODE_TYPE=main --MACHINE=${machine} --CACHE_LOCATION=inside
+              moulin aos-vm.yaml --NODE_TYPE=main --MACHINE=${machine} --CACHE_LOCATION=inside --USE_DHCP yes
 
               echo '=== Building main image ==='
               ninja main-${machine}.img
