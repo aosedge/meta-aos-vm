@@ -82,7 +82,7 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v6.1.1-rc.1"
+      rev: "demo_ros"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
