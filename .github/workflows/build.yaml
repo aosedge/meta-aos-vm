@@ -85,14 +85,23 @@ jobs:
 
           echo "Build main node artifacts"
 
-          # Run all build steps in a single container to avoid repeated recipe parsing
+          # EFS cache is mounted at /home/runner/_cache on the host pod.
+          # Mount it into the container and rsync sstate before/after build.
+          # This avoids tmpfs memory accounting issues on the runner container.
+          BUILD_EXIT=0
           docker run \
             -v "$(pwd)/build":/home/yocto/workspace \
+            -v /home/runner/_cache:/cache \
             -u "$(id -u):$(id -g)" \
             --rm aos_vm_yocto:latest \
             bash -c "
               set -e
               cd /home/yocto/workspace
+
+              echo '=== Syncing sstate from EFS cache ==='
+              mkdir -p common_data/sstate
+              rsync -a --info=progress2 --no-group /cache/sstate/ common_data/sstate/ || true
+              echo \"Sstate cache size: \$(du -sh common_data/sstate/ | cut -f1)\"
 
               echo '=== Configuring main node ==='
               moulin aos-vm.yaml --NODE_TYPE=main --MACHINE=${machine} --CACHE_LOCATION=inside --USE_DHCP yes
@@ -111,7 +120,16 @@ jobs:
 
               echo '=== Building SDK ==='
               ninja aos-sdk
-            "
+
+              echo '=== Syncing sstate back to EFS ==='
+              rsync -a --info=progress2 --no-group common_data/sstate/ /cache/sstate/ || true
+              echo \"EFS sstate size: \$(du -sh /cache/sstate/ | cut -f1)\"
+            " || BUILD_EXIT=$?
+
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "Build failed with exit code $BUILD_EXIT"
+            exit $BUILD_EXIT
+          fi
 
           if [ -d build/output/fota ]; then
             echo "Archive main node components"
@@ -126,7 +144,7 @@ jobs:
 
           if [[ $machine == "qemu"* ]]; then
               disk_format="qcow2"
-          else if [[ $machine == "aws"* ]]; then
+          elif [[ $machine == "aws"* ]]; then
               disk_format="vpc"
           else
               disk_format="vmdk"
