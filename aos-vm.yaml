@@ -6,7 +6,7 @@ variables:
   UNIT_MODEL: "aos-bosch-vm"
   UNIT_VERSION: "1.0.0"
 
-  BUNDLE_IMAGE_VERSION: "6.1.0-bosch.1"
+  BUNDLE_IMAGE_VERSION: "6.1.1-bosch.1"
   ROOTFS_REF_VERSION: "6.0.0"
 
   # Aos node configuration
@@ -34,7 +34,7 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "7d50718f90c51fb7f650c9db59b28c6e0194e5d2"
+      rev: "5087e4b4a0bf1323ba54cfba7d85fa0e772380a5"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
@@ -62,7 +62,7 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v9.1.0"
+      rev: "v9.1.1-rc.1"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
@@ -230,7 +230,7 @@ components:
             target: "aos-kuksa-client-layer"
             version: "%{BUNDLE_IMAGE_VERSION}"
 
-          zenoh-client  :
+          zenoh-client:
             target: "aos-zenoh-client-layer"
             version: "%{BUNDLE_IMAGE_VERSION}"
 
