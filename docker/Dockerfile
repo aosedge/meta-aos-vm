@@ -4,6 +4,8 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+ARG MOULIN_VERSION=v0.31
+
 # Temporarily switch to US mirror
 RUN sed -i 's;http://archive.ubuntu.com/;http://us.archive.ubuntu.com/;' /etc/apt/sources.list
 
@@ -43,7 +45,7 @@ RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
 USER $USER_NAME
 
 # Install moulin
-RUN pip3 install --user https://github.com/xen-troops/moulin/archive/refs/tags/v0.31.tar.gz
+RUN pip3 install --user "https://github.com/xen-troops/moulin/archive/refs/tags/${MOULIN_VERSION}.tar.gz"
 
 # Install python packages
 RUN pip3 install --user pydantic
