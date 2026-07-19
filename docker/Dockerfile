@@ -43,7 +43,7 @@ RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
 USER $USER_NAME
 
 # Install moulin
-RUN pip3 install --user git+https://github.com/xen-troops/moulin
+RUN pip3 install --user https://github.com/xen-troops/moulin/archive/refs/heads/main.tar.gz
 
 # Install python packages
 RUN pip3 install --user pydantic
