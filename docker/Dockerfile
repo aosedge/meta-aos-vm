@@ -4,6 +4,7 @@ FROM ubuntu:22.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Moulin release tag used for installation
 ARG MOULIN_VERSION=v0.31
 
 # Temporarily switch to US mirror
