@@ -68,9 +68,16 @@ echo "Workspace:         $WORKSPACE"
 
 mkdir -p "$WORKSPACE"
 
+# Pass GITHUB_TOKEN if available for git authentication
+ENV_ARGS=""
+if [ -n "$GITHUB_TOKEN" ]; then
+    ENV_ARGS="-e GITHUB_TOKEN"
+fi
+
 # Run docker image
 docker run \
     -v "${WORKSPACE}":/home/yocto/workspace \
     -u "$(id -u):$(id -g)" \
+    ${ENV_ARGS} \
     ${INTERACTIVE:+-it} \
     --rm "$DOCKER_IMAGE_NAME" "$@"

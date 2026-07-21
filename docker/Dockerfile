@@ -30,6 +30,10 @@ ENV USER_NAME=yocto
 ARG USER_ID=1000
 ARG USER_GID=1000
 
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Creating the user
 RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
     useradd \
@@ -55,3 +59,5 @@ ENV BUILD_DIR="/home/$USER_NAME/workspace"
 ENV PATH="${PATH}:/home/${USER_NAME}/.local/bin"
 
 WORKDIR $BUILD_DIR
+
+ENTRYPOINT ["entrypoint.sh"]
