@@ -64,6 +64,8 @@ jobs:
         uses: ./.github/workflows/common
 
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           tag="${{needs.prepare.outputs.tag }}"
           version="${{ needs.prepare.outputs.version }}"
@@ -81,7 +83,14 @@ jobs:
           sed -i "s/BUNDLE_IMAGE_VERSION: \"[^\"]*\"/BUNDLE_IMAGE_VERSION: \"$version\"/" build/aos-vm.yaml
           sed -i "s/ROOTFS_REF_VERSION: \"[^\"]*\"/ROOTFS_REF_VERSION: \"$prev_version\"/" build/aos-vm.yaml
 
+          # Configure git credentials inside the workspace for docker containers
+          git config -f build/.gitconfig url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          chmod 600 build/.gitconfig
+
           docker/build_docker.sh -f docker/Dockerfile
+
+          # Debug: verify git config is visible inside container
+          docker/run_docker.sh -n -w build -- sh -c "echo HOME=\$HOME; cat /etc/gitconfig 2>&1; echo '---CURL TEST---'; curl -s -o /dev/null -w '%{http_code}' 'https://github.com/aosedge/meta-aos/info/refs?service=git-upload-pack'; echo; echo '---GIT CLONE TEST---'; git clone --no-checkout -q https://github.com/aosedge/meta-aos /tmp/test-clone 2>&1; echo EXIT=\$?"
 
           echo "Build main node artifacts"
 

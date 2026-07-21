@@ -68,9 +68,16 @@ echo "Workspace:         $WORKSPACE"
 
 mkdir -p "$WORKSPACE"
 
+# Mount git credentials if available in workspace
+GIT_CREDENTIAL_MOUNT=""
+if [ -f "${WORKSPACE}/.gitconfig" ]; then
+    GIT_CREDENTIAL_MOUNT="-v ${WORKSPACE}/.gitconfig:/etc/gitconfig:ro"
+fi
+
 # Run docker image
 docker run \
     -v "${WORKSPACE}":/home/yocto/workspace \
+    ${GIT_CREDENTIAL_MOUNT} \
     -u "$(id -u):$(id -g)" \
     ${INTERACTIVE:+-it} \
     --rm "$DOCKER_IMAGE_NAME" "$@"
