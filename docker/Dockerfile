@@ -30,6 +30,10 @@ ENV USER_NAME=yocto
 ARG USER_ID=1000
 ARG USER_GID=1000
 
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Creating the user
 RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
     useradd \
@@ -43,7 +47,7 @@ RUN groupadd --gid "${USER_GID}" "${USER_NAME}" && \
 USER $USER_NAME
 
 # Install moulin
-RUN pip3 install --user git+https://github.com/xen-troops/moulin
+RUN pip3 install --user https://github.com/xen-troops/moulin/archive/refs/heads/master.tar.gz
 
 # Install python packages
 RUN pip3 install --user pydantic
@@ -55,3 +59,5 @@ ENV BUILD_DIR="/home/$USER_NAME/workspace"
 ENV PATH="${PATH}:/home/${USER_NAME}/.local/bin"
 
 WORKDIR $BUILD_DIR
+
+ENTRYPOINT ["entrypoint.sh"]

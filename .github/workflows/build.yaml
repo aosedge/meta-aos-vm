@@ -64,6 +64,8 @@ jobs:
         uses: ./.github/workflows/common
 
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           tag="${{needs.prepare.outputs.tag }}"
           version="${{ needs.prepare.outputs.version }}"
