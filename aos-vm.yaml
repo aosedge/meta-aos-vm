@@ -6,7 +6,7 @@ variables:
   UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0.0"
 
-  BUNDLE_IMAGE_VERSION: "6.1.1-rc.1"
+  BUNDLE_IMAGE_VERSION: "6.1.1"
   ROOTFS_REF_VERSION: "6.1.0"
 
   # Aos node configuration
@@ -34,31 +34,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "6ccffb86e86b4d41f61dc0c06c2b732c72676537"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "7eb94107580092f79ff1b639a87762fe6f96aa12"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "f851f730ec415d266bfe0c5941c228a63a896298"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "b13f1705d723650de61277670c8a76aadea4cfdd"
+      rev: "scarthgap"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "48f745109a1ecea9afe2a74d41dbd90fa7b370af"
+      rev: "scarthgap"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v9.1.1-rc.1"
+      rev: "develop"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v6.1.1-rc.1"
+      rev: "develop"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -396,7 +396,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "23b572c40ea6709ab3f8bd7abbb5a795fc3631c2"
+              rev: "scarthgap"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -424,7 +424,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "23b572c40ea6709ab3f8bd7abbb5a795fc3631c2"
+              rev: "scarthgap"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -452,7 +452,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://github.com/aws4embeddedlinux/meta-aws.git"
-              rev: "6cad2b1795cc76cc8e994d472926256485943fc6"
+              rev: "scarthgap"
 
           common_conf:
             - [MACHINE_FEATURES:append, " efi"]
