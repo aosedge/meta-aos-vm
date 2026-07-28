@@ -9,4 +9,5 @@ AOS_LAYER_FEATURES += " \
     python3-scikit-learn \
     python3-addict \
     python3-yolov5 \
+    python3-open3d \
 "
