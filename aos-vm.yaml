@@ -315,27 +315,27 @@ components:
 
           pylibs:
             target: "aos-pylibs-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
           boto3:
             target: "aos-boto3-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
           ml:
             target: "aos-ml-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
           mqtt:
             target: "aos-mqtt-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
           rosbag:
             target: "aos-rosbag-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
           valkey:
             target: "aos-valkey-layer"
-            version: "%{BUNDLE_IMAGE_VERSION}"
+            version: "1.0.0-ros.1"
 
   fota:
     builder:
