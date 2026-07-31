@@ -1,0 +1,14 @@
+[Unit]
+Description=Prometheus Process Exporter
+Documentation=https://github.com/ncabatoff/process-exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/process-exporter --config.path=/etc/process-exporter/all.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

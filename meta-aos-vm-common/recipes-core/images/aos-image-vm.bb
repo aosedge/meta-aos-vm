@@ -21,8 +21,11 @@ IMAGE_INSTALL:append = " \
     iproute2-tc \
     mc \
     netconfig \
+    node-exporter \
     openssh \
+    process-exporter \
     tzdata \
+    victoria-metrics \
     wget \
     smem \
 "
