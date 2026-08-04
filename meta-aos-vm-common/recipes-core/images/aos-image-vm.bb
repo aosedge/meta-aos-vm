@@ -24,6 +24,7 @@ IMAGE_INSTALL:append = " \
     node-exporter \
     openssh \
     process-exporter \
+    push-profiling-annotations \
     tzdata \
     victoria-metrics \
     wget \
