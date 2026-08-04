@@ -1,0 +1,4 @@
+# Legacy local leftovers (not used by Compose)
+/storage/
+/grafana-storage.tgz
+/plugins/

@@ -1,0 +1,264 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "bftojs5svohz4c"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "red",
+        "name": "app events",
+        "tagKeys": "event,severity",
+        "target": {
+          "expr": "app_event",
+          "interval": "",
+          "refId": "Anno"
+        },
+        "textFormat": "{{msg}}",
+        "titleFormat": "{{event}}",
+        "useValueForTime": true
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bftojs5svohz4c"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 11,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "allData": {},
+        "config": {},
+        "data": [],
+        "imgFormat": "png",
+        "layout": {
+          "font": {
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "margin": {
+            "b": 40,
+            "l": 40,
+            "r": 20,
+            "t": 40
+          },
+          "title": {
+            "automargin": true
+          },
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "date"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true,
+            "tickformat": ".2f",
+            "ticksuffix": " MiB",
+            "title": {
+              "text": "Memory"
+            }
+          }
+        },
+        "onclick": "// Event handling\n/*\n// 'data', 'variables', 'options', 'utils', and 'event' are passed as arguments\n\ntry {\n  const { type: eventType, data: eventData } = event;\n  const { timeZone, dayjs, locationService, getTemplateSrv } = utils;\n\n  switch (eventType) {\n    case 'click':\n      console.log('Click event:', eventData.points);\n      break;\n    case 'select':\n      console.log('Selection event:', eventData.range);\n      break;\n    case 'zoom':\n      console.log('Zoom event:', eventData);\n      break;\n    default:\n      console.log('Unhandled event type:', eventType, eventData);\n  }\n\n  console.log('Current time zone:', timeZone);\n  console.log('From time:', dayjs(variables.__from).format());\n  console.log('To time:', dayjs(variables.__to).format());\n\n  // Example of using locationService\n  // locationService.partial({ 'var-example': 'test' }, true);\n\n} catch (error) {\n  console.error('Error in onclick handler:', error);\n}\n*/\n  ",
+        "resScale": 2,
+        "script": "const traces = [];\nconst annotations = [];\nconst shapes = [];\n\nconst CLUSTER_MS = 5000;\nconst AY_STEP = 44;\nconst AX_SIDE = 130;\n\ndata.series.forEach((s) => {\n  const time = s.fields.find((f) => f.type === 'time');\n  const value = s.fields.find((f) => f.type === 'number');\n  if (!time || !value) return;\n\n  const labels = value.labels || s.labels || {};\n  const metric = s.name || value.name || '';\n  const isEvent =\n    s.refId === 'D' ||\n    metric.includes('aos_annotations') ||\n    metric.includes('app_event') ||\n    labels.text != null ||\n    labels.event != null ||\n    labels.msg != null;\n\n  const xs = time.values.toArray();\n  const ys = value.values.toArray();\n\n  if (isEvent) {\n    for (let i = 0; i < xs.length; i++) {\n      if (ys[i] == null) continue;\n      if (i > 0 && ys[i - 1] != null && ys[i] === ys[i - 1]) continue;\n\n      const full =\n        labels.text ||\n        labels.msg ||\n        labels.event ||\n        (metric.match(/text=\"([^\"]+)\"/) || [])[1] ||\n        (metric.match(/msg=\"([^\"]+)\"/) || [])[1] ||\n        'event';\n\n      const short = full.length > 36 ? full.slice(0, 34) + '\u2026' : full;\n\n      annotations.push({\n        x: xs[i],\n        y: 1,\n        xref: 'x',\n        yref: 'paper',\n        text: short,\n        hovertext: full,\n        showarrow: true,\n        arrowhead: 2,\n        ax: 0,\n        ay: 30,\n        axref: 'pixel',\n        ayref: 'pixel',\n        xanchor: 'center',\n        yanchor: 'top',\n        bgcolor: 'rgba(0,0,0,0.85)',\n        bordercolor: 'orange',\n        borderwidth: 1,\n        font: { color: 'white', size: 11 },\n        captureevents: true,\n        cliponaxis: false,\n        _x: xs[i],\n      });\n    }\n    return;\n  }\n\n  const name =\n    s.refId === 'A' ? 'RAM used' :\n    s.refId === 'B' ? 'Swap used' :\n    s.refId === 'C' ? ('PSS ' + (labels.groupname || metric || 'aos')) :\n    labels.groupname || labels.instance || metric || 'memory';\n\n  traces.push({\n    type: 'scatter',\n    mode: 'lines',\n    name: name,\n    x: xs,\n    y: ys,\n  });\n});\n\nannotations.sort((a, b) => a._x - b._x);\n\nlet cluster = [];\nconst flush = () => {\n  if (!cluster.length) return;\n\n  shapes.push({\n    type: 'line',\n    x0: cluster[0]._x,\n    x1: cluster[0]._x,\n    xref: 'x',\n    y0: 0,\n    y1: 1,\n    yref: 'paper',\n    line: { color: 'orange', width: 1, dash: 'dot' },\n  });\n\n  cluster.forEach((ann, idx) => {\n    // positive ay = into the chart (not off the top)\n    // 2 columns: even left, odd right\n    const row = Math.floor(idx / 2);\n    ann.ay = 24 + row * AY_STEP;\n    ann.ax = (idx % 2 === 0) ? -AX_SIDE : AX_SIDE;\n    ann.xanchor = (idx % 2 === 0) ? 'right' : 'left';\n    delete ann._x;\n  });\n  cluster = [];\n};\n\nfor (const ann of annotations) {\n  if (cluster.length && ann._x - cluster[0]._x > CLUSTER_MS) flush();\n  cluster.push(ann);\n}\nflush();\n\nreturn {\n  data: traces,\n  layout: {\n    annotations,\n    shapes,\n    margin: { t: 30, r: 160, l: 160 },\n  },\n};",
+        "syncTimeRange": false,
+        "timeCol": ""
+      },
+      "pluginVersion": "1.8.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "(node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / 1024 / 1024",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "(node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / 1024 / 1024",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "namedprocess_namegroup_memory_bytes{\n  memtype=\"proportionalResident\",\n  groupname=~\"aos_cm_app|aos_sm_app|aos_iam_app\"\n} / 1024 / 1024\n",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "aos_annotations",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "RAM usage(plotly)",
+      "type": "nline-plotlyjs-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bftojs5svohz4c"
+      },
+      "description": "plot with annotations",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "allData": {},
+        "config": {},
+        "data": [],
+        "imgFormat": "png",
+        "layout": {
+          "font": {
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "margin": {
+            "b": 40,
+            "l": 40,
+            "r": 20,
+            "t": 40
+          },
+          "title": {
+            "automargin": true
+          },
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "date"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true,
+            "ticksuffix": "%",
+            "title": {
+              "text": "CPU"
+            }
+          }
+        },
+        "onclick": "// Event handling\n/*\n// 'data', 'variables', 'options', 'utils', and 'event' are passed as arguments\n\ntry {\n  const { type: eventType, data: eventData } = event;\n  const { timeZone, dayjs, locationService, getTemplateSrv } = utils;\n\n  switch (eventType) {\n    case 'click':\n      console.log('Click event:', eventData.points);\n      break;\n    case 'select':\n      console.log('Selection event:', eventData.range);\n      break;\n    case 'zoom':\n      console.log('Zoom event:', eventData);\n      break;\n    default:\n      console.log('Unhandled event type:', eventType, eventData);\n  }\n\n  console.log('Current time zone:', timeZone);\n  console.log('From time:', dayjs(variables.__from).format());\n  console.log('To time:', dayjs(variables.__to).format());\n\n  // Example of using locationService\n  // locationService.partial({ 'var-example': 'test' }, true);\n\n} catch (error) {\n  console.error('Error in onclick handler:', error);\n}\n*/\n  ",
+        "resScale": 2,
+        "script": "const traces = [];\nconst annotations = [];\nconst shapes = [];\n\nconst CLUSTER_MS = 5000;\nconst AY_STEP = 44;\nconst AX_SIDE = 130;\n\ndata.series.forEach((s) => {\n  const time = s.fields.find((f) => f.type === 'time');\n  const value = s.fields.find((f) => f.type === 'number');\n  if (!time || !value) return;\n\n  const labels = value.labels || s.labels || {};\n  const metric = s.name || value.name || '';\n  const isEvent =\n    s.refId === 'B' ||\n    s.refId === 'D' ||\n    metric.includes('aos_annotations') ||\n    metric.includes('app_event') ||\n    labels.text != null ||\n    labels.event != null ||\n    labels.msg != null;\n\n  const xs = time.values.toArray();\n  const ys = value.values.toArray();\n\n  if (isEvent) {\n    for (let i = 0; i < xs.length; i++) {\n      if (ys[i] == null) continue;\n      if (i > 0 && ys[i - 1] != null && ys[i] === ys[i - 1]) continue;\n\n      const full =\n        labels.text ||\n        labels.msg ||\n        labels.event ||\n        (metric.match(/text=\"([^\"]+)\"/) || [])[1] ||\n        (metric.match(/msg=\"([^\"]+)\"/) || [])[1] ||\n        'event';\n\n      const short = full.length > 36 ? full.slice(0, 34) + '\u2026' : full;\n\n      annotations.push({\n        x: xs[i],\n        y: 1,\n        xref: 'x',\n        yref: 'paper',\n        text: short,\n        hovertext: full,\n        showarrow: true,\n        arrowhead: 2,\n        ax: 0,\n        ay: 30,\n        axref: 'pixel',\n        ayref: 'pixel',\n        xanchor: 'center',\n        yanchor: 'top',\n        bgcolor: 'rgba(0,0,0,0.85)',\n        bordercolor: 'orange',\n        borderwidth: 1,\n        font: { color: 'white', size: 11 },\n        captureevents: true,\n        cliponaxis: false,\n        _x: xs[i],\n      });\n    }\n    return;\n  }\n\n  const name =\n    s.refId === 'A' ? 'CPU total' :\n    s.refId === 'C' ? ('CPU ' + (labels.groupname || metric || 'aos')) :\n    labels.groupname || labels.instance || metric || 'cpu';\n\n  traces.push({\n    type: 'scatter',\n    mode: 'lines',\n    name: name,\n    x: xs,\n    y: ys,\n  });\n});\n\nannotations.sort((a, b) => a._x - b._x);\n\nlet cluster = [];\nconst flush = () => {\n  if (!cluster.length) return;\n\n  shapes.push({\n    type: 'line',\n    x0: cluster[0]._x,\n    x1: cluster[0]._x,\n    xref: 'x',\n    y0: 0,\n    y1: 1,\n    yref: 'paper',\n    line: { color: 'orange', width: 1, dash: 'dot' },\n  });\n\n  cluster.forEach((ann, idx) => {\n    const row = Math.floor(idx / 2);\n    ann.ay = 24 + row * AY_STEP;\n    ann.ax = (idx % 2 === 0) ? -AX_SIDE : AX_SIDE;\n    ann.xanchor = (idx % 2 === 0) ? 'right' : 'left';\n    delete ann._x;\n  });\n  cluster = [];\n};\n\nfor (const ann of annotations) {\n  if (cluster.length && ann._x - cluster[0]._x > CLUSTER_MS) flush();\n  cluster.push(ann);\n}\nflush();\n\nreturn {\n  data: traces,\n  layout: {\n    annotations,\n    shapes,\n    margin: { t: 30, r: 160, l: 160 },\n    xaxis: {\n      type: 'date',\n      tickformat: '%H:%M:%S.%L',\n      automargin: true,\n    },\n  },\n};",
+        "syncTimeRange": true,
+        "timeCol": ""
+      },
+      "pluginVersion": "1.8.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[30s])))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "aos_annotations",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bftojs5svohz4c"
+          },
+          "editorMode": "code",
+          "expr": "sum by (groupname) (\n  rate(namedprocess_namegroup_cpu_seconds_total{groupname=~\"aos_cm_app|aos_sm_app|aos_iam_app\"}[30s])\n) * 100",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "CPU plotly victoria metrics",
+      "type": "nline-plotlyjs-panel"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "time": {
+    "from": "2026-07-31T10:29:18.750Z",
+    "to": "2026-07-31T10:32:11.250Z"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "victoria metrics",
+  "uid": "adf99sf",
+  "version": 1
+}

@@ -1,0 +1,30 @@
+# Grafana with Git-managed provisioning (datasources + dashboards).
+# Plotly panel is installed by Grafana on first start (GF_INSTALL_PLUGINS).
+#
+#   cd tools/grafana && docker compose up -d
+#   open http://localhost:3000  (admin / Password1)
+
+services:
+  grafana:
+    image: grafana/grafana:13.1.1
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: Password1
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_INSTALL_PLUGINS: nline-plotlyjs-panel
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/etc/grafana/dashboards:ro
+      # Local-only runtime state (sessions, prefs, downloaded plugins)
+      - grafana-data:/var/lib/grafana
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  grafana-data:
+    name: aos-grafana-data
