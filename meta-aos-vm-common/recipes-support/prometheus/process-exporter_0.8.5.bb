@@ -11,7 +11,7 @@ GO_INSTALL = "${GO_IMPORT}/cmd/process-exporter"
 SRC_URI = " \
     git://${GO_IMPORT}.git;protocol=https;nobranch=1 \
     file://process-exporter.service \
-    file://all.yaml \
+    file://aos-apps.yaml \
 "
 
 SRCREV = "626431b9a759d425bbb78eb15153f892970aadee"
@@ -30,7 +30,7 @@ SYSTEMD_SERVICE:${PN} = "process-exporter.service"
 
 do_install:append() {
     install -d ${D}${sysconfdir}/process-exporter
-    install -m 0644 ${WORKDIR}/all.yaml ${D}${sysconfdir}/process-exporter/all.yaml
+    install -m 0644 ${WORKDIR}/aos-apps.yaml ${D}${sysconfdir}/process-exporter/aos-apps.yaml
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/process-exporter.service ${D}${systemd_system_unitdir}/

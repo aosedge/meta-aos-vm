@@ -10,6 +10,8 @@ ExecStart=/usr/bin/victoria-metrics \
     -storageDataPath=/var/lib/victoria-metrics \
     -httpListenAddr=:8428 \
     -promscrape.config=/etc/victoria-metrics/scrape.yml \
+    -promscrape.noStaleMarkers \
+    -selfScrapeInterval=0 \
     -retentionPeriod=1d
 ExecStop=/bin/kill -s SIGTERM $MAINPID
 Restart=on-failure

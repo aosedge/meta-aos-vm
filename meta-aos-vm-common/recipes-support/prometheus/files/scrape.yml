@@ -2,14 +2,24 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: victoria-metrics
-    static_configs:
-      - targets: ["127.0.0.1:8428"]
-
   - job_name: node
     static_configs:
       - targets: ["127.0.0.1:9100"]
+    metric_relabel_configs:
+      # Dashboards only use CPU mode="idle"; drop the other modes.
+      - source_labels: [__name__, mode]
+        regex: 'node_cpu_seconds_total;(system|user|nice|iowait|irq|softirq|steal|guest|guest_nice)'
+        action: drop
+      # Keep only the metrics used by tools/grafana dashboards.
+      - source_labels: [__name__]
+        regex: 'node_cpu_seconds_total|node_memory_MemTotal_bytes|node_memory_MemFree_bytes|node_memory_SwapTotal_bytes|node_memory_SwapFree_bytes'
+        action: keep
 
   - job_name: process
     static_configs:
       - targets: ["127.0.0.1:9256"]
+    metric_relabel_configs:
+      # Keep only group CPU seconds and proportional resident memory.
+      - source_labels: [__name__, memtype]
+        regex: 'namedprocess_namegroup_cpu_seconds_total;|namedprocess_namegroup_memory_bytes;proportionalResident'
+        action: keep

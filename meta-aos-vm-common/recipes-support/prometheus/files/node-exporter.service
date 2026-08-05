@@ -6,7 +6,17 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/node_exporter
+# Only the collectors whose metrics are used by tools/grafana dashboards:
+#   cpu      -> node_cpu_seconds_total
+#   meminfo  -> node_memory_{MemTotal,MemFree,SwapTotal,SwapFree}_bytes
+# Everything else (including exporter self-metrics) is disabled to avoid
+# polling overhead. Remaining unused series are dropped at scrape time by
+# VictoriaMetrics (see scrape.yml).
+ExecStart=/usr/bin/node_exporter \
+    --web.disable-exporter-metrics \
+    --collector.disable-defaults \
+    --collector.cpu \
+    --collector.meminfo
 Restart=on-failure
 RestartSec=5
 

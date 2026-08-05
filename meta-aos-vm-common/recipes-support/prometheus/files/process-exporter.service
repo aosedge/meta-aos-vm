@@ -6,7 +6,12 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/process-exporter --config.path=/etc/process-exporter/all.yaml
+# Track only the aos_* apps used by tools/grafana dashboards and skip
+# per-thread metrics (--threads=false) to reduce /proc scanning overhead.
+# Unused group metrics are dropped at scrape time by VictoriaMetrics.
+ExecStart=/usr/bin/process-exporter \
+    --config.path=/etc/process-exporter/aos-apps.yaml \
+    --threads=false
 Restart=on-failure
 RestartSec=5
 

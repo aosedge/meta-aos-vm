@@ -1,0 +1,11 @@
+# Only processes queried by tools/grafana dashboards.
+process_names:
+  - name: aos_cm_app
+    comm:
+      - aos_cm_app
+  - name: aos_sm_app
+    comm:
+      - aos_sm_app
+  - name: aos_iam_app
+    comm:
+      - aos_iam_app
