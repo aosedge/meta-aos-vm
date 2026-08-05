@@ -22,6 +22,7 @@ IMAGE_INSTALL:append = " \
     mc \
     netconfig \
     openssh \
+    sockperf \
     tzdata \
     wget \
     smem \
