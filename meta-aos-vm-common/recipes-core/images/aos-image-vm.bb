@@ -25,6 +25,7 @@ IMAGE_INSTALL:append = " \
     tzdata \
     wget \
     smem \
+    fio \
 "
 
 # AWS packages
