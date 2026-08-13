@@ -10,6 +10,7 @@ SRC_URI += " \
 
 FILES:${PN} += " \
     ${sysconfdir} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'benchmark', '/var/aos/common-data', '', d)} \
 "
 
 # Base layer for services
@@ -27,4 +28,8 @@ do_install:append() {
     # runs on the main node - see meta-aos's aos-image.inc).
     install -m 0644 ${WORKDIR}/${@bb.utils.contains('DISTRO_FEATURES', 'benchmark', 'resources-benchmark.cfg', 'resources.cfg', d)} \
         ${D}${sysconfdir}/aos/resources.cfg
+
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'benchmark', 'true', 'false', d)}; then
+        install -d -m 1777 ${D}/var/aos/common-data
+    fi
 }
