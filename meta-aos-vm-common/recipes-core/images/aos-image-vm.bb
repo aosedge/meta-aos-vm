@@ -19,6 +19,7 @@ IMAGE_INSTALL:append = " \
     iperf3 \
     iproute2 \
     iproute2-tc \
+    fio \
     mc \
     netconfig \
     openssh \
