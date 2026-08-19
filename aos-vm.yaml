@@ -34,31 +34,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "scarthgap"
+      rev: "9916b7471edd0e9a95d94364398c241d1c3bac33"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "scarthgap"
+      rev: "7eb94107580092f79ff1b639a87762fe6f96aa12"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "scarthgap"
+      rev: "f851f730ec415d266bfe0c5941c228a63a896298"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "scarthgap"
+      rev: "b13f1705d723650de61277670c8a76aadea4cfdd"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "scarthgap"
+      rev: "48f745109a1ecea9afe2a74d41dbd90fa7b370af"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "develop"
+      rev: "v9.1.1"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      rev: "v6.1.1"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -393,7 +393,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "scarthgap"
+              rev: "045eb74bd9abe7d9ccf365a2417e440ce83bcbb0"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -421,7 +421,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "scarthgap"
+              rev: "045eb74bd9abe7d9ccf365a2417e440ce83bcbb0"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -449,7 +449,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://github.com/aws4embeddedlinux/meta-aws.git"
-              rev: "scarthgap"
+              rev: "cad59b89c00012ab67d8b4f105714c8aaa5c16a4"
 
           common_conf:
             - [MACHINE_FEATURES:append, " efi"]
