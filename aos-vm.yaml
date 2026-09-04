@@ -34,15 +34,15 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "9916b7471edd0e9a95d94364398c241d1c3bac33"
+      rev: "00e6a3df8c68146aa98b724426227bda332bcf02"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "7eb94107580092f79ff1b639a87762fe6f96aa12"
+      rev: "bec755063a8b5da65df626f5749496aadaa4f4bb"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "f851f730ec415d266bfe0c5941c228a63a896298"
+      rev: "f980aefbc8b3eeafb8d144e7fdac3c3b701a4fea"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
@@ -54,11 +54,11 @@ common_data:
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "v9.1.1"
+      rev: "v9.1.2"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "v6.1.1"
+      rev: "v6.1.2"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
