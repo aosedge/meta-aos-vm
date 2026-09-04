@@ -49,7 +49,7 @@ parameters. You can check them with`--help-config` command line option:
 moulin aos-vm.yaml --help-config
 
 usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64,aws-ec2-x86-64}] [--NODE_TYPE {main,secondary}] [--USE_DHCP {yes,no}] [--WITH_MESSAGE_PROXY {yes,no}]
-                          [--WITH_BENCHMARK {yes,no}] [--CACHE_LOCATION {outside,inside}]
+                          [--WITH_BENCHMARK {yes,no}] [--WITH_FASTDDS {yes,no}] [--CACHE_LOCATION {outside,inside}]
 
 Config file description: Aos virtual development machine
 
@@ -63,6 +63,8 @@ options:
                         Enable Aos message proxy (default: no)
   --WITH_BENCHMARK {yes,no}
                         Enable benchmark tools (default: no)
+  --WITH_FASTDDS {yes,no}
+                        Enable Fast DDS (default: no)
   --CACHE_LOCATION {outside,inside}
                         Indicated where cache and downloads are stored: inside build dir or outside. (default: outside)
 ```
@@ -78,6 +80,9 @@ options:
 
 * `WITH_MESSAGE_PROXY` - specifies to include message proxy into the build.
 * `WITH_BENCHMARK` - specifies to include benchmark tools into the build.
+
+* `WITH_FASTDDS` - specifies to include Fast DDS and the discovery server into the build. They are added on the main
+node only.
 
 * `CACHE_LOCATION` - by default Yocto build cache are located outside build directory. It is convenient to have common
 cache for different yocto build but can't be used when building with docker. If docker is used to build Aos VM image,
