@@ -495,7 +495,7 @@ parameters:
 
               layers: *NODE_LAYERS
 
-  USE_DHCP:
+  WITH_DHCP:
     desc: "Use DHCP for network configuration"
     "yes":
       overrides:
