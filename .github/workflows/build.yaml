@@ -81,7 +81,7 @@ jobs:
           mkdir build
           cp aos-vm.yaml build/
 
-          sed -i "s/BUNDLE_IMAGE_VERSION: \"[^\"]*\"/BUNDLE_IMAGE_VERSION: \"$version\"/" build/aos-vm.yaml
+          sed -i "s/RELEASE_VERSION: \"[^\"]*\"/RELEASE_VERSION: \"$version\"/" build/aos-vm.yaml
           sed -i "s/ROOTFS_REF_VERSION: \"[^\"]*\"/ROOTFS_REF_VERSION: \"$prev_version\"/" build/aos-vm.yaml
 
           docker/build_docker.sh -f docker/Dockerfile
