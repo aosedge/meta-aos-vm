@@ -29,7 +29,7 @@ This `fota` section specifies the Aos system component types for which FOTA upda
 ```yaml
 variables:
   ...
-  BUNDLE_IMAGE_VERSION: "6.1.0"
+  RELEASE_VERSION: "6.1.0"
   ROOTFS_REF_VERSION: "6.0.0"
   ...
 components:
@@ -58,8 +58,8 @@ be customized by configuring the `enabled` field for the corresponding system co
 
 ### Changing components vendor version
 
-The vendor versions of all system components are set to the value of `BUNDLE_IMAGE_VERSION`. To modify the vendor
-version of the components, update the `BUNDLE_IMAGE_VERSION` to the desired value and regenerate the FOTA bundle.
+The vendor versions of all system components are set to the value of `RELEASE_VERSION`. To modify the vendor
+version of the components, update the `RELEASE_VERSION` to the desired value and regenerate the FOTA bundle.
 
 ### Generating incremental rootfs update
 
