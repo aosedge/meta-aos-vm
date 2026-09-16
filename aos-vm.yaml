@@ -2,12 +2,25 @@ desc: "Aos virtual development machine"
 min_ver: "0.21"
 
 variables:
+  # Image versions
+  RELEASE_VERSION: "6.1.2"
+  AOS_CORE_VERSION: "9.1.2"
+  ROOTFS_REF_VERSION: "6.1.1"
+
+  # meta layers revisions
+  POKY_REV: "00e6a3df8c68146aa98b724426227bda332bcf02"
+  META_OPENEMBEDDED_REV: "bec755063a8b5da65df626f5749496aadaa4f4bb"
+  META_VIRTUALIZATION_REV: "f980aefbc8b3eeafb8d144e7fdac3c3b701a4fea"
+  META_SECURITY_REV: "b13f1705d723650de61277670c8a76aadea4cfdd"
+  META_SELINUX_REV: "48f745109a1ecea9afe2a74d41dbd90fa7b370af"
+  META_ARM_REV: "045eb74bd9abe7d9ccf365a2417e440ce83bcbb0"
+  META_AWS_REV: "cad59b89c00012ab67d8b4f105714c8aaa5c16a4"
+  META_AOS_REV: "v%{AOS_CORE_VERSION}"
+  META_AOS_VM_REV: "v%{RELEASE_VERSION}"
+
   # Aos unit configuration
   UNIT_MODEL: "aos-vm"
   UNIT_VERSION: "1.0.0"
-
-  BUNDLE_IMAGE_VERSION: "6.1.1"
-  ROOTFS_REF_VERSION: "6.1.0"
 
   # Aos node configuration
   MAIN_NODE_HOSTNAME: "main"
@@ -34,31 +47,31 @@ common_data:
   common_sources: &COMMON_SOURCES
     - type: git
       url: "https://git.yoctoproject.org/poky"
-      rev: "scarthgap"
+      rev: "%{POKY_REV}"
 
     - type: git
       url: "https://git.openembedded.org/meta-openembedded"
-      rev: "scarthgap"
+      rev: "%{META_OPENEMBEDDED_REV}"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-virtualization"
-      rev: "scarthgap"
+      rev: "%{META_VIRTUALIZATION_REV}"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-security"
-      rev: "scarthgap"
+      rev: "%{META_SECURITY_REV}"
 
     - type: git
       url: "https://git.yoctoproject.org/meta-selinux"
-      rev: "scarthgap"
+      rev: "%{META_SELINUX_REV}"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos"
-      rev: "develop"
+      rev: "%{META_AOS_REV}"
 
     - type: git
       url: "https://github.com/aosedge/meta-aos-vm"
-      rev: "develop"
+      rev: "%{META_AOS_VM_REV}"
 
   # Common configuration options for all nodes
   common_conf: &COMMON_CONF
@@ -101,8 +114,8 @@ common_data:
     - [AOS_UNIT_VERSION, "%{UNIT_VERSION}"]
 
     # Image versions
-    - [AOS_ROOTFS_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
-    - [AOS_BOOT_IMAGE_VERSION, "%{BUNDLE_IMAGE_VERSION}"]
+    - [AOS_ROOTFS_IMAGE_VERSION, "%{RELEASE_VERSION}"]
+    - [AOS_BOOT_IMAGE_VERSION, "%{RELEASE_VERSION}"]
 
     # Node configuration
     - [AOS_MAIN_NODE_HOSTNAME, "%{MAIN_NODE_HOSTNAME}"]
@@ -260,8 +273,8 @@ components:
             method: "raw"
             title: "Aos VM %{NODE_TYPE} boot image"
             description: "Aos VM %{NODE_TYPE} boot image for %{MACHINE}"
-            version: "%{BUNDLE_IMAGE_VERSION}"
-            fileName: "%{AOS_NODE_TYPE}-boot-%{BUNDLE_IMAGE_VERSION}.gz"
+            version: "%{RELEASE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-boot-%{RELEASE_VERSION}.gz"
             partition:
               gpt_type: 21686148-6449-6E6F-744E-656564454649 # BIOS boot partition (kinda...)
               type: vfat
@@ -284,8 +297,8 @@ components:
             type: "full"
             title: "Aos VM %{NODE_TYPE} rootfs full image"
             description: "Aos VM %{NODE_TYPE} rootfs full image for %{MACHINE}"
-            version: "%{BUNDLE_IMAGE_VERSION}"
-            fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            version: "%{RELEASE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-full-%{RELEASE_VERSION}.squashfs"
             exclude:
               - "home/*"
               - "var/*"
@@ -301,9 +314,9 @@ components:
             type: "incremental"
             title: "Aos VM %{NODE_TYPE} rootfs incremental image"
             description: "Aos VM %{NODE_TYPE} rootfs incremental image for %{MACHINE}"
-            version: "%{BUNDLE_IMAGE_VERSION}"
-            requiredVersion: "%{ROOTFS_REF_VERSION}"
-            fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{BUNDLE_IMAGE_VERSION}.squashfs"
+            version: "%{RELEASE_VERSION}"
+            requiredVersion: "%{RELEASE_VERSION}"
+            fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{RELEASE_VERSION}.squashfs"
             exclude:
               - "home/*"
               - "var/*"
@@ -393,7 +406,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "scarthgap"
+              rev: "%{META_ARM_REV}"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -421,7 +434,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://git.yoctoproject.org/meta-arm"
-              rev: "scarthgap"
+              rev: "%{META_ARM_REV}"
 
           common_conf:
             - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
@@ -449,7 +462,7 @@ parameters:
           common_sources:
             - type: git
               url: "https://github.com/aws4embeddedlinux/meta-aws.git"
-              rev: "scarthgap"
+              rev: "%{META_AWS_REV}"
 
           common_conf:
             - [MACHINE_FEATURES:append, " efi"]
@@ -495,7 +508,7 @@ parameters:
 
               layers: *NODE_LAYERS
 
-  USE_DHCP:
+  WITH_DHCP:
     desc: "Use DHCP for network configuration"
     "yes":
       overrides:
@@ -550,6 +563,24 @@ parameters:
         common_data:
           common_conf:
             - [DISTRO_FEATURES:append, " fastdds"]
+
+    "no":
+      default: true
+
+  DEVELOP:
+    desc: "Build development version"
+    "yes":
+      overrides:
+        variables:
+          POKY_REV: "scarthgap"
+          META_OPENEMBEDDED_REV: "scarthgap"
+          META_VIRTUALIZATION_REV: "scarthgap"
+          META_SECURITY_REV: "scarthgap"
+          META_SELINUX_REV: "scarthgap"
+          META_ARM_REV: "scarthgap"
+          META_AWS_REV: "scarthgap"
+          META_AOS_REV: "develop"
+          META_AOS_VM_REV: "develop"
 
     "no":
       default: true
