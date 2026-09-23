@@ -114,6 +114,8 @@ common_data:
 
     # Generate home RW partition
     - [AOS_HOME_PART_SIZE, "524288"]
+    # Set var partition size
+    - [AOS_VAR_PART_SIZE, "4194304"]
 
     # Omit uutils-coreutils recipe from the build
     - [BBMASK, "uutils-coreutils"]
