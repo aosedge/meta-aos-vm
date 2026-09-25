@@ -25,6 +25,8 @@ variables:
   AOS_OS: "linux"
   AOS_OS_VERSION: ""
 
+  AOS_PARTITION_SIZE: "16384 MiB"
+
   AOS_BASE_IMAGE: "aos-image-vm"
   AOS_NODE_TYPE: "%{UNIT_MODEL}-%{NODE_TYPE}"
   AOS_COMPONENT_RUNTIME_PREFIX: "%{UNIT_MODEL}-%{UNIT_VERSION}-%{NODE_TYPE}-%{MACHINE}-"
@@ -353,7 +355,7 @@ images:
       aos:
         gpt_type: CA7D7CCB-63ED-4C53-861C-1742536059CC # LUKS partition
         type: empty
-        size: 16384 MiB
+        size: "%{AOS_PARTITION_SIZE}"
 
 parameters:
   MACHINE:
@@ -470,6 +472,7 @@ parameters:
       overrides:
         variables:
           NODE_TYPE: "main"
+          AOS_PARTITION_SIZE: "32768 MiB"
 
         components:
           aos-vm:
