@@ -399,7 +399,7 @@ parameters:
     "genericarm64":
       overrides:
         variables:
-          MACHINE: "qemuarm64"
+          MACHINE: "genericarm64"
           KERNEL_TYPE: "Image"
           BOOT_TYPE: "bootaa64.efi"
           AOS_ARCHITECTURE: "arm64"
@@ -411,9 +411,7 @@ parameters:
               rev: "%{META_ARM_REV}"
 
           common_conf:
-            - [PREFERRED_PROVIDER_virtual/bootloader, "edk2-firmware"]
             - [MACHINE_FEATURES:append, " efi"]
-            - [EXTRA_IMAGEDEPENDS:append, " edk2-firmware"]
             - [EFI_PROVIDER, "grub-efi"]
 
           main_layers:
