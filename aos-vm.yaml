@@ -3,8 +3,8 @@ min_ver: "0.21"
 
 variables:
   # Image versions
-  RELEASE_VERSION: "6.2.1-beta.2"
-  AOS_CORE_VERSION: "9.2.1-beta.2"
+  RELEASE_VERSION: "6.2.1-beta.3"
+  AOS_CORE_VERSION: "9.2.1-beta.3"
   ROOTFS_REF_VERSION: "6.1.2"
 
   # meta layers revisions
