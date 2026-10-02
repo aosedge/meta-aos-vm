@@ -489,7 +489,7 @@ parameters:
             builder:
               conf:
                 - [AOS_MAIN_NODE, "1"]
-                - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
+                - [AOS_NODE_IP, "%{MAIN_NODE_IP}"]
                 - [AOS_NODE_GW_IP, "10.0.0.1"]
                 - [AOS_HOSTS:append, " %{MAIN_NODE_IP}=%{MAIN_NODE_HOSTNAME}"]
 
@@ -518,7 +518,7 @@ parameters:
               conf:
                 - [AOS_USE_DHCP, "1"]
                 - [AOS_DNS_IP, "%{MAIN_NODE_IP}"]
-                - [AOS_NODE_IP, "%{MAIN_NODE_IP}/24"]
+                - [AOS_NODE_IP, "%{MAIN_NODE_IP}"]
 
     "no":
       default: true
