@@ -319,7 +319,7 @@ components:
             title: "Aos VM %{NODE_TYPE} rootfs incremental image"
             description: "Aos VM %{NODE_TYPE} rootfs incremental image for %{MACHINE}"
             version: "%{RELEASE_VERSION}"
-            requiredVersion: "%{RELEASE_VERSION}"
+            requiredVersion: "%{ROOTFS_REF_VERSION}"
             fileName: "%{AOS_NODE_TYPE}-rootfs-incremental-%{RELEASE_VERSION}.squashfs"
             exclude:
               - "home/*"
