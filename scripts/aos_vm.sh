@@ -14,6 +14,7 @@ ip_base=$(echo $bridge_ip | cut -d'/' -f1 | cut -d'.' -f1-3)
 dhcp_start="${ip_base}.101"
 dhcp_end="${ip_base}.254"
 gateway="${ip_base}.1"
+masquerade_rule=(POSTROUTING -s "${ip_base}.0/24" ! -o "$bridge_name" -j MASQUERADE)
 
 cpu=1
 mem="4G"
@@ -224,6 +225,13 @@ create_bridge_and_dns() {
 
 		dnsmasq --interface=$bridge_name --except-interface=lo --domain-needed --dhcp-range="${dhcp_start},${dhcp_end},12h" --dhcp-option="3,$gateway" --dhcp-option="6,$gateway" --bind-interfaces "${dns_upstream[@]}"
 	fi
+
+	# Setup masquerading
+	if ! iptables -t nat -C "${masquerade_rule[@]}" 2>/dev/null; then
+		echo "Enabling masquerading..."
+
+		iptables -t nat -A "${masquerade_rule[@]}"
+	fi
 }
 
 cleanup_bridge_and_dns() {
@@ -248,6 +256,12 @@ cleanup_bridge_and_dns() {
 			echo "Stopping DHCP server..."
 
 			kill -9 "$dhcp_pid"
+		fi
+
+		if iptables -t nat -C "${masquerade_rule[@]}" 2>/dev/null; then
+			echo "Disabling masquerading..."
+
+			iptables -t nat -D "${masquerade_rule[@]}"
 		fi
 
 		if [ ! -z "$(ip link show | grep $bridge_name)" ]; then
@@ -476,8 +490,11 @@ run_images() {
 	fi
 
 	echo "Started nodes:$started_nodes"
-	echo "To provide internet connection for nodes, enable masquerading on internet providing interface:"
-	echo "    iptables -t nat -A POSTROUTING -o <interface> -j MASQUERADE"
+	echo "To provide internet connection for nodes, enable IP forwarding:"
+	echo "    sysctl -w net.ipv4.ip_forward=1"
+	echo "If ufw is enabled, also allow traffic from the nodes:"
+	echo "    ufw allow in on $bridge_name"
+	echo "    ufw route allow in on $bridge_name"
 
 	for node in $started_nodes; do
 		echo "Use following command to access $node console:"
