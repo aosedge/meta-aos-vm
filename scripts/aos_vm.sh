@@ -473,7 +473,8 @@ run_images() {
 
 	for node in $started_nodes; do
 		echo "Use following command to access $node console:"
-		echo "    socat \$(tty),raw,echo=0,icanon=0 unix-connect:/tmp/aos-vm/$node.sock"
+		echo "    socat -,rawer,escape=0x1d unix-connect:/tmp/aos-vm/$node.sock"
+		echo "Press Ctrl+] to terminate the console session."
 	done
 
 	wait
