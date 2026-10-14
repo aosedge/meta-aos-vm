@@ -44,6 +44,23 @@ This repository contains AodCore Yocto layers for building virtual machines for 
      sudo apt install qemu-system-x86 ovmf
      ```
 
+8. Host network configuration to provide internet access for the VMs (required only on the host where the VMs are
+   launched):
+
+   * enable IP forwarding:
+
+     ```console
+     echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.d/99-aos-vm.conf
+     sudo sysctl --system
+     ```
+
+   * if `ufw` firewall is enabled, allow traffic from the VMs to the host (DHCP, DNS) and routing of the VMs traffic:
+
+     ```console
+     sudo ufw allow in on aos-br0
+     sudo ufw route allow in on aos-br0
+     ```
+
 ## Fetch
 
 You can fetch/clone this whole repository, but you actually only need one file from it: `aos-vm.yaml`.
@@ -205,6 +222,9 @@ Run a specific image:
 ```console
 yocto/meta-aos-vm/scripts/aos_vm.sh run -f output/image/main.vmdk
 ```
+
+The script enables masquerading of the VMs traffic on start and disables it on exit. To provide internet access for
+the VMs, the host network should be also configured as described in [Requirements](#requirements).
 
 Follow the script output instructions to attach to the nodes' consoles.
 
