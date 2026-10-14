@@ -214,7 +214,15 @@ create_bridge_and_dns() {
 	if [ -z "$(ps aux | grep dnsmasq | grep $bridge_name)" ]; then
 		echo "Starting DNS server..."
 
-		dnsmasq --interface=$bridge_name --except-interface=lo --domain-needed --dhcp-range="${dhcp_start},${dhcp_end},12h" --dhcp-option="3,$gateway" --dhcp-option="6,$gateway" --bind-interfaces
+		local dns_upstream=()
+
+		# Forward DNS requests to systemd-resolved stub instead of /etc/resolv.conf servers, as /etc/resolv.conf may
+		# contain loopback addresses which are not reachable by dnsmasq (e.g. when VPN is used).
+		if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+			dns_upstream=(--no-resolv --server=127.0.0.53)
+		fi
+
+		dnsmasq --interface=$bridge_name --except-interface=lo --domain-needed --dhcp-range="${dhcp_start},${dhcp_end},12h" --dhcp-option="3,$gateway" --dhcp-option="6,$gateway" --bind-interfaces "${dns_upstream[@]}"
 	fi
 }
 
