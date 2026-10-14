@@ -30,6 +30,20 @@ This repository contains AodCore Yocto layers for building virtual machines for 
    sudo apt install ninja-build
    ```
 
+7. QEMU tools:
+
+   * `qemu-img` used to generate the VM images:
+
+     ```console
+     sudo apt install qemu-utils
+     ```
+
+   * QEMU x86 system emulator and OVMF UEFI firmware (required only on the host where the VMs are launched):
+
+     ```console
+     sudo apt install qemu-system-x86 ovmf
+     ```
+
 ## Fetch
 
 You can fetch/clone this whole repository, but you actually only need one file from it: `aos-vm.yaml`.
