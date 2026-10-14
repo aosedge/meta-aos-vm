@@ -101,18 +101,41 @@ get_bios_file() {
 	echo "${bios_files[0]}"
 }
 
+get_ovmf_code_file() {
+	local candidates=(
+		/usr/share/OVMF/OVMF_CODE.fd
+		/usr/share/OVMF/OVMF_CODE_4M.fd
+		/usr/share/edk2/ovmf/OVMF_CODE.fd
+		/usr/share/edk2/x64/OVMF_CODE.fd
+		/usr/share/edk2/x64/OVMF_CODE.4m.fd
+	)
+
+	for file in "${candidates[@]}"; do
+		if [ -f "$file" ]; then
+			echo "$file"
+			return
+		fi
+	done
+
+	echo "OVMF firmware not found, install ovmf package" >&2
+	return 1
+}
+
 start_x86_64() {
 	local node="$1"
 	local node_image="$2"
 	local cpu="$3"
 	local mem="$4"
 	local mac="$5"
+	local ovmf_code
+
+	ovmf_code=$(get_ovmf_code_file) || return 1
 
 	qemu-system-x86_64 \
 		-name "$node" -drive file="$node_image",if=none,id=aos-image,format="${node_image##*.}" \
 		-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=aos-image \
 		-cpu host -smp cpus="$cpu" -m "$mem" -enable-kvm \
-		-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
+		-drive if=pflash,format=raw,readonly=on,file="$ovmf_code" \
 		-nic bridge,br="$bridge_name",model=virtio-net-pci,mac="$mac" \
 		-nographic -serial mon:unix:/tmp/aos-vm/"$node".sock,server,nowait
 }
