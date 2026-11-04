@@ -11,10 +11,13 @@ do_compile[noexec] = "1"
 do_install[noexec] = "1"
 
 # Variables
+AOS_WORKDIRS_DISK = "${@bb.utils.contains('AOS_INTEGRITY_DISKS', 'workdirs', '/dev/mapper/aosint-workdirs', \
+    '/dev/aosvg/workdirs', d)}"
+
 AOS_INITRAMFS_BOOT_PARAMS = " \
     vardir.disk=/dev/${AOS_IMAGE_DISK}5 \
     opendisk.target=/dev/${AOS_IMAGE_DISK}6 opendisk.pkcs11=softhsm opendisk.pkcs11.pinfile=/var/aos/iam/.usrpin \
-    aosupdate.disk=/dev/aosvg/workdirs aosupdate.path=sm/runtimes/rootfs \
+    aosupdate.disk=${AOS_WORKDIRS_DISK} aosupdate.path=sm/runtimes/rootfs \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'aosupdate.selinux_module=/usr/share/selinux/aos/base.pp', '', d)} \
 "
 
