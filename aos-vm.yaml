@@ -548,6 +548,20 @@ parameters:
     "no":
       default: true
 
+  WITH_DISK_INTEGRITY:
+    desc: "Enable dm-integrity on Aos disks"
+    "yes":
+      default: true
+      overrides:
+        common_data:
+          common_conf:
+            - [
+                AOS_INTEGRITY_DISKS,
+                "${@'workdirs storages states' if bb.utils.to_boolean(d.getVar('AOS_MAIN_NODE')) else 'workdirs'}",
+              ]
+
+    "no": {}
+
   WITH_BENCHMARK:
     desc: "Enable benchmark tools"
     "yes":

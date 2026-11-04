@@ -80,7 +80,7 @@ parameters. You can check them with`--help-config` command line option:
 moulin aos-vm.yaml --help-config
 
 usage: moulin aos-vm.yaml [--MACHINE {genericx86-64,qemux86-64,genericarm64,qemuarm64,aws-ec2-x86-64}] [--NODE_TYPE {main,secondary}] [--WITH_DHCP {yes,no}] [--WITH_MESSAGE_PROXY {yes,no}]
-                          [--WITH_BENCHMARK {yes,no}] [--WITH_FASTDDS {yes,no}] [--DEVELOP {yes,no}] [--CACHE_LOCATION {outside,inside}]
+                          [--WITH_DISK_INTEGRITY {yes,no}] [--WITH_BENCHMARK {yes,no}] [--WITH_FASTDDS {yes,no}] [--DEVELOP {yes,no}] [--CACHE_LOCATION {outside,inside}]
 
 Config file description: Aos virtual development machine
 
@@ -92,6 +92,8 @@ options:
   --WITH_DHCP {yes,no}  Use DHCP for network configuration (default: no)
   --WITH_MESSAGE_PROXY {yes,no}
                         Enable Aos message proxy (default: no)
+  --WITH_DISK_INTEGRITY {yes,no}
+                        Enable dm-integrity on Aos disks (default: yes)
   --WITH_BENCHMARK {yes,no}
                         Enable benchmark tools (default: no)
   --WITH_FASTDDS {yes,no}
@@ -111,6 +113,9 @@ options:
   DHCP is supported only for VM with single node.
 
 * `WITH_MESSAGE_PROXY` - specifies to include message proxy into the build.
+* `WITH_DISK_INTEGRITY` - specifies to protect Aos disks with dm-integrity: `workdirs`, `storages` and `states` on the
+main node, `workdirs` on the secondary node. Changing this option requires provisioning the VM again: a rootfs update
+doesn't change the format of the existing disks.
 * `WITH_BENCHMARK` - specifies to include benchmark tools into the build.
 * `DEVELOP` - specifies to build development version of the VM image.
 
